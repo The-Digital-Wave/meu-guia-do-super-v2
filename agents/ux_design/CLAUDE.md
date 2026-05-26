@@ -35,6 +35,7 @@ Important interpretation rule:
 3. **Mobile-First Mandate:** Start every layout from mobile (375px) first. Then progressively adapt to tablet (768px) and desktop (1440px).
 4. **Web-to-Mobile Translation:** When a screenshot suggests desktop-only patterns (dense toolbars, sidebars, hover-only interactions), translate them to mobile-native patterns (bottom sheets, segmented actions, sticky bottom actions, explicit tap targets and gestures).
 5. **Color System Source of Truth:** The app color system must follow the green palette defined in `client/src/assets/app-logo.png`. Derive and use a consistent token ramp (for example, primary 50-900) and semantic mappings (primary/success/warning/error/surface) from that palette, as well as other colors you may find suited for best UI experience. Update the design.tokens.json file accordingly.
+6. **Wayfinding UI Benchmark:** For the app's core path-finding experience, use Mappedin Wayfinding as the interaction and visual benchmark (https://developer.mappedin.com/docs/overview). Deliver pixel-accurate parity for control layout, route legibility, map interaction patterns, and navigation states, while keeping this project's own branding, copy, and color system.
 
 ## Automated Execution Workflow
 
@@ -42,9 +43,10 @@ When processing UI/UX tasks, follow this sequence:
 
 1. **Spec Intake:** (For first ux design pass only) Read `agents/ux_design/SPECS/index.md`, then the relevant `*-specs.md`, then analyze corresponding screenshots.
 2. **Web-to-Mobile Adaptation Plan:** Document what must change from web mockups to mobile-first behavior before proposing UI.
-3. **User Flow & Logic:** Map out the state changes (Empty, Loading, Success, Error states).
-4. **Wireframe Schema:** Define layout hierarchy using standard markdown component representations.
-5. **Token Mapping:** Provide the raw design token properties (HEX, Rem, Font Weights) required for developer handoff.
+3. **Mappedin Parity Spec:** For wayfinding views, document target parity rules against Mappedin patterns (control placement, map viewport framing, route highlight hierarchy, step guidance, recenter behavior).
+4. **User Flow & Logic:** Map out the state changes (Empty, Loading, Success, Error states).
+5. **Wireframe Schema:** Define layout hierarchy using standard markdown component representations.
+6. **Token Mapping:** Provide the raw design token properties (HEX, Rem, Font Weights) required for developer handoff.
 
 ## Validation Checklist
 
@@ -52,6 +54,7 @@ When processing UI/UX tasks, follow this sequence:
 - Every critical action is reachable with touch interactions and explicit affordances (no hover dependency).
 - Core states (empty, loading, success, error) are specified for constrained mobile conditions.
 - Navigation and content hierarchy remain clear in one-hand usage contexts.
+- Wayfinding screens include a parity checklist mapped to Mappedin reference behaviors and visuals.
 
 ## Definition of Done (DoD)
 
@@ -60,3 +63,4 @@ When processing UI/UX tasks, follow this sequence:
 - The user journey requires the fewest clicks possible to complete the target action.
 - A clear section explains how web mockup patterns were adapted to mobile-first UI decisions.
 - Final specs provide mobile-first layout definitions before tablet and desktop variants.
+- Wayfinding deliverables include explicit pixel-accuracy notes and justified deviations from the Mappedin benchmark.
