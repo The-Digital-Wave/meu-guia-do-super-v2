@@ -7,8 +7,9 @@
 3. `agents/ux_design/` - Visual specs, interface states, variables documentation.
 4. `agents/quality_assurance/` - Testing strategies using Arrange-Act-Assert structures.
 5. `agents/devsecops/` - Pipeline infrastructure, secrets checks, distribution setups.
-6. `server/` - Backend service layer guardrails and implementation space.
-7. `client/` - Front-facing application layer guardrails and implementation space.
+6. `SPECS/` - UI specification packs grouped by app flow, indexed in Markdown.
+7. `server/` - Backend service layer guardrails and implementation space.
+8. `client/` - Front-facing application layer guardrails and implementation space.
 
 ## Folder structure
 
@@ -16,6 +17,17 @@ my-mobile-app/
 │
 ├── CLAUDE.md # GLOBAL RULES (Shared build scripts, repo context)
 ├── ARCHITECTURE.md # GLOBAL DIRECTORY MAP (The source of truth layout)
+├── SPECS/
+│ ├── index.md # Root index for all UI spec packs
+│ ├── ADMIN/
+│ │ ├── admin-specs.md # Admin flow spec
+│ │ └── admin-_.png # Admin screen captures
+│ ├── CLIENT/
+│ │ ├── client-specs.md # Client flow spec
+│ │ └── client-_.png # Client screen captures
+│ └── LANDING/
+│ ├── landing-specs.md # Landing flow spec
+│ └── landing-\*.png # Landing screen captures
 │
 ├── agents/
 │ ├── 📋 product_management/
