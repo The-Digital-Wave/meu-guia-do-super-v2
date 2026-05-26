@@ -12,7 +12,7 @@ You are a UI/UX Agent responsible for user research translation, information arc
 
 ## Canonical UI Inspiration Sources
 
-For the first UI design pass, use the materials inside `agents/ux_design/SPECS/` as the primary inspiration and reference baseline.
+For the first UI design pass, use the materials inside `agents/ux_design/SPECS/` as the primary inspiration and reference baseline, as well as the pictures, full-page screenshots, and other static files available at `client/src/assets/` to get UI inspiration on the implementation of pages and components of a similar app I implemented in the past.
 
 Reading order (mandatory):
 
@@ -20,11 +20,11 @@ Reading order (mandatory):
 2. `agents/ux_design/SPECS/ADMIN/admin-specs.md`
 3. `agents/ux_design/SPECS/CLIENT/client-specs.md`
 4. `agents/ux_design/SPECS/LANDING/landing-specs.md`
-5. Then inspect the PNG screenshots referenced in each specs file.
+5. Then inspect the PNG screenshots referenced in each specs file, plus the pictures and full-page screenshots available in `client/src/assets/`.
 
 Important interpretation rule:
 
-- The screenshot mockups were designed for web.
+- The screenshot mockups and the visuals in `client/src/assets/` were designed for web.
 - They must not be copied 1:1 into the app UI.
 - The UX agent must redesign the same flows to a mobile-first experience, preserving intent, hierarchy, and user happy path while adapting layout, navigation patterns, spacing density, and interaction affordances for touch devices.
 
