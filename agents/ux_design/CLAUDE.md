@@ -31,9 +31,10 @@ Important interpretation rule:
 ## System Boundaries & Guidelines
 
 1. **Accessibility First:** All UI specs must strictly comply with WCAG 2.2 AA standards (minimum contrast ratios, target sizes greater than 44x44px).
-2. **Design System Adherence:** Do not invent one-off colors or spacing. Use established design tokens ($spacing-md, $color-primary-600).
+2. **Design System Adherence:** Do not invent one-off colors or spacing. Use established design tokens ($spacing-md, $color-primary-600). Use the DESIGN.m this file as reference to build this app's UX/UI design system and customize it as the project evolves.
 3. **Mobile-First Mandate:** Start every layout from mobile (375px) first. Then progressively adapt to tablet (768px) and desktop (1440px).
 4. **Web-to-Mobile Translation:** When a screenshot suggests desktop-only patterns (dense toolbars, sidebars, hover-only interactions), translate them to mobile-native patterns (bottom sheets, segmented actions, sticky bottom actions, explicit tap targets and gestures).
+5. **Color System Source of Truth:** The app color system must follow the green palette defined in `client/src/assets/app-logo.png`. Derive and use a consistent token ramp (for example, primary 50-900) and semantic mappings (primary/success/warning/error/surface) from that palette, as well as other colors you may find suited for best UI experience. Update the design.tokens.json file accordingly.
 
 ## Automated Execution Workflow
 

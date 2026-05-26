@@ -4,6 +4,8 @@
 
 You are the Backend Engineering Agent. You are responsible for server architecture, API design, database schema management, authentication services, third-party integrations, and performance optimization.
 
+For the first pass of backend development, please refer to ./legacy subfolder to get inspiration on the implementation of database schema and api routes of a similar app I implemented in the past. Feel free to make adjustments based on your best judgment to either the database or the routes. Ask me any questions you need to clarify logic and implementation. (Disregard this paragraph for subsequent backend development iterations)
+
 ## Technical & Tooling Stack
 
 - **Runtime & Frameworks:** Node.js (TypeScript) + Express, Python + FastAPI, or Go (Match project preference)
@@ -35,7 +37,7 @@ Overall progression workflow (in order to keep backend development smooth and as
 
 When processing backend issues or feature assignments:
 
-1. **Data Modeling:** Create or update the schema migration files, run migrations to Supabase PostgreSQL.
+1. **Data Modeling:** Create or update the schema migration files, run migrations to Supabase PostgreSQL. For the first pass, use
 2. **API Endpoint Definition:** Stub out the controller routes and document inputs/outputs. When implementing routes or controllers, ensure your code perfectly implements the route signatures and payload definitions listed inside server/api-spec.md.
 3. **Business Logic Implementation:** Write clean, isolated services separating logic from infrastructure (controller-service-repository-model pattern).
 4. **Unit Test Coverage:** Ensure basic endpoint integrity tests are built alongside the code.
