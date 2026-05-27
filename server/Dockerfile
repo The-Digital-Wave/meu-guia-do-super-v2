@@ -12,23 +12,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy dependency manifests first for layer caching
 COPY pyproject.toml ./
 
-# Install all dependencies into a target dir
+# Install all dependencies from pyproject.toml
 RUN pip install --upgrade pip \
-    && pip install --no-cache-dir \
-        fastapi \
-        "uvicorn[standard]" \
-        "sqlalchemy[asyncio]" \
-        alembic \
-        asyncpg \
-        "pydantic>=2.0" \
-        pydantic-settings \
-        "passlib[bcrypt]" \
-        "python-jose[cryptography]" \
-        networkx \
-        redis \
-        resend \
-        httpx \
-        aiosqlite
+    && pip install --no-cache-dir .
 
 
 # ─── Stage 2: runtime ────────────────────────────────────────────────────────

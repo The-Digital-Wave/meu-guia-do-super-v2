@@ -64,7 +64,6 @@ def upgrade() -> None:
             postgresql.UUID(as_uuid=True),
             sa.ForeignKey("supermarkets.id", ondelete="CASCADE"),
             nullable=False,
-            index=True,
         ),
         sa.Column("name", sa.String(), nullable=False),
         sa.Column("width_m", sa.Float(), nullable=False),
