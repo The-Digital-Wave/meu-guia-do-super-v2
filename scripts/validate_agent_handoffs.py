@@ -106,13 +106,19 @@ def check_routing_to_ui() -> list[str]:
 
 
 def check_server_to_client() -> list[str]:
-    result = subprocess.run(
-        [sys.executable, "scripts/validate_api_contract.py"],
-        capture_output=True,
-        text=True,
-    )
+    try:
+        result = subprocess.run(
+            [sys.executable, "scripts/validate_api_contract.py"],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        )
+    except FileNotFoundError:
+        return ["scripts/validate_api_contract.py not found — ensure the script exists"]
+
     if result.returncode != 0:
-        return [f"API contract validation failed:\n    {result.stdout.strip()}"]
+        output = (result.stdout + result.stderr).strip()
+        return [f"API contract validation failed:\n    {output}"]
     return []
 
 

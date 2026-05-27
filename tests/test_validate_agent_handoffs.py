@@ -6,6 +6,7 @@ from validate_agent_handoffs import (
     check_ux_to_client,
     check_layout_to_routing,
     check_routing_to_ui,
+    check_server_to_client,
 )
 
 
@@ -188,3 +189,87 @@ def test_routing_to_ui_fails_when_output_is_invalid_json(tmp_path, monkeypatch):
     errors = check_routing_to_ui()
     # Assert
     assert any("JSON" in e for e in errors)
+
+
+def test_ux_to_client_fails_when_specs_dir_missing(tmp_path, monkeypatch):
+    # Arrange — no SPECS directory
+    tokens_path = tmp_path / "agents" / "ux_design" / "design_tokens.json"
+    tokens_path.parent.mkdir(parents=True, exist_ok=True)
+    tokens_path.write_text('{"color": {"primary": "#00754A"}}')
+    monkeypatch.chdir(tmp_path)
+    # Act
+    errors = check_ux_to_client()
+    # Assert
+    assert any("SPECS" in e for e in errors)
+
+
+def test_ux_to_client_fails_when_no_spec_files_found(tmp_path, monkeypatch):
+    # Arrange — SPECS directory exists but has no *-specs.md files
+    specs_dir = tmp_path / "agents" / "ux_design" / "SPECS"
+    specs_dir.mkdir(parents=True)
+    tokens_path = tmp_path / "agents" / "ux_design" / "design_tokens.json"
+    tokens_path.parent.mkdir(parents=True, exist_ok=True)
+    tokens_path.write_text('{"color": {"primary": "#00754A"}}')
+    monkeypatch.chdir(tmp_path)
+    # Act
+    errors = check_ux_to_client()
+    # Assert
+    assert any("*-specs.md" in e or "spec file" in e.lower() for e in errors)
+
+
+def test_ux_to_client_fails_when_tokens_file_missing(tmp_path, monkeypatch):
+    # Arrange — specs exist but tokens file missing entirely
+    specs_dir = tmp_path / "agents" / "ux_design" / "SPECS" / "CLIENT"
+    specs_dir.mkdir(parents=True)
+    (specs_dir / "client-specs.md").write_text("# Client Specs")
+    monkeypatch.chdir(tmp_path)
+    # Act
+    errors = check_ux_to_client()
+    # Assert
+    assert any("design_tokens.json" in e for e in errors)
+
+
+# ---------------------------------------------------------------------------
+# check_server_to_client
+# ---------------------------------------------------------------------------
+
+def test_server_to_client_passes_when_api_spec_is_valid(tmp_path, monkeypatch):
+    # Arrange — create a valid api-spec.md and copy the delegated script into tmp_path
+    import shutil
+    real_root = Path(__file__).parent.parent
+    scripts_dir = tmp_path / "scripts"
+    scripts_dir.mkdir()
+    shutil.copy(real_root / "scripts" / "validate_api_contract.py", scripts_dir / "validate_api_contract.py")
+
+    api_spec = tmp_path / "server" / "api-spec.md"
+    api_spec.parent.mkdir(parents=True)
+    api_spec.write_text("""
+# API Endpoint Specifications (v1 Contract)
+
+## 1. Layouts
+
+- **GET /layouts** -> Returns all layouts.
+
+## 2. Shelves
+
+- **GET /shelves** -> List all shelves.
+
+## 3. Products
+
+- **GET /products** -> Fetch product data.
+""")
+    monkeypatch.chdir(tmp_path)
+    # Act
+    errors = check_server_to_client()
+    # Assert
+    assert errors == []
+
+
+def test_server_to_client_fails_when_api_spec_missing(tmp_path, monkeypatch):
+    # Arrange — no api-spec.md
+    monkeypatch.chdir(tmp_path)
+    # Act
+    errors = check_server_to_client()
+    # Assert
+    assert len(errors) == 1
+    assert "API contract" in errors[0]
