@@ -71,3 +71,50 @@ my-mobile-app/
 │ ├── services/ # API communication layers (adminService.ts)
 │ ├── stores/ # Local memory data orchestration (adminStore.ts)
 │ └── types/ # Frontend TypeScript contracts (admin.ts)
+
+---
+
+## Updated Folder Structure (v2 — 2026-05-27)
+
+The following directories were added in the multi-agent orchestration restructure:
+
+```
+meu-guia-do-super-v2/
+├── .claude/
+│   └── commands/             # Project-level Claude Code slash commands (auto-loaded per session)
+│       ├── map-coordinate-transformer.md   # /map-coordinate-transformer → Layout Parser Agent
+│       ├── pathfinder-dijkstra-calc.md     # /pathfinder-dijkstra-calc → Routing Logic Agent
+│       └── waypoint-rn-ui.md              # /waypoint-rn-ui → UI Generator Agent
+│
+├── agents/
+│   └── wayfinding/           # Domain agent cluster for indoor navigation
+│       ├── layout_parser/    # Owns: coordinate ingestion, schema output to output/schema.json
+│       ├── routing_logic/    # Owns: Dijkstra/A* via networkx, output to output/routing_output.json
+│       └── ui_generator/     # Owns: React Native map canvas, controls, step list, FAB
+│
+├── scripts/                  # Python validation gate scripts (pytest-tested, CI exit-code 0/1)
+│   ├── validate_api_contract.py      # Validates server/api-spec.md (sections + endpoint format)
+│   ├── validate_agent_handoffs.py    # Validates handoff artifacts (--stage flag per pipeline stage)
+│   └── verify_navigation_graph.py   # Validates nav graph integrity (no floating/duplicate/unreachable nodes)
+│
+├── tests/                    # Pytest suite for scripts/ — 32 tests, python -m pytest tests/ -v
+│
+└── docs/
+    └── superpowers/
+        ├── specs/            # Design specs from brainstorming sessions
+        └── plans/            # Implementation plans
+```
+
+### Stack changes (v2)
+
+| Layer | v1 (legacy reference) | v2 (implementation target) |
+|---|---|---|
+| Backend runtime | Node.js + TypeScript + Express | Python 3.11+ + FastAPI |
+| Validation | Zod | Pydantic v2 |
+| ORM | Prisma | SQLAlchemy 2.0 async + Alembic |
+| Password hashing | bcrypt (Node) | passlib[bcrypt] |
+| Redis client | ioredis | aioredis |
+| Graph/pathfinding | — | networkx (Dijkstra/A*) |
+| API docs | Manual Swagger | FastAPI auto-generated /docs + /redoc |
+
+`server/legacy/` remains as read-only reference for the prior Node.js implementation — never modified, never cross-referenced by validation scripts.

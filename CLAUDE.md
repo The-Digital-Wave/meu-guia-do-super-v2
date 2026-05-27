@@ -14,11 +14,25 @@ This repo uses a **multi-agent orchestration model**. Each subdirectory has its 
 
 ```
 meu-guia-do-super-v2/
+├── .claude/
+│   └── commands/             # Project slash command skills (auto-loaded in Claude Code sessions)
+│       ├── map-coordinate-transformer.md  # /map-coordinate-transformer → Layout Parser Agent
+│       ├── pathfinder-dijkstra-calc.md    # /pathfinder-dijkstra-calc → Routing Logic Agent
+│       └── waypoint-rn-ui.md             # /waypoint-rn-ui → UI Generator Agent
 ├── agents/
 │   ├── product_management/   # PM/PO agent — user stories, backlog, acceptance criteria
 │   ├── ux_design/            # UX agent — flows, tokens, mobile-first specs, SPECS/ folder
 │   ├── quality_assurance/    # QA agent — test plans, Arrange-Act-Assert scripts
-│   └── devsecops/            # DevSecOps agent — CI/CD, secrets, mobile distribution
+│   ├── devsecops/            # DevSecOps agent — CI/CD, secrets, mobile distribution
+│   └── wayfinding/           # Wayfinding domain agent cluster
+│       ├── layout_parser/    # Coordinate ingestion → SQLAlchemy schema models
+│       ├── routing_logic/    # Dijkstra/A* pathfinding via networkx, MappedIn benchmark
+│       └── ui_generator/     # React Native wayfinding components, MappedIn visual parity
+├── scripts/                  # Python validation gate scripts (CI-integrated, pytest-tested)
+│   ├── validate_api_contract.py      # Validates server/api-spec.md completeness
+│   ├── validate_agent_handoffs.py    # Validates handoff artifacts between agent stages
+│   └── verify_navigation_graph.py   # Validates navigation graph integrity (no floating nodes)
+├── tests/                    # Pytest test suite for validation scripts
 ├── client/                   # React Native / Expo frontend
 │   ├── legacy/               # Reference web app (Vite/React) — inspiration only, not to be copied 1:1
 │   └── src/
@@ -28,7 +42,7 @@ meu-guia-do-super-v2/
 │       ├── services/         # API clients — must match server/api-spec.md exactly
 │       ├── stores/           # Zustand state
 │       └── types/
-├── server/                   # Node.js + TypeScript + Express backend
+├── server/                   # Python 3.11+ + FastAPI backend
 │   ├── legacy/               # Reference implementation — schema and route inspiration only
 │   │   ├── controllers/      # authController, layoutController, navigationController, productController, etc.
 │   │   ├── repositories/     # layoutRepository, productRepository, shelfRepository, supermarketRepository
@@ -52,9 +66,9 @@ meu-guia-do-super-v2/
 | Styling             | NativeWind (Tailwind CSS for RN)                                        |
 | State               | Zustand                                                                 |
 | Data fetching       | TanStack Query (React Query) with offline caching                       |
-| Backend runtime     | Node.js + TypeScript + Express                                          |
-| Validation          | Zod (all incoming inputs treated as hostile; parsed through middleware) |
-| ORM                 | Prisma                                                                  |
+| Backend runtime     | Python 3.11+ + FastAPI                                                  |
+| Validation          | Pydantic v2 (all incoming inputs treated as hostile; parsed through Pydantic models) |
+| ORM                 | SQLAlchemy 2.0 (async) + Alembic migrations                             |
 | Database            | Supabase (PostgreSQL)                                                   |
 | Auth                | JWT / OAuth2 with role-based access control for admin routes            |
 | Caching             | Redis                                                                   |
@@ -71,14 +85,23 @@ meu-guia-do-super-v2/
 
 The project is in early scaffolding phase. Commands will be added here as `client/` and `server/` are built out.
 
-**Expected server pattern:**
+**Expected server pattern (Python + FastAPI):**
 
 ```bash
 cd server
-npm run dev      # ts-node / tsx hot reload
-npm run build    # tsc compile
-npm run test     # jest / test suite
-npm run lint     # ESLint + tsc --noEmit
+uvicorn src.main:app --reload   # FastAPI hot reload
+python -m pytest                # pytest test suite
+ruff check .                    # lint
+mypy src/                       # type check
+```
+
+**Validation scripts:**
+
+```bash
+python scripts/verify_navigation_graph.py [--skip-if-empty]
+python scripts/validate_api_contract.py
+python scripts/validate_agent_handoffs.py --stage all
+python -m pytest tests/ -v      # run all 32 validation script tests
 ```
 
 **Expected client pattern:**
@@ -194,6 +217,24 @@ If conflict still exists, stop and ask before implementing.
    Role: Guarantees secure, reproducible, and observable delivery pipelines.
    Owns: CI/CD, secrets strategy, security scanning gates, deployment controls.
    Path: agents/devsecops/CLAUDE.md
+
+7. Layout Parser Agent
+   Role: Entry point for all physical store data — ingests raw layout definitions, transforms to validated schemas.
+   Owns: coordinate map ingestion, grid-to-schema transformation, shelf boundary validation, anchor normalization.
+   Path: agents/wayfinding/layout_parser/CLAUDE.md
+   Skill: /map-coordinate-transformer
+
+8. Routing Logic Agent
+   Role: All mathematical wayfinding — Dijkstra/A* pathfinding, multi-stop ordering, accessibility weighting.
+   Owns: shortest-path calculation, node graph validation, route ordering, coordinate snapping.
+   Path: agents/wayfinding/routing_logic/CLAUDE.md
+   Skill: /pathfinder-dijkstra-calc
+
+9. UI Generator Agent
+   Role: Translates routing output into React Native wayfinding UI, benchmarked against MappedIn grocery demo.
+   Owns: indoor map canvas, route overlay, map controls, navigation state machine (idle → routing → arrived).
+   Path: agents/wayfinding/ui_generator/CLAUDE.md
+   Skill: /waypoint-rn-ui
 
 ### Work Routing Matrix
 
