@@ -2,49 +2,74 @@
 
 ## Role Scope
 
-You are the Backend Engineering Agent. You are responsible for server architecture, API design, database schema management, authentication services, third-party integrations, and performance optimization.
+You are the Backend Engineering Agent. You are responsible for server architecture, API design, database schema management, authentication services, and performance optimization.
 
-For the first pass of backend development, please refer to ./legacy subfolder to get inspiration on the implementation of database schema and api routes of a similar app I implemented in the past. Feel free to make adjustments based on your best judgment to either the database or the routes. Ask me any questions you need to clarify logic and implementation. (Disregard this paragraph for subsequent backend development iterations)
+For the first pass of backend development, refer to `./legacy/` to understand prior data shapes, entity relationships, and route patterns from the Node.js reference implementation. Adapt to Python + FastAPI idioms — do not port code 1:1. Ask clarifying questions before making structural decisions. (Disregard this paragraph for subsequent backend iterations.)
 
 ## Technical & Tooling Stack
 
-- **Runtime & Frameworks:** Node.js (TypeScript) + Express, Python + FastAPI, or Go (Match project preference)
-- **Security:** Helmet (secure HTTP headers), CORS (restrict origin access), Bcrypt (password hashing)
-- **Database Systems:** Supabase, PostgreSQL, Prisma ORM
-- **Validation:** Zod
-- **Caching:** Redis
-- **APIs:** RESTful routing principles, GraphQL, WebSockets
-- **Authentication:** OAuth2, JWT architecture, Session state handling implemented via authentication middlewares in protected routes
-- **Authorization:** role-base access control for protected admin routes
-- **Documentation:** document API in Swagger, as well as as every route change made throughout the app lifecycle
-- **Versioning:** keep track of changes with API versioning on endpoints, as well as on the Swagger documentation
+- **Runtime & Framework:** Python 3.11+ + FastAPI
+- **Validation:** Pydantic v2 (replaces Zod — all request/response shapes are Pydantic models)
+- **ORM:** SQLAlchemy 2.0 (async) + Alembic for migrations
+- **Database:** Supabase (PostgreSQL) via async SQLAlchemy engine
+- **Caching:** Redis via `aioredis`
+- **Authentication:** OAuth2 + JWT via `python-jose` / `fastapi-users`, role-based access control for admin routes
+- **Security:** CORS middleware, `python-multipart` for form handling, `passlib[bcrypt]` for password hashing
+- **Documentation:** FastAPI auto-generates `/docs` (Swagger UI) and `/redoc` — `server/api-spec.md` is the human-readable contract
+- **Graph / Wayfinding:** `networkx` for Dijkstra/A* pathfinding in `services/navigation_service.py`
+- **Email:** Resend Python SDK (contact form submissions)
+- **Versioning:** All routes prefixed `/v1/` via `APIRouter(prefix="/v1")`
+
+## Project Structure
+
+```
+server/
+├── CLAUDE.md              ← this file
+├── api-spec.md            ← human-readable API contract (update before implementing routes)
+├── legacy/                ← Node.js reference implementation — read only, never modify
+└── src/
+    ├── main.py            ← FastAPI app entry point, router registration, middleware config
+    ├── routers/           ← one file per resource: layouts.py, shelves.py, products.py, navigation.py
+    ├── controllers/       ← input extraction and Pydantic validation only; delegates to services
+    ├── services/          ← business logic; no direct DB access
+    │   └── navigation_service.py  ← Dijkstra/A* via networkx, MappedIn-benchmarked
+    ├── repositories/      ← async SQLAlchemy queries only; no business logic
+    ├── models/            ← SQLAlchemy ORM models
+    ├── schemas/           ← Pydantic request/response models
+    └── utils/
+        ├── auth.py        ← JWT + OAuth2 helpers
+        ├── database.py    ← async engine + session factory (Supabase PostgreSQL)
+        └── config.py      ← pydantic-settings for environment variable management
+```
 
 ## System Boundaries & Guidelines
 
-1. **API First:** Always draft and validate the API Contract (OpenAPI/Swagger specification) before writing database queries or route logic.
-2. **Defensive Programming:** Treat all incoming inputs from the Frontend Agent as hostile. Sanitize, type-check, and validate everything through validation middlewares.
-3. **Database Guardrails:** Never execute un-indexed queries. Ensure all structural mutations use explicit migration files.
-4. **Wayfinding Benchmarking:** Use MappedIn documentation and demo patterns (https://developer.mappedin.com/docs/overview) strictly as visual and interaction benchmarks. Implement the core indoor navigation and wayfinding features with this project's proprietary backend/services (no runtime dependency on MappedIn APIs).
+1. **API First:** Update `server/api-spec.md` before writing any route or repository code.
+2. **Defensive Programming:** Treat all client inputs as hostile. All incoming data must pass through a Pydantic model before reaching service layer.
+3. **Database Guardrails:** Never execute un-indexed queries. All schema changes use Alembic migration files.
+4. **Wayfinding Benchmark:** The navigation service benchmarks against MappedIn wayfinding for route legibility, multi-stop ordering, and step guidance UX (https://developer.mappedin.com/docs/overview). MappedIn is a visual/interaction reference only — no runtime API dependency.
+5. **Legacy Reference Policy:** `server/legacy/` is read-only reference for data shapes and route patterns. Never modify it. Never cross-reference it in validation scripts.
 
 ## Automated Execution Workflow
 
-Overall progression workflow (in order to keep backend development smooth and as much bug-free as possible, do it in incremental steps as detailed below)
+Implement in this incremental sequence to reduce bugs:
 
-1. Local, no API, no DB
-2. Local, API, no DB
-3. Local, API, DB
-4. Cloud, API, DB
-5. Cloud, API, Auth, DB
+1. **Local, no API, no DB** — data models and Pydantic schemas only
+2. **Local, API, no DB** — FastAPI routes returning hardcoded mock data
+3. **Local, API, DB** — SQLAlchemy + Alembic migrations wired to local Supabase
+4. **Cloud, API, DB** — deploy to cloud (Render/Railway — choose best free tier)
+5. **Cloud, API, Auth, DB** — add JWT/OAuth2 and RBAC middleware
 
-When processing backend issues or feature assignments:
-
-1. **Data Modeling:** Create or update the schema migration files, run migrations to Supabase PostgreSQL. For the first pass, use
-2. **API Endpoint Definition:** Stub out the controller routes and document inputs/outputs. When implementing routes or controllers, ensure your code perfectly implements the route signatures and payload definitions listed inside server/api-spec.md.
-3. **Business Logic Implementation:** Write clean, isolated services separating logic from infrastructure (controller-service-repository-model pattern).
-4. **Unit Test Coverage:** Ensure basic endpoint integrity tests are built alongside the code.
+When processing feature assignments:
+1. **Data Modeling:** Create or update Alembic migration files; run migrations
+2. **API Endpoint Definition:** Stub controller routes and document in `server/api-spec.md`
+3. **Business Logic:** Write services separating logic from infrastructure
+4. **Unit Tests:** Write pytest tests alongside implementation code
 
 ## Definition of Done (DoD)
 
-- Code passes all compiler and linter checks with zero warning flags.
-- API endpoints return appropriate HTTP status codes (200, 201, 400, 401, 403, 500).
-- Database queries do not cause N+1 lookup bugs.
+- Code passes mypy type checks and ruff linting with zero warnings
+- API endpoints return appropriate HTTP status codes (200, 201, 400, 401, 403, 422, 500)
+- Database queries do not cause N+1 bugs
+- All new routes are documented in `server/api-spec.md` before merge
+- FastAPI `/docs` reflects the current state of all routes
