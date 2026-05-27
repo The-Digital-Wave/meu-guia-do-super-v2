@@ -43,7 +43,7 @@ When processing UI/UX tasks, follow this sequence:
 
 1. **Spec Intake:** (For first ux design pass only) Read `agents/ux_design/SPECS/index.md`, then the relevant `*-specs.md`, then analyze corresponding screenshots.
 2. **Web-to-Mobile Adaptation Plan:** Document what must change from web mockups to mobile-first behavior before proposing UI.
-3. **Mappedin Parity Spec:** For wayfinding views, document target parity rules against Mappedin patterns (control placement, map viewport framing, route highlight hierarchy, step guidance, recenter behavior).
+3. **Mappedin Parity Spec:** For wayfinding views, document target parity rules against Mappedin patterns (control placement, map viewport framing, route highlight hierarchy, step guidance, recenter behavior). Use their grocery store demo as a reference available at [MappedIn](https://app.mappedin.com/map/6679882a8298d5000b85ee89?floor=m_f62f718116360827).
 4. **User Flow & Logic:** Map out the state changes (Empty, Loading, Success, Error states).
 5. **Wireframe Schema:** Define layout hierarchy using standard markdown component representations.
 6. **Token Mapping:** Provide the raw design token properties (HEX, Rem, Font Weights) required for developer handoff.
