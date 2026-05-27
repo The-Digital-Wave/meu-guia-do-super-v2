@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
 from src.database import AsyncSessionLocal, engine
@@ -36,7 +37,7 @@ app = FastAPI(
 
 
 @app.get("/health", tags=["Health"])
-async def health_check() -> dict[str, Any]:
+async def health_check() -> dict[str, Any] | JSONResponse:
     """Health check endpoint. Returns DB connectivity status."""
     db_connected = getattr(app.state, "db_connected", False)
 
@@ -47,6 +48,12 @@ async def health_check() -> dict[str, Any]:
                 await session.execute(text("SELECT 1"))
             return {"status": "ok", "db": "connected"}
         except Exception:
-            return {"status": "error", "db": "disconnected"}
+            return JSONResponse(
+                status_code=503,
+                content={"status": "error", "db": "disconnected"}
+            )
 
-    return {"status": "error", "db": "disconnected"}
+    return JSONResponse(
+        status_code=503,
+        content={"status": "error", "db": "disconnected"}
+    )
