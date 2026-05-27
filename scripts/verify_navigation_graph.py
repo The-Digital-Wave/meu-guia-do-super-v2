@@ -77,8 +77,9 @@ def _check_fully_connected(nodes: list[dict], edges: list[dict]) -> list[str]:
         graph[edge["from"]].append(edge["to"])
         graph[edge["to"]].append(edge["from"])
 
-    # BFS from the first node
-    start = nodes[0]["id"]
+    # Start BFS from the first entry node if one exists; otherwise nodes[0]
+    entry_nodes = [n["id"] for n in nodes if n.get("type") == "entry"]
+    start = entry_nodes[0] if entry_nodes else nodes[0]["id"]
     visited: set[str] = {start}
     queue: deque[str] = deque([start])
     while queue:

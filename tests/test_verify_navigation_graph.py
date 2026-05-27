@@ -119,3 +119,24 @@ def test_empty_graph_without_skip_flag_fails_on_missing_entry_exit():
     errors = validate_graph(graph, skip_if_empty=False)
     # Assert
     assert any("entry" in e.lower() or "exit" in e.lower() for e in errors)
+
+
+def test_entry_node_is_reachable_from_all_nodes():
+    # Arrange — entry node is isolated (has edge but is in disconnected component)
+    graph = {
+        "nodes": [
+            {"id": "shelf-1", "type": "shelf", "coordinates": {"x": 0, "y": 0}},
+            {"id": "shelf-2", "type": "shelf", "coordinates": {"x": 10, "y": 0}},
+            {"id": "entry-1", "type": "entry", "coordinates": {"x": 50, "y": 50}},
+            {"id": "exit-1", "type": "exit", "coordinates": {"x": 60, "y": 50}},
+        ],
+        "edges": [
+            {"from": "shelf-1", "to": "shelf-2"},
+            {"from": "entry-1", "to": "exit-1"},  # entry/exit isolated from shelves
+        ],
+        "bounds": {"min_x": 0, "max_x": 100, "min_y": 0, "max_y": 100},
+    }
+    # Act
+    errors = validate_graph(graph)
+    # Assert — either shelf-1/shelf-2 or entry-1/exit-1 must be flagged as unreachable
+    assert any("Unreachable" in e for e in errors)
