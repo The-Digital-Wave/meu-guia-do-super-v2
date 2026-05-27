@@ -122,6 +122,21 @@ def test_empty_graph_without_skip_flag_fails_on_missing_entry_exit():
     assert any("entry" in e.lower() or "exit" in e.lower() for e in errors)
 
 
+def test_node_missing_coordinates_is_detected():
+    # Arrange — node has no coordinates field at all
+    graph = {
+        **VALID_GRAPH,
+        "nodes": VALID_GRAPH["nodes"] + [
+            {"id": "node-bad", "type": "shelf"}  # no coordinates key
+        ],
+        "edges": VALID_GRAPH["edges"] + [{"from": "node-1", "to": "node-bad"}],
+    }
+    # Act
+    errors = validate_graph(graph)
+    # Assert
+    assert any("node-bad" in e and "coordinates" in e for e in errors)
+
+
 def test_entry_node_is_reachable_from_all_nodes():
     # Arrange — entry node is isolated (has edge but is in disconnected component)
     graph = {

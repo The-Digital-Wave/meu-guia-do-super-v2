@@ -1,2 +1,5 @@
 agents/wayfinding/layout_parser/output/*.json
 agents/wayfinding/routing_logic/output/*.json
+__pycache__/
+*.pyc
+*.pyo

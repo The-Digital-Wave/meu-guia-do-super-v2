@@ -108,6 +108,18 @@ def test_layout_to_routing_fails_when_schema_missing(tmp_path, monkeypatch):
     assert "Layout Parser output not found" in errors[0]
 
 
+def test_layout_to_routing_fails_when_schema_is_invalid_json(tmp_path, monkeypatch):
+    # Arrange
+    output_dir = tmp_path / "agents" / "wayfinding" / "layout_parser" / "output"
+    output_dir.mkdir(parents=True)
+    (output_dir / "schema.json").write_text("not valid json {{{")
+    monkeypatch.chdir(tmp_path)
+    # Act
+    errors = check_layout_to_routing()
+    # Assert
+    assert any("JSON" in e for e in errors)
+
+
 def test_layout_to_routing_accepts_custom_output_path(tmp_path, monkeypatch):
     # Arrange
     custom_schema = tmp_path / "custom_schema.json"

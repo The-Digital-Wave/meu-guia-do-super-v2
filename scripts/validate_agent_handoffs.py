@@ -12,6 +12,7 @@ import argparse
 import json
 import subprocess
 import sys
+from collections.abc import Callable
 from pathlib import Path
 
 
@@ -75,6 +76,10 @@ def check_layout_to_routing(output_path: str | None = None) -> list[str]:
             f"Layout Parser output not found: {path} — "
             "run /map-coordinate-transformer before running /pathfinder-dijkstra-calc"
         ]
+    try:
+        json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        return [f"Layout Parser output is not valid JSON: {exc}"]
     return []
 
 
@@ -126,7 +131,7 @@ def check_server_to_client() -> list[str]:
 # Stage registry
 # ---------------------------------------------------------------------------
 
-_STAGES: dict[str, callable] = {
+_STAGES: dict[str, Callable[[], list[str]]] = {
     "pm-to-ux": check_pm_to_ux,
     "ux-to-client": check_ux_to_client,
     "layout-to-routing": check_layout_to_routing,

@@ -53,9 +53,19 @@ def _check_no_floating_nodes(nodes: list[dict], edges: list[dict]) -> list[str]:
 def _check_coordinates_in_bounds(nodes: list[dict], bounds: dict) -> list[str]:
     errors: list[str] = []
     for node in nodes:
-        coords = node.get("coordinates", {})
-        x = coords.get("x", 0)
-        y = coords.get("y", 0)
+        coords = node.get("coordinates")
+        if not coords or not isinstance(coords, dict):
+            errors.append(
+                f"Node {node['id']} is missing 'coordinates' field"
+            )
+            continue
+        if "x" not in coords or "y" not in coords:
+            errors.append(
+                f"Node {node['id']} coordinates missing 'x' or 'y' key: {coords}"
+            )
+            continue
+        x = coords["x"]
+        y = coords["y"]
         in_x = bounds["min_x"] <= x <= bounds["max_x"]
         in_y = bounds["min_y"] <= y <= bounds["max_y"]
         if not (in_x and in_y):
