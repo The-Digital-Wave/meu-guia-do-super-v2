@@ -33,11 +33,21 @@ def _check_no_floating_nodes(nodes: list[dict], edges: list[dict]) -> list[str]:
     for edge in edges:
         connected.add(edge["from"])
         connected.add(edge["to"])
-    return [
+
+    all_ids = {n["id"] for n in nodes}
+    errors: list[str] = []
+
+    # Report edges that reference unknown node IDs
+    ghost_ids = connected - all_ids
+    errors.extend(f"Edge references unknown node ID: {gid}" for gid in sorted(ghost_ids))
+
+    # Report nodes with no edge connections
+    errors.extend(
         f"Floating node: {n['id']} at {n.get('coordinates', {})}"
         for n in nodes
         if n["id"] not in connected
-    ]
+    )
+    return errors
 
 
 def _check_coordinates_in_bounds(nodes: list[dict], bounds: dict) -> list[str]:
@@ -74,8 +84,8 @@ def _check_fully_connected(nodes: list[dict], edges: list[dict]) -> list[str]:
     # Build undirected adjacency list
     graph: dict[str, list[str]] = {n["id"]: [] for n in nodes}
     for edge in edges:
-        graph[edge["from"]].append(edge["to"])
-        graph[edge["to"]].append(edge["from"])
+        graph.setdefault(edge["from"], []).append(edge["to"])
+        graph.setdefault(edge["to"], []).append(edge["from"])
 
     # Start BFS from the first entry node if one exists; otherwise nodes[0]
     entry_nodes = [n["id"] for n in nodes if n.get("type") == "entry"]
@@ -147,8 +157,12 @@ def main() -> None:
         print(f"❌ Graph file not found: {graph_path}")
         sys.exit(1)
 
-    with open(graph_path) as f:
-        graph_data = json.load(f)
+    try:
+        with open(graph_path) as f:
+            graph_data = json.load(f)
+    except json.JSONDecodeError as exc:
+        print(f"❌ Invalid JSON in {graph_path}: {exc}")
+        sys.exit(1)
 
     errors = validate_graph(graph_data, skip_if_empty=args.skip_if_empty)
 

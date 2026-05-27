@@ -79,7 +79,8 @@ def test_missing_entry_exit_node_is_detected():
     # Act
     errors = validate_graph(graph)
     # Assert
-    assert any("entry" in e.lower() or "exit" in e.lower() for e in errors)
+    assert any("entry" in e.lower() for e in errors)
+    assert any("exit" in e.lower() for e in errors)
 
 
 def test_disconnected_subgraph_is_detected():
