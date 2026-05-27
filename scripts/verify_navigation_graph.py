@@ -132,6 +132,7 @@ def validate_graph(graph_data: dict, skip_if_empty: bool = False) -> list[str]:
 # ---------------------------------------------------------------------------
 
 def main() -> None:
+    sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(
         description="Validate store navigation graph integrity"
     )

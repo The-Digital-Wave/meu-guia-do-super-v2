@@ -79,6 +79,7 @@ def validate_spec(content: str) -> list[str]:
 # ---------------------------------------------------------------------------
 
 def main() -> None:
+    sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(
         description="Validate server/api-spec.md for completeness"
     )
