@@ -1,6 +1,6 @@
 # API Endpoint Specifications (v1 Contract)
 
-All endpoints must handle request validation via Zod and communicate strictly using JSON payloads.
+All endpoints must handle request validation via Pydantic v2 and communicate strictly using JSON payloads.
 
 ## 1. Layouts
 
