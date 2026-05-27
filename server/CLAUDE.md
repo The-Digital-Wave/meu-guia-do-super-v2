@@ -24,7 +24,7 @@ For the first pass of backend development, please refer to ./legacy subfolder to
 1. **API First:** Always draft and validate the API Contract (OpenAPI/Swagger specification) before writing database queries or route logic.
 2. **Defensive Programming:** Treat all incoming inputs from the Frontend Agent as hostile. Sanitize, type-check, and validate everything through validation middlewares.
 3. **Database Guardrails:** Never execute un-indexed queries. Ensure all structural mutations use explicit migration files.
-4. **Wayfinding Integration:** Reference MappedIn API documentation (https://developer.mappedin.com/docs/overview) to implement the core indoor navigation and wayfinding features for the grocery app.
+4. **Wayfinding Benchmarking:** Use MappedIn documentation and demo patterns (https://developer.mappedin.com/docs/overview) strictly as visual and interaction benchmarks. Implement the core indoor navigation and wayfinding features with this project's proprietary backend/services (no runtime dependency on MappedIn APIs).
 
 ## Automated Execution Workflow
 

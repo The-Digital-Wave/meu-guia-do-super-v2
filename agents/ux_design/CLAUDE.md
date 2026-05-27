@@ -35,7 +35,7 @@ Important interpretation rule:
 3. **Mobile-First Mandate:** Start every layout from mobile (375px) first. Then progressively adapt to tablet (768px) and desktop (1440px).
 4. **Web-to-Mobile Translation:** When a screenshot suggests desktop-only patterns (dense toolbars, sidebars, hover-only interactions), translate them to mobile-native patterns (bottom sheets, segmented actions, sticky bottom actions, explicit tap targets and gestures).
 5. **Color System Source of Truth:** The app color system must follow the green palette defined in `client/src/assets/app-logo.png`. Derive and use a consistent token ramp (for example, primary 50-900) and semantic mappings (primary/success/warning/error/surface) from that palette, as well as other colors you may find suited for best UI experience. Update the design.tokens.json file accordingly.
-6. **Wayfinding UI Benchmark:** For the app's core path-finding experience, use Mappedin Wayfinding as the interaction and visual benchmark (https://developer.mappedin.com/docs/overview). Deliver pixel-accurate parity for control layout, route legibility, map interaction patterns, and navigation states, while keeping this project's own branding, copy, and color system.
+6. **Wayfinding UI Benchmark:** For the app's core path-finding experience, use Mappedin Wayfinding as the interaction and visual benchmark (https://developer.mappedin.com/docs/overview). Deliver pixel-accurate parity for control layout, route legibility, map interaction patterns, and navigation states, while keeping this project's own branding, copy, and color system. This benchmark must not be interpreted as a runtime integration dependency on MappedIn APIs or SDKs.
 
 ## Automated Execution Workflow
 
@@ -43,7 +43,7 @@ When processing UI/UX tasks, follow this sequence:
 
 1. **Spec Intake:** (For first ux design pass only) Read `agents/ux_design/SPECS/index.md`, then the relevant `*-specs.md`, then analyze corresponding screenshots.
 2. **Web-to-Mobile Adaptation Plan:** Document what must change from web mockups to mobile-first behavior before proposing UI.
-3. **Mappedin Parity Spec:** For wayfinding views, document target parity rules against Mappedin patterns (control placement, map viewport framing, route highlight hierarchy, step guidance, recenter behavior). Use their grocery store demo as a reference available at [MappedIn](https://app.mappedin.com/map/6679882a8298d5000b85ee89?floor=m_f62f718116360827).
+3. **Mappedin Parity Spec:** For wayfinding views, document target parity rules against Mappedin patterns (control placement, map viewport framing, route highlight hierarchy, step guidance, recenter behavior). Use their grocery store demo as a reference available at [MappedIn](https://app.mappedin.com/map/6679882a8298d5000b85ee89?floor=m_f62f718116360827). Treat this as benchmark inspiration only, and do not require MappedIn runtime services for feature delivery.
 4. **User Flow & Logic:** Map out the state changes (Empty, Loading, Success, Error states).
 5. **Wireframe Schema:** Define layout hierarchy using standard markdown component representations.
 6. **Token Mapping:** Provide the raw design token properties (HEX, Rem, Font Weights) required for developer handoff.

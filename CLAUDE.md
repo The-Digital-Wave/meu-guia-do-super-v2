@@ -140,7 +140,7 @@ App color ramp derives from `client/src/assets/app-logo.png`. Token file: `agent
 
 ### Wayfinding Integration
 
-Indoor navigation uses the **MappedIn API**. Route guidance, map control placement, and step progression must match the MappedIn grocery benchmark visually and interactively. See `server/CLAUDE.md` for the API docs link.
+Indoor navigation must be implemented with this project's proprietary code and architecture. MappedIn is a visual and interaction benchmark only. Route guidance, map control placement, and step progression should match the MappedIn grocery benchmark visually and interactively, without coupling runtime navigation to MappedIn services.
 
 ### Legacy Code Policy
 
