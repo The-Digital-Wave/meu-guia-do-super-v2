@@ -1,31 +1,169 @@
-# Monorepo Agent Orchestrator
+# CLAUDE.md
 
-## Objective
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-This root file is the orchestration layer for all domain agents in this monorepo.
-It defines who owns each decision, how work is routed, and in which sequence cross-functional tasks must run.
+## Project Overview
 
-Scope covered:
+**Meu Guia do Super** is a mobile-first grocery store app with indoor wayfinding and navigation. Core user value: shoppers can search for products and get turn-by-turn navigation guidance to locate items inside the physical store. [MappedIn](https://developer.mappedin.com/docs/overview) (specifically their [grocery store demo](https://app.mappedin.com/map/6679882a8298d5000b85ee89?floor=m_f62f718116360827)) is the visual and interaction benchmark for all path-finding screens.
 
-- agents/devsecops
-- agents/product_management
-- agents/quality_assurance
-- agents/ux_design
-- client
-- server
+---
 
-## Source of Truth Hierarchy
+## Monorepo Structure
+
+This repo uses a **multi-agent orchestration model**. Each subdirectory has its own CLAUDE.md defining a specialized agent's role and constraints.
+
+```
+meu-guia-do-super-v2/
+├── agents/
+│   ├── product_management/   # PM/PO agent — user stories, backlog, acceptance criteria
+│   ├── ux_design/            # UX agent — flows, tokens, mobile-first specs, SPECS/ folder
+│   ├── quality_assurance/    # QA agent — test plans, Arrange-Act-Assert scripts
+│   └── devsecops/            # DevSecOps agent — CI/CD, secrets, mobile distribution
+├── client/                   # React Native / Expo frontend
+│   ├── legacy/               # Reference web app (Vite/React) — inspiration only, not to be copied 1:1
+│   └── src/
+│       ├── assets/           # App logo + full-page screenshots from legacy app for UX reference
+│       ├── components/
+│       ├── pages/
+│       ├── services/         # API clients — must match server/api-spec.md exactly
+│       ├── stores/           # Zustand state
+│       └── types/
+├── server/                   # Node.js + TypeScript + Express backend
+│   ├── legacy/               # Reference implementation — schema and route inspiration only
+│   │   ├── controllers/      # authController, layoutController, navigationController, productController, etc.
+│   │   ├── repositories/     # layoutRepository, productRepository, shelfRepository, supermarketRepository
+│   │   ├── routes/           # Express route hooks
+│   │   ├── services/         # navigationService.ts
+│   │   └── utils/            # env.ts, jwt.ts, prisma.ts, zodSchemas.ts
+│   ├── api-spec.md           # Single source of truth for all API contracts (v1)
+│   └── src/                  # controllers/, repositories/, routes/, services/, utils/
+├── ARCHITECTURE.md           # Directory map and folder conventions
+├── DESIGN.md                 # Full Starbucks-inspired design system (colors, tokens, components)
+└── agents/ux_design/SPECS/   # UI spec packs per flow: ADMIN/, CLIENT/, LANDING/
+```
+
+---
+
+## Tech Stack
+
+| Layer               | Technology                                                              |
+| ------------------- | ----------------------------------------------------------------------- |
+| Mobile              | React Native + Expo                                                     |
+| Styling             | NativeWind (Tailwind CSS for RN)                                        |
+| State               | Zustand                                                                 |
+| Data fetching       | TanStack Query (React Query) with offline caching                       |
+| Backend runtime     | Node.js + TypeScript + Express                                          |
+| Validation          | Zod (all incoming inputs treated as hostile; parsed through middleware) |
+| ORM                 | Prisma                                                                  |
+| Database            | Supabase (PostgreSQL)                                                   |
+| Auth                | JWT / OAuth2 with role-based access control for admin routes            |
+| Caching             | Redis                                                                   |
+| Email               | Resend (contact form submissions → Fabio's personal email)              |
+| CI/CD               | GitHub Actions                                                          |
+| IaC                 | Terraform / OpenTofu                                                    |
+| Containerization    | Docker                                                                  |
+| Security scanners   | Trufflehog, Snyk, SonarQube                                             |
+| Mobile distribution | Fastlane, TestFlight, Google Play Console                               |
+
+---
+
+## Common Commands
+
+The project is in early scaffolding phase. Commands will be added here as `client/` and `server/` are built out.
+
+**Expected server pattern:**
+
+```bash
+cd server
+npm run dev      # ts-node / tsx hot reload
+npm run build    # tsc compile
+npm run test     # jest / test suite
+npm run lint     # ESLint + tsc --noEmit
+```
+
+**Expected client pattern:**
+
+```bash
+cd client
+npx expo start           # Expo Metro bundler
+npx expo start --ios
+npx expo start --android
+```
+
+---
+
+## Architecture Decisions
+
+### Backend: Controller-Service-Repository Pattern
+
+Three strict layers — no cross-layer access:
+
+- **Controller** — extracts and validates input only; delegates to Service
+- **Service** — business logic; no direct DB access
+- **Repository** — data access only; no business logic
+
+Reference implementations for all entities exist in `server/legacy/`.
+
+### API Contract First
+
+`server/api-spec.md` is the single source of truth. **Update the spec before implementing routes or clients.** The client's `src/services/` must mirror endpoint signatures exactly.
+
+Current v1 endpoints: **Layouts** (CRUD + shelves query + offline download), **Shelves** (CRUD), **Products** (CRUD + section-filtered query).
+
+### Backend Progression Sequence
+
+Implement in incremental steps to reduce bugs:
+
+1. Local, no API, no DB
+2. Local, API, no DB
+3. Local, API, DB
+4. Cloud, API, DB
+5. Cloud, API, Auth, DB
+
+### Frontend: Mobile-First, No Mock Data in Production
+
+- MSW (Mock Service Worker) is the only permitted mocking layer — strictly isolated from production builds.
+- Use `FlatList` over `ScrollView` for all data lists (performance constraint).
+- All API consumers must handle `loading`, `error`, `empty`, and `offline` states.
+
+### Design System
+
+`DESIGN.md` is the authoritative design reference. Key constraints:
+
+- **Page canvas:** Neutral Warm `#f2f0eb` — never pure white.
+- **Primary CTA:** Green Accent `#00754A`, white text, `50px` full-pill radius, `scale(0.95)` active state.
+- **Typography:** SoDoSans (substitute Inter or Manrope for public builds) at `-0.01em` letter-spacing.
+- **Gold `#cba258`:** reserved for Rewards/status ceremony only — never a general accent.
+- No gradient fills — the system is solid color-block throughout.
+
+App color ramp derives from `client/src/assets/app-logo.png`. Token file: `agents/ux_design/design_tokens.json`.
+
+### Wayfinding Integration
+
+Indoor navigation uses the **MappedIn API**. Route guidance, map control placement, and step progression must match the MappedIn grocery benchmark visually and interactively. See `server/CLAUDE.md` for the API docs link.
+
+### Legacy Code Policy
+
+`client/legacy/` and `server/legacy/` are **reference-only**. Read them for behavioral inspiration and data shape; adapt to mobile-first patterns, never port 1:1.
+
+UX screenshots in `client/src/assets/` (`[page]client-happy-path.png`, `[page]client-empty-state.png`, `[page]landing-full-page.png`) show the legacy web UI. Use for flow and hierarchy reference only.
+
+---
+
+## Agent Orchestration
+
+### Source of Truth Hierarchy
 
 When instructions conflict, use this precedence order:
 
 1. Task-specific requirements from the user.
-2. This root orchestration file.
+2. This root CLAUDE.md.
 3. Domain CLAUDE.md files under each folder.
 4. Local implementation preferences.
 
-If conflict still exists, stop and ask a clarifying question before implementation.
+If conflict still exists, stop and ask before implementing.
 
-## Agent Registry
+### Agent Registry
 
 1. Product Management Agent
    Role: Defines what to build and why.
@@ -57,50 +195,52 @@ If conflict still exists, stop and ask a clarifying question before implementati
    Owns: CI/CD, secrets strategy, security scanning gates, deployment controls.
    Path: agents/devsecops/CLAUDE.md
 
-## Work Routing Matrix
+### Work Routing Matrix
 
-Use this matrix to choose primary ownership and required collaborators.
+1. Product Management Agent
+   Role: Defines what to build and why.
+   Owns: backlog quality, user stories, acceptance criteria, prioritization.
+   Path: agents/product_management/CLAUDE.md
 
-1. New feature discovery or scope change
-   Primary: Product Management
-   Collaborators: UX Design, Server, Client, QA
+2. UX Design Agent
+   Role: Defines interaction model, visual hierarchy, and design tokens.
+   Owns: user flows, component behavior states, accessibility constraints.
+   Path: agents/ux_design/CLAUDE.md
 
-2. User flow or UI redesign
-   Primary: UX Design
-   Collaborators: Product Management, Client, QA
+3. Server Agent
+   Role: Designs and implements backend contracts and services.
+   Owns: API contracts, validation, persistence model, auth and authorization logic.
+   Path: server/CLAUDE.md
 
-3. API contract creation or changes
-   Primary: Server
-   Collaborators: Product Management, Client, QA, DevSecOps
+4. Client Agent
+   Role: Implements mobile-first frontend behavior and app state.
+   Owns: UI implementation, API consumption, loading/error/offline UX states.
+   Path: client/CLAUDE.md
 
-4. Mobile screen/component implementation
-   Primary: Client
-   Collaborators: UX Design, Server, QA
+5. Quality Assurance Agent
+   Role: Validates behavior against requirements and contracts.
+   Owns: integration tests, regression tests, negative path coverage, flake prevention.
+   Path: agents/quality_assurance/CLAUDE.md
 
-5. Test strategy, bug reproduction, regression hardening
-   Primary: QA
-   Collaborators: Product Management, Client, Server
+6. DevSecOps Agent
+   Role: Guarantees secure, reproducible, and observable delivery pipelines.
+   Owns: CI/CD, secrets strategy, security scanning gates, deployment controls.
+   Path: agents/devsecops/CLAUDE.md
 
-6. Pipeline, security, release, infra, compliance work
-   Primary: DevSecOps
-   Collaborators: QA, Server, Client
+### Default Delivery Sequence
 
-## Default Delivery Sequence
+For any medium or large feature:
 
-For any medium or large feature, execute in this order:
+1. **Product Management** → user story with measurable acceptance criteria (Gherkin syntax)
+2. **UX Design** → mobile-first flows, state definitions, token mapping
+3. **Server** → update `api-spec.md`, API contract, then implement controller-service-repository
+4. **Client** → implement screens consuming agreed API contract
+5. **QA** → happy path, edge cases, negative/security paths (Arrange-Act-Assert)
+6. **DevSecOps** → CI/CD gates, security scan pass, release readiness
 
-1. Product Management: define story, constraints, and acceptance criteria.
-2. UX Design: define mobile-first flow, states, and tokens impacted.
-3. Server: define or update API contract and backend behavior.
-4. Client: implement UI plus service integration using agreed contracts.
-5. QA: validate happy path, edge cases, and negative/security paths.
-6. DevSecOps: enforce quality/security gates and release readiness.
+No stage is complete without explicit handoff artifacts.
 
-No stage is considered complete without clear handoff artifacts.
-
-## Handoff Contracts
-
-Every agent output must include these sections:
+### Handoff Contract (every agent output must include)
 
 1. Inputs received
 2. Decisions made
@@ -108,16 +248,20 @@ Every agent output must include these sections:
 4. Open risks and assumptions
 5. Explicit handoff target agent
 
-Minimum required handoffs:
+**Minimum required handoffs:**
 
-- Product Management -> UX Design and Server
-- UX Design -> Client and QA
-- Server -> Client and QA
-- Client -> QA
-- QA -> DevSecOps and Product Management
-- DevSecOps -> Product Management (release readiness)
+- Product Management → UX Design + Server
+- UX Design → Client + QA
+- Server → Client + QA
+- Client → QA
+- QA → DevSecOps + Product Management
+- DevSecOps → Product Management (release readiness)
 
-## Definition of Ready for Engineering
+---
+
+## Definitions
+
+### Definition of Ready for Engineering
 
 A task is ready for implementation only when all are true:
 
@@ -126,7 +270,7 @@ A task is ready for implementation only when all are true:
 3. API contract is defined for every required integration.
 4. Non-functional constraints are explicit (security, performance, offline behavior).
 
-## Definition of Done for Cross-Agent Work
+### Definition of Done (Cross-Agent)
 
 A feature is done only when all are true:
 
@@ -136,6 +280,8 @@ A feature is done only when all are true:
 4. QA reports passing coverage for happy path, edge, and negative paths.
 5. DevSecOps gates pass with no critical security or release blockers.
 6. Documentation is updated in the impacted folders.
+
+---
 
 ## Change Management Rules
 
@@ -147,16 +293,18 @@ A feature is done only when all are true:
 
 ## Escalation Protocol
 
-Escalate to the user immediately when any of these happen:
+Stop and escalate to the user immediately when:
 
 1. Requirement conflict between product scope and technical feasibility.
 2. API contract disagreement between client and server.
 3. Security risk with no acceptable mitigation.
 4. Persistent test flakiness blocking release confidence.
 
+---
+
 ## Task Intake Template
 
-Use this template for every new task before implementation:
+Use before any new implementation task:
 
 1. Business objective
 2. In-scope surfaces (client, server, infra, tests)
@@ -165,6 +313,8 @@ Use this template for every new task before implementation:
 5. Acceptance criteria
 6. Risks and dependencies
 
+---
+
 ## Execution Policy
 
 1. Prefer small, verifiable increments over large unreviewed changes.
@@ -172,49 +322,59 @@ Use this template for every new task before implementation:
 3. Validate contracts before coding integrations.
 4. Preserve auditability by documenting key decisions in changed files.
 
+---
+
 ## Quick Start Routing
 
 If unsure where to start:
 
-1. Start at Product Management for unclear feature intent.
-2. Start at UX Design for unclear interaction or state behavior.
-3. Start at Server for unknown data model or API constraints.
-4. Start at Client for implementation-only UI tasks with stable contracts.
-5. Start at QA for bug reproduction and release confidence checks.
-6. Start at DevSecOps for deployment, security, or environment reliability.
+- **Unclear feature intent** → Product Management
+- **Unclear interaction or state behavior** → UX Design
+- **Unknown data model or API constraints** → Server
+- **Implementation-only UI tasks with stable contracts** → Client
+- **Bug reproduction, release confidence** → QA
+- **Deployment, security, environment reliability** → DevSecOps
+
+---
 
 ## Execution Examples
 
-### 1. New Feature Flow
+### New Feature Flow
 
-1. Product Management writes the user story with measurable acceptance criteria and MoSCoW priority.
+1. Product Management writes user story with MoSCoW priority and Gherkin acceptance criteria.
 2. UX Design defines mobile-first flow plus loading, empty, success, and error states.
-3. Server drafts or updates API contract and backend implementation plan.
-4. Client implements screens, state handling, and API integration against the agreed contract.
+3. Server updates `api-spec.md` and implements controller-service-repository.
+4. Client implements screens, state handling, and API integration.
 5. QA validates happy path, edge cases, and negative/security behavior.
-6. DevSecOps enforces CI/CD and security gates before release approval.
+6. DevSecOps enforces CI/CD and security gates before release.
 
-Handoff chain:
-Product Management -> UX Design + Server -> Client -> QA -> DevSecOps -> Product Management
+Chain: `Product Management → UX + Server → Client → QA → DevSecOps → Product Management`
 
-### 2. Bugfix Flow
+### Bugfix Flow
 
-1. QA reproduces the issue with deterministic steps and expected vs actual behavior.
+1. QA reproduces issue with deterministic steps and expected vs. actual behavior.
 2. Product Management classifies severity and confirms target behavior.
-3. Server and/or Client implement the minimal safe fix, preserving contract compatibility.
-4. QA executes regression tests around the impacted flow and adjacent critical paths.
-5. DevSecOps ensures pipelines and checks pass before merge/release.
+3. Server and/or Client implement the minimal safe fix (contract-compatible).
+4. QA executes regression tests on impacted flow and adjacent critical paths.
+5. DevSecOps ensures pipelines pass before merge.
 
-Handoff chain:
-QA -> Product Management -> Server/Client -> QA -> DevSecOps
+Chain: `QA → Product Management → Server/Client → QA → DevSecOps`
 
-### 3. Security Incident Flow
+### Security Incident Flow
 
-1. DevSecOps triages the incident, assigns severity, and starts containment actions.
-2. Server and Client apply remediations (for example auth hardening, input validation, secret rotation usage).
-3. QA runs targeted abuse/negative-path validation for the affected surfaces.
-4. DevSecOps re-runs security scans, verifies mitigation, and confirms release gates.
-5. Product Management receives incident summary, impact, and communication-ready status.
+1. DevSecOps triages, assigns severity, and begins containment.
+2. Server and Client apply remediations (auth hardening, input validation, secret rotation).
+3. QA runs targeted abuse/negative-path validation on affected surfaces.
+4. DevSecOps re-runs security scans, verifies mitigation, confirms release gates.
+5. Product Management receives incident summary and communication-ready status.
 
-Handoff chain:
-DevSecOps -> Server + Client -> QA -> DevSecOps -> Product Management
+Chain: `DevSecOps → Server + Client → QA → DevSecOps → Product Management`
+
+---
+
+## Branching Convention (GitFlow)
+
+- One GitHub Issue per feature/fix
+- Feature branches: `feature/<issue-slug>` off `main`
+- Hotfix branches: `hotfix/<description>` off `main`
+- PR to `main` with passing CI before merge
