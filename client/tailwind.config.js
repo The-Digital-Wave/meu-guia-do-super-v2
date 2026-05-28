@@ -1,4 +1,4 @@
-const tokens = require("../../agents/ux_design/design_tokens.json");
+const tokens = require("../agents/ux_design/design_tokens.json");
 
 // Extract categories from flat tokens
 const colors = {};
