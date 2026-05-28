@@ -6,6 +6,17 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
 from src.database import AsyncSessionLocal, engine
+from src.routers import (
+    auth,
+    edges,
+    grocery_lists,
+    layouts,
+    navigation,
+    nodes,
+    products,
+    shelves,
+    users,
+)
 
 
 @asynccontextmanager
@@ -35,8 +46,27 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# ---------------------------------------------------------------------------
+# Routers
+# ---------------------------------------------------------------------------
+_API_PREFIX = "/api/v1"
 
-@app.get("/health", tags=["Health"])
+app.include_router(auth.router, prefix=_API_PREFIX)
+app.include_router(users.router, prefix=_API_PREFIX)
+app.include_router(layouts.router, prefix=_API_PREFIX)
+app.include_router(shelves.router, prefix=_API_PREFIX)
+app.include_router(products.router, prefix=_API_PREFIX)
+app.include_router(nodes.router, prefix=_API_PREFIX)
+app.include_router(edges.router, prefix=_API_PREFIX)
+app.include_router(grocery_lists.router, prefix=_API_PREFIX)
+app.include_router(navigation.router, prefix=_API_PREFIX)
+
+
+# ---------------------------------------------------------------------------
+# Health check (no prefix — infra/load-balancer friendly)
+# ---------------------------------------------------------------------------
+
+@app.get("/health", tags=["Health"], response_model=None)
 async def health_check() -> dict[str, Any] | JSONResponse:
     """Health check endpoint. Returns DB connectivity status."""
     db_connected = getattr(app.state, "db_connected", False)
