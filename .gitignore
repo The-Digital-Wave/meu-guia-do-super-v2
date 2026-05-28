@@ -1,7 +1,60 @@
-agents/wayfinding/layout_parser/output/*.json
-agents/wayfinding/routing_logic/output/*.json
+# ── Git worktrees ────────────────────────────────────────────────
+.claude/worktrees/
+.claire/worktrees/
+
+# ── Python ───────────────────────────────────────────────────────
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.venv/
+venv/
+env/
+.Python
+pip-wheel-metadata/
+*.sqlite3
+*.db
+
+# ── Environment / secrets ─────────────────────────────────────────
 .env
 server/.env
+client/.env
+*.local
+
+# ── Node / Expo ───────────────────────────────────────────────────
+node_modules/
+.expo/
+dist/
+web-build/
+*.tgz
+.pnp
+.pnp.js
+.yarn/cache
+.yarn/unplugged
+
+# ── Type-checking / build caches ──────────────────────────────────
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+*.cover
+
+# ── IDE / OS ──────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Agent outputs (generated, not source-controlled) ──────────────
+agents/wayfinding/layout_parser/output/*.json
+agents/wayfinding/routing_logic/output/*.json
