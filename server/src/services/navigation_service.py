@@ -3,11 +3,14 @@
 All algorithm logic lives here. Controllers only extract input and map errors.
 Graph cache is module-level (not per-request); suitable for dev/test.
 """
+import logging
 import math
 from uuid import UUID
 
 import networkx as nx
 from sqlalchemy.ext.asyncio import AsyncSession
+
+logger = logging.getLogger(__name__)
 
 from src.repositories import edge_repository, node_repository, product_repository, shelf_repository
 
@@ -31,6 +34,12 @@ async def get_or_build_graph(db: AsyncSession, layout_id: UUID) -> nx.DiGraph:
         return _graph_cache[layout_id]
     graph = await _build_graph(db, layout_id)
     _graph_cache[layout_id] = graph
+    logger.warning(
+        "Navigation graph cached for layout %s. "
+        "Cache is NOT automatically invalidated on node/edge changes (MVP limitation). "
+        "Restart the server to pick up layout changes.",
+        layout_id,
+    )
     return graph
 
 
@@ -181,8 +190,7 @@ async def calculate_route(
 
     for target_node in ordered_nodes:
         try:
-            path: list[UUID] = nx.dijkstra_path(graph, current, target_node, weight="weight")
-            dist: float = nx.dijkstra_path_length(graph, current, target_node, weight="weight")
+            dist, path = nx.single_source_dijkstra(graph, current, target_node, weight="weight")
         except nx.NetworkXNoPath:
             raise ValueError(f"No path from {current} to {target_node} in layout {layout_id}")
 

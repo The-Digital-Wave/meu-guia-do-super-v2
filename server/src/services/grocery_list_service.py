@@ -214,5 +214,6 @@ async def optimize_grocery_list(
 
     # Step 7 — reload with fresh order
     refreshed = await grocery_list_repository.get_with_items(db, list_id)
-    assert refreshed is not None  # guarded by ownership check above
+    if refreshed is None:
+        raise ValueError("Failed to reload grocery list after optimization")
     return refreshed

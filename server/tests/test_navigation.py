@@ -453,9 +453,13 @@ async def test_optimize_grocery_list_reorders_items(
     assert body["id"] == list_id
     items = body["items"]
     assert len(items) == 2
-    # sort_orders must be assigned (0-based or sequential)
-    orders = [item["sort_order"] for item in items]
-    assert sorted(orders) == orders or len(set(orders)) == len(orders)
+    # Graph distances from Entry(A):
+    #   node_c (Dairy/Milk): A→B(2m) + B→C(3m) = 5m  ← closer
+    #   node_d (Bakery/Bread): A→B(2m) + B→D(4m) = 6m ← farther
+    # TSP nearest-neighbor must visit Milk before Bread.
+    closer_item = next(i for i in items if i["product_id"] == seeds["product_id"])
+    farther_item = next(i for i in items if i["product_id"] == product2_id)
+    assert closer_item["sort_order"] < farther_item["sort_order"]
 
 
 @pytest.mark.asyncio
