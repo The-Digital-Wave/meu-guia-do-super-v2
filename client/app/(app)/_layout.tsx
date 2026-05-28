@@ -38,6 +38,10 @@ export default function AppLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="navigation"
+        options={{ href: null }}
+      />
     </Tabs>
   );
 }

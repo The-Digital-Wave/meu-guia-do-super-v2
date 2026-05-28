@@ -60,6 +60,17 @@ export function useRemoveGroceryItem(listId: string) {
   });
 }
 
+export function useUpdateGroceryItem(listId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ itemId, checked, sort_order }: { itemId: string; checked?: boolean; sort_order?: number }) => {
+      const { data } = await api.put(`/grocery-lists/${listId}/items/${itemId}`, { checked, sort_order });
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["grocery-list", listId] }),
+  });
+}
+
 export function useOptimizeGroceryList(listId: string) {
   const qc = useQueryClient();
   return useMutation({
