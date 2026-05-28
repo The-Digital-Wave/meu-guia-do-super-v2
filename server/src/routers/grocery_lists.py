@@ -2,7 +2,7 @@
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.controllers import grocery_list as grocery_list_controller
@@ -113,13 +113,22 @@ async def delete_item(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.post("/{list_id}/optimize", status_code=status.HTTP_501_NOT_IMPLEMENTED)
+@router.post(
+    "/{list_id}/optimize",
+    response_model=GroceryListWithItemsOut,
+    status_code=status.HTTP_200_OK,
+)
 async def optimize_grocery_list(
     list_id: uuid.UUID,
+    db: Annotated[AsyncSession, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
-) -> None:
-    """Optimize grocery list route order. Phase 3 stub."""
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Route optimization not implemented yet — coming in Phase 3",
+) -> GroceryListWithItemsOut:
+    """Optimise grocery list item order using nearest-neighbour TSP wayfinding.
+
+    Requires the list to have a layout_id set and the layout to have at least
+    one ENTRY node. Items without a product_id are placed after all routed items.
+    """
+    grocery_list = await grocery_list_controller.optimize_grocery_list(
+        list_id, db, current_user
     )
+    return GroceryListWithItemsOut.model_validate(grocery_list)

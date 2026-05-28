@@ -65,3 +65,16 @@ async def delete_item(
         await grocery_list_service.delete_item(db, list_id, item_id, user)
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+
+
+async def optimize_grocery_list(
+    list_id: uuid.UUID, db: AsyncSession, user: User
+) -> GroceryList:
+    """Optimise grocery list item order via TSP wayfinding. Maps errors to HTTP codes."""
+    try:
+        return await grocery_list_service.optimize_grocery_list(db, list_id, user)
+    except ValueError as exc:
+        msg = str(exc)
+        if "no layout_id" in msg or "no entry node" in msg.lower() or "has no entry" in msg.lower():
+            raise HTTPException(status_code=422, detail=msg)
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=msg)
