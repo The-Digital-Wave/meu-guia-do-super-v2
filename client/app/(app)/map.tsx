@@ -14,7 +14,7 @@ export default function MapScreen() {
     productName?: string;
   }>();
 
-  const { data: layouts, isLoading: layoutsLoading } = useLayouts();
+  const { data: layouts, isLoading: layoutsLoading, isError: layoutsError } = useLayouts();
   const firstLayoutId = layouts?.[0]?.id ?? null;
   const { data: bundle, isLoading: bundleLoading } = useLayoutBundle(firstLayoutId);
 
@@ -149,6 +149,12 @@ export default function MapScreen() {
             }}
           >
             Carregando mapa...
+          </Text>
+        </View>
+      ) : layoutsError ? (
+        <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 32 }}>
+          <Text style={{ fontFamily: "Inter_400Regular", fontSize: 15, color: "rgba(0,0,0,0.58)", textAlign: "center" }}>
+            Erro ao carregar o mapa. Verifique sua conexão.
           </Text>
         </View>
       ) : !bundle ? (

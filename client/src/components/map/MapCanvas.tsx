@@ -97,7 +97,7 @@ export default function MapCanvas({
               <Circle
                 cx={cx}
                 cy={cy}
-                r={18}
+                r={22}
                 fill="transparent"
                 onPress={() => onNodeTap(node)}
               />

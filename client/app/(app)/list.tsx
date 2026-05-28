@@ -22,34 +22,6 @@ export default function ListScreen() {
   const updateItem = useUpdateGroceryItem(firstListId ?? "");
   const optimize = useOptimizeGroceryList(firstListId ?? "");
 
-  // Not authenticated guard
-  if (!isAuthenticated) {
-    return (
-      <View style={{ flex: 1, backgroundColor: "#f2f0eb", alignItems: "center", justifyContent: "center", padding: 32 }}>
-        <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 18, color: "#006241", textAlign: "center", marginBottom: 8 }}>Lista de Compras</Text>
-        <Text style={{ fontFamily: "Inter_400Regular", fontSize: 14, color: "rgba(0,0,0,0.58)", textAlign: "center", marginBottom: 24 }}>
-          Faça login para salvar e acessar sua lista de compras.
-        </Text>
-        <Pressable
-          onPress={() => router.push("/(auth)/login")}
-          style={({ pressed }) => ({
-            backgroundColor: "#00754A",
-            borderRadius: 50,
-            paddingVertical: 14,
-            paddingHorizontal: 32,
-            transform: [{ scale: pressed ? 0.95 : 1 }],
-            minHeight: 48,
-          })}
-        >
-          <Text style={{ color: "#ffffff", fontFamily: "Inter_600SemiBold", fontSize: 16 }}>Entrar</Text>
-        </Pressable>
-      </View>
-    );
-  }
-
-  const isLoading = listsLoading || listLoading;
-  const items = list ? [...list.items].sort((a, b) => a.sort_order - b.sort_order) : [];
-
   const renderItem = useCallback(
     ({ item }: { item: GroceryItem }) => (
       <View
@@ -109,6 +81,34 @@ export default function ListScreen() {
     ),
     [updateItem, removeItem]
   );
+
+  // Not authenticated guard
+  if (!isAuthenticated) {
+    return (
+      <View style={{ flex: 1, backgroundColor: "#f2f0eb", alignItems: "center", justifyContent: "center", padding: 32 }}>
+        <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 18, color: "#006241", textAlign: "center", marginBottom: 8 }}>Lista de Compras</Text>
+        <Text style={{ fontFamily: "Inter_400Regular", fontSize: 14, color: "rgba(0,0,0,0.58)", textAlign: "center", marginBottom: 24 }}>
+          Faça login para salvar e acessar sua lista de compras.
+        </Text>
+        <Pressable
+          onPress={() => router.push("/(auth)/login")}
+          style={({ pressed }) => ({
+            backgroundColor: "#00754A",
+            borderRadius: 50,
+            paddingVertical: 14,
+            paddingHorizontal: 32,
+            transform: [{ scale: pressed ? 0.95 : 1 }],
+            minHeight: 48,
+          })}
+        >
+          <Text style={{ color: "#ffffff", fontFamily: "Inter_600SemiBold", fontSize: 16 }}>Entrar</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  const isLoading = listsLoading || listLoading;
+  const items = list ? [...list.items].sort((a, b) => a.sort_order - b.sort_order) : [];
 
   return (
     <View style={{ flex: 1, backgroundColor: "#f2f0eb" }}>
