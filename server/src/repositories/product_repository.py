@@ -21,9 +21,10 @@ async def get_all(
     """
     stmt = select(Product)
     if q is not None:
-        pattern = f"%{q}%"
+        escaped = q.replace("\\", "\\\\").replace("%", r"\%").replace("_", r"\_")
+        pattern = f"%{escaped}%"
         stmt = stmt.where(
-            Product.name.ilike(pattern) | Product.brand.ilike(pattern)  # type: ignore[operator]
+            Product.name.ilike(pattern, escape="\\") | Product.brand.ilike(pattern, escape="\\")  # type: ignore[operator]
         )
     if category is not None:
         stmt = stmt.where(Product.category == category)

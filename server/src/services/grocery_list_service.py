@@ -69,6 +69,13 @@ async def add_item(
         raise ValueError(f"Grocery list {list_id} not found")
     if grocery_list.user_id != user.id:
         raise ValueError(f"Grocery list {list_id} not found")
+
+    if data.product_id is not None:
+        from src.repositories import product_repository
+        product = await product_repository.get_by_id(db, data.product_id)
+        if product is None:
+            raise ValueError(f"Product {data.product_id} not found")
+
     return await grocery_list_repository.create_item(
         db,
         list_id=list_id,
