@@ -16,7 +16,6 @@ from httpx import AsyncClient
 from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models.node import NodeType
 from src.models.user import User, UserRole
 from src.services.navigation_service import nearest_neighbor_tsp
 
@@ -89,8 +88,6 @@ async def _seed_layout_graph(
 
     Returns dict with layout_id, node ids (A/B/C/D), shelf_id, product_id.
     """
-    from src.models.supermarket import Supermarket
-
     # Create supermarket directly in DB
     from src.models.supermarket import Supermarket as SM
 

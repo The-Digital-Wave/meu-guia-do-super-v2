@@ -10,9 +10,9 @@ from uuid import UUID
 import networkx as nx
 from sqlalchemy.ext.asyncio import AsyncSession
 
-logger = logging.getLogger(__name__)
-
 from src.repositories import edge_repository, node_repository, product_repository, shelf_repository
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Module-level graph cache (layout_id → DiGraph)
