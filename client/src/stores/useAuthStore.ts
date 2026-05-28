@@ -36,6 +36,11 @@ export const useAuthStore = create<AuthState>((set) => ({
       await SecureStore.setItemAsync("refresh_token", data.refresh_token);
       const { data: me } = await api.get("/users/me");
       set({ user: me, isAuthenticated: true });
+    } catch (e) {
+      // Clean up any partially-written tokens
+      await SecureStore.deleteItemAsync("access_token");
+      await SecureStore.deleteItemAsync("refresh_token");
+      throw e; // re-throw so the UI can show the error
     } finally {
       set({ isLoading: false });
     }
@@ -56,6 +61,11 @@ export const useAuthStore = create<AuthState>((set) => ({
       await SecureStore.setItemAsync("refresh_token", data.refresh_token);
       const { data: me } = await api.get("/users/me");
       set({ user: me, isAuthenticated: true });
+    } catch (e) {
+      // Clean up any partially-written tokens
+      await SecureStore.deleteItemAsync("access_token");
+      await SecureStore.deleteItemAsync("refresh_token");
+      throw e; // re-throw so the UI can show the error
     } finally {
       set({ isLoading: false });
     }
@@ -68,14 +78,23 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   restoreSession: async () => {
+    // Guard against concurrent invocations (StrictMode double-mount)
+    const { isLoading } = useAuthStore.getState();
+    if (isLoading) return;
+    set({ isLoading: true });
     const token = await SecureStore.getItemAsync("access_token");
-    if (!token) return;
+    if (!token) {
+      set({ isLoading: false });
+      return;
+    }
     try {
       const { data: me } = await api.get("/users/me");
       set({ user: me, isAuthenticated: true });
     } catch {
       await SecureStore.deleteItemAsync("access_token");
       await SecureStore.deleteItemAsync("refresh_token");
+    } finally {
+      set({ isLoading: false });
     }
   },
 }));

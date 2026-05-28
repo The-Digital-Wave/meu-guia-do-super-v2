@@ -6,7 +6,7 @@ const spacing = {};
 const borderRadius = {};
 
 // Colors: keys that map to hex or rgba strings
-const colorKeys = ["starbucksGreen","greenAccent","houseGreen","greenUplift","greenLight","gold","goldLight","goldLightest","neutralWarm","ceramic","neutralCool","white","black","error","warning","inputBorder","rewardsGreen"];
+const colorKeys = ["starbucksGreen","greenAccent","houseGreen","greenUplift","greenLight","gold","goldLight","goldLightest","neutralWarm","ceramic","neutralCool","white","black","error","warning","inputBorder","rewardsGreen","textBlack","textBlackSoft"];
 colorKeys.forEach(k => { colors[k] = tokens[k]; });
 
 // Spacing: keys that are numbers (pixels)

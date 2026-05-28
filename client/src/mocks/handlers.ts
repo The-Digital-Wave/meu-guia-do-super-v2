@@ -113,7 +113,11 @@ export const handlers = [
   // ── Users ─────────────────────────────────────────────────────────────────
 
   http.get(`${BASE}/users/me`, () => {
-    return HttpResponse.json(MOCK_USER);
+    return HttpResponse.json({
+      id: "00000000-0000-0000-0000-000000000001",
+      email: "test@example.com",
+      role: "CUSTOMER",
+    });
   }),
 
   http.put(`${BASE}/users/me`, async ({ request }) => {
