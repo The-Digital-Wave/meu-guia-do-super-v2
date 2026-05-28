@@ -13,6 +13,31 @@ class ProductOut(BaseModel):
     sku: str | None
     category: str | None
     brand: str | None
+    description: str | None
     image_url: str | None
     quantity: int
     section_index: int | None
+
+
+class ProductCreate(BaseModel):
+    shelf_id: uuid.UUID | None = None
+    name: str
+    sku: str | None = None
+    category: str | None = None
+    brand: str | None = None
+    description: str | None = None
+    image_url: str | None = None
+    quantity: int = 0
+    section_index: int | None = None
+
+
+class ProductUpdate(BaseModel):
+    shelf_id: uuid.UUID | None = None
+    name: str | None = None
+    sku: str | None = None
+    category: str | None = None
+    brand: str | None = None
+    description: str | None = None
+    image_url: str | None = None
+    quantity: int | None = None
+    section_index: int | None = None
