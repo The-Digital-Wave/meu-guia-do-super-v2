@@ -169,7 +169,7 @@ def main() -> None:
         sys.exit(1)
 
     try:
-        with open(graph_path) as f:
+        with open(graph_path, encoding="utf-8") as f:
             graph_data = json.load(f)
     except json.JSONDecodeError as exc:
         print(f"❌ Invalid JSON in {graph_path}: {exc}")
