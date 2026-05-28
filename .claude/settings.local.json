@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add *)",
+      "Bash(git commit -m 'docs: add multi-agent orchestration restructure design spec *)",
+      "Bash(git commit -m 'docs: add multi-agent restructure implementation plan *)",
+      "Bash(mkdir -p agents/wayfinding/layout_parser/output && mkdir -p agents/wayfinding/routing_logic/output && mkdir -p agents/wayfinding/ui_generator && mkdir -p .claude/commands && mkdir -p scripts && mkdir -p tests)",
+      "Bash(git commit *)",
+      "PowerShell(Get-Command python, python3, py -ErrorAction SilentlyContinue)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\Fabio\\OneDrive\\Documents\\GitHub\\meu-guia-do-super-v2\\.claude"
+    ]
+  }
+}

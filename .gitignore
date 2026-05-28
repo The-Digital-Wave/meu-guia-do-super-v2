@@ -3,3 +3,5 @@ agents/wayfinding/routing_logic/output/*.json
 __pycache__/
 *.pyc
 *.pyo
+.env
+server/.env
