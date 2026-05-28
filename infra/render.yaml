@@ -1,0 +1,30 @@
+# Render Blueprint — Meu Guia do Super API
+# https://render.com/docs/blueprint-spec
+#
+# Secrets (sync: false) must be set manually in the Render dashboard.
+# ENVIRONMENT is the only value hard-coded here; all credentials are injected
+# via the dashboard to avoid committing sensitive data.
+
+services:
+  - type: web
+    name: meu-guia-do-super-api
+    runtime: docker
+    dockerfilePath: ./server/Dockerfile
+    dockerContext: ./server
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false          # set manually in Render dashboard
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: ENVIRONMENT
+        value: production

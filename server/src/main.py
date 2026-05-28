@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 from typing import Any
 
@@ -6,6 +7,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
 from src.database import AsyncSessionLocal, engine
+from src.redis_client import connect_redis, disconnect_redis
 from src.routers import (
     auth,
     edges,
@@ -18,10 +20,12 @@ from src.routers import (
     users,
 )
 
+logger = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):  # type: ignore[type-arg]
-    """Application lifespan: verify DB on startup, dispose engine on shutdown."""
+    """Application lifespan: verify DB and Redis on startup, clean up on shutdown."""
     # Startup: verify database connection
     try:
         async with AsyncSessionLocal() as session:
@@ -30,9 +34,20 @@ async def lifespan(app: FastAPI):  # type: ignore[type-arg]
     except Exception:
         app.state.db_connected = False
 
+    # Startup: connect Redis (non-fatal — caching is optional for MVP)
+    try:
+        await connect_redis()
+        app.state.redis_connected = True
+    except Exception as exc:
+        logger.warning("Redis unavailable on startup (non-fatal): %s", exc)
+        app.state.redis_connected = False
+
     yield
 
-    # Shutdown: dispose the connection pool
+    # Shutdown: close Redis connection
+    await disconnect_redis()
+
+    # Shutdown: dispose the DB connection pool
     await engine.dispose()
 
 
@@ -68,22 +83,27 @@ app.include_router(navigation.router, prefix=_API_PREFIX)
 
 @app.get("/health", tags=["Health"], response_model=None)
 async def health_check() -> dict[str, Any] | JSONResponse:
-    """Health check endpoint. Returns DB connectivity status."""
+    """Health check endpoint. Returns DB and Redis connectivity status.
+
+    HTTP 200 — DB is reachable (Redis is non-critical; its status is informational).
+    HTTP 503 — DB is unreachable.
+    """
     db_connected = getattr(app.state, "db_connected", False)
+    redis_status = "connected" if getattr(app.state, "redis_connected", False) else "disconnected"
 
     if db_connected:
-        # Re-verify live connection
+        # Re-verify live DB connection
         try:
             async with AsyncSessionLocal() as session:
                 await session.execute(text("SELECT 1"))
-            return {"status": "ok", "db": "connected"}
+            return {"status": "ok", "db": "connected", "redis": redis_status}
         except Exception:
             return JSONResponse(
                 status_code=503,
-                content={"status": "error", "db": "disconnected"}
+                content={"status": "error", "db": "disconnected", "redis": redis_status},
             )
 
     return JSONResponse(
         status_code=503,
-        content={"status": "error", "db": "disconnected"}
+        content={"status": "error", "db": "disconnected", "redis": redis_status},
     )
