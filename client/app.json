@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Meu Guia do Super",
+    "slug": "meu-guia-do-super",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./src/assets/app-logo-1.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./src/assets/app-logo-1.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#f2f0eb"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.thedigitalwave.meuguiadosuper"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/app-logo-1.png",
+        "backgroundColor": "#f2f0eb"
+      },
+      "package": "com.thedigitalwave.meuguiadosuper"
+    },
+    "web": {
+      "favicon": "./src/assets/app-logo-1.png",
+      "bundler": "metro"
+    },
+    "plugins": ["expo-router", "expo-font", "expo-secure-store"],
+    "scheme": "meu-guia-do-super",
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
