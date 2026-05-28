@@ -5,6 +5,7 @@ import { queryClient } from "@/lib/queryClient";
 import { useFonts, Inter_400Regular, Inter_600SemiBold } from "@expo-google-fonts/inter";
 import { useEffect } from "react";
 import { SplashScreen } from "expo-router";
+import { useAuthStore } from "@/stores/useAuthStore";
 import "../src/global.css";
 
 SplashScreen.preventAutoHideAsync();
@@ -14,6 +15,11 @@ export default function RootLayout() {
     Inter_400Regular,
     Inter_600SemiBold,
   });
+  const restoreSession = useAuthStore((s) => s.restoreSession);
+
+  useEffect(() => {
+    restoreSession();
+  }, [restoreSession]);
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
