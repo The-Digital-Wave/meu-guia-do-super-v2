@@ -4,7 +4,7 @@ import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.shelf import Shelf
-from src.repositories import shelf_repository
+from src.repositories import layout_repository, node_repository, shelf_repository
 from src.schemas.shelf import ShelfCreate, ShelfUpdate
 
 
@@ -25,7 +25,23 @@ async def get_shelf(db: AsyncSession, shelf_id: uuid.UUID) -> Shelf:
 
 
 async def create_shelf(db: AsyncSession, data: ShelfCreate) -> Shelf:
-    """Create a new shelf from validated input data."""
+    """Create a new shelf from validated input data.
+
+    Validates that:
+    1. The layout exists
+    2. If a node_id is provided, the node exists and belongs to the layout
+    """
+    # Validate layout exists
+    layout = await layout_repository.get_by_id(db, data.layout_id)
+    if layout is None:
+        raise ValueError(f"Layout {data.layout_id} not found")
+
+    # Validate node exists and belongs to this layout if provided
+    if data.node_id is not None:
+        node = await node_repository.get_by_id(db, data.node_id)
+        if node is None or node.layout_id != data.layout_id:
+            raise ValueError(f"Node {data.node_id} does not belong to layout {data.layout_id}")
+
     return await shelf_repository.create(
         db,
         layout_id=data.layout_id,

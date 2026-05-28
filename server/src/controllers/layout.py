@@ -8,6 +8,7 @@ from src.models.layout import Layout
 from src.schemas.edge import EdgeCreate, EdgeOut
 from src.schemas.layout import LayoutCreate, LayoutOut, LayoutUpdate
 from src.schemas.node import NodeCreate, NodeOut
+from src.schemas.product import ProductOut
 from src.schemas.shelf import ShelfOut
 from src.services import edge_service, layout_service, node_service
 
@@ -61,21 +62,7 @@ async def download_layout(db: AsyncSession, layout_id: uuid.UUID) -> dict:
         "nodes": [NodeOut.model_validate(n).model_dump() for n in bundle["nodes"]],
         "edges": [EdgeOut.model_validate(e).model_dump() for e in bundle["edges"]],
         "shelves": [ShelfOut.model_validate(s).model_dump() for s in bundle["shelves"]],
-        "products": [
-            {
-                "id": str(p.id),
-                "shelf_id": str(p.shelf_id) if p.shelf_id else None,
-                "name": p.name,
-                "sku": p.sku,
-                "category": p.category,
-                "brand": p.brand,
-                "description": p.description,
-                "image_url": p.image_url,
-                "quantity": p.quantity,
-                "section_index": p.section_index,
-            }
-            for p in bundle["products"]
-        ],
+        "products": [ProductOut.model_validate(p).model_dump() for p in bundle["products"]],
     }
 
 
