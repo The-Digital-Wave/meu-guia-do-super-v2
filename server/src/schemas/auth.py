@@ -2,13 +2,13 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 from src.models.user import UserRole
 
 
 class RegisterRequest(BaseModel):
-    email: str
+    email: EmailStr
     password: str
     full_name: str | None = None
 

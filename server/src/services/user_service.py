@@ -1,4 +1,5 @@
 """User service — business logic for user profile operations."""
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.user import User
@@ -41,5 +42,8 @@ async def update_me(
         return user
 
     # Delegate to repository for data access
-    user = await user_repository.update(db, user, **updates)
+    try:
+        user = await user_repository.update(db, user, **updates)
+    except IntegrityError:
+        raise ValueError("Email already in use")
     return user

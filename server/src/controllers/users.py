@@ -22,9 +22,9 @@ async def update_me(payload: UserUpdate, current_user: User, db: AsyncSession) -
             full_name=payload.full_name,
             email=payload.email,
         )
-    except Exception:
+    except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Update failed — email may already be in use",
+            detail=str(exc),
         )
     return UserOut.model_validate(user)
