@@ -30,19 +30,44 @@ Do the groups in order — you need the Render service URL (Group 2) before you 
 **Secrets:** `RENDER_API_KEY`, `RENDER_SERVICE_ID`
 **Used by:** `deploy-backend.yml` (triggers a redeploy after pushing the image)
 
-1. Go to [dashboard.render.com](https://dashboard.render.com) → avatar → **Account Settings** → **API Keys** → **Create API Key**.
-2. Name it, click **Create**. Copy the key — you won't see it again.
-3. Create the Render service: **New** → **Web Service** → **Deploy an existing image from a registry**.
-4. Enter the Docker Hub image: `<your-dockerhub-username>/meu-guia-do-super-api:latest`. Click **Connect**.
-5. Configure the service:
-   - Name: `meu-guia-do-super-api`
-   - Region: Oregon (free-tier) or closest to you
-   - Plan: **Free**
-   - Click **Create Web Service**
-6. Once created, look at the browser URL: `https://dashboard.render.com/web/srv-XXXXXXXXXX`. The `srv-XXXXXXXXXX` part is the Service ID.
-7. Add to GitHub Actions secrets:
-   - `RENDER_API_KEY` = key from step 2
-   - `RENDER_SERVICE_ID` = `srv-XXXXXXXXXX` from step 6
+Docker Hub repositories are created automatically on first push, so you need to push the image manually once before Render can reference it.
+
+### 2a — Push the image to Docker Hub for the first time
+
+1. Make sure Docker Desktop is running on your machine.
+2. Open a terminal at the repo root and log in to Docker Hub:
+   ```bash
+   docker login
+   ```
+   Enter your Docker Hub username and password (or token from Group 1).
+3. Build the image:
+   ```bash
+   docker build -t <your-dockerhub-username>/meu-guia-do-super-api:latest ./server
+   ```
+4. Push it — this creates the repository on Docker Hub automatically:
+   ```bash
+   docker push <your-dockerhub-username>/meu-guia-do-super-api:latest
+   ```
+5. Verify at [hub.docker.com/repositories](https://hub.docker.com/repositories) — you should see `meu-guia-do-super-api` listed.
+
+### 2b — Create the Render API key
+
+6. Go to [dashboard.render.com](https://dashboard.render.com) → avatar → **Account Settings** → **API Keys** → **Create API Key**.
+7. Name it, click **Create**. Copy the key — you won't see it again.
+
+### 2c — Create the Render service
+
+8. On the Render dashboard: **New** → **Web Service** → **Deploy an existing image from a registry**.
+9. Enter the Docker Hub image: `<your-dockerhub-username>/meu-guia-do-super-api:latest`. Click **Connect**.
+10. Configure the service:
+    - Name: `meu-guia-do-super-api`
+    - Region: Oregon (free-tier) or closest to you
+    - Plan: **Free**
+    - Click **Create Web Service**
+11. Once created, look at the browser URL: `https://dashboard.render.com/web/srv-XXXXXXXXXX`. The `srv-XXXXXXXXXX` part is the Service ID.
+12. Add to GitHub Actions secrets:
+    - `RENDER_API_KEY` = key from step 7
+    - `RENDER_SERVICE_ID` = `srv-XXXXXXXXXX` from step 11
 
 ---
 
