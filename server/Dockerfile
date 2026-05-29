@@ -6,7 +6,11 @@ WORKDIR /build
 # Copy dependency manifests first for layer caching
 COPY pyproject.toml ./
 
-# Install all dependencies from pyproject.toml
+# Stub out the src package so setuptools can resolve it during dependency install.
+# The real source is copied in the runtime stage; this keeps the pip layer cached
+# even when source code changes (only pyproject.toml changes bust the cache).
+RUN mkdir -p src && touch src/__init__.py
+
 # asyncpg ships pre-built wheels — no gcc or libpq-dev needed
 RUN pip install --upgrade pip \
     && pip install --no-cache-dir .
