@@ -3,17 +3,12 @@ FROM python:3.11-slim AS builder
 
 WORKDIR /build
 
-# Copy dependency manifests first for layer caching
-COPY pyproject.toml ./
-
-# Stub out the src package so setuptools can resolve it during dependency install.
-# The real source is copied in the runtime stage; this keeps the pip layer cached
-# even when source code changes (only pyproject.toml changes bust the cache).
-RUN mkdir -p src && touch src/__init__.py
+# Copy requirements first for layer caching — reinstalls only when deps change
+COPY requirements.txt ./
 
 # asyncpg ships pre-built wheels — no gcc or libpq-dev needed
 RUN pip install --upgrade pip \
-    && pip install --no-cache-dir .
+    && pip install --no-cache-dir -r requirements.txt
 
 
 # ─── Stage 2: runtime ────────────────────────────────────────────────────────
