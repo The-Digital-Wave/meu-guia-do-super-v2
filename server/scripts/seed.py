@@ -24,11 +24,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-# ── Allow DATABASE_URL override for local SQLite testing ─────────────────────
-if "DATABASE_URL" not in os.environ:
-    os.environ["DATABASE_URL"] = "postgresql+asyncpg://meuguia:meuguia@localhost:5432/meuguia"
+# DATABASE_URL is read from server/.env via pydantic-settings (Settings class below).
+# For SQLite local testing, override explicitly:
+#   DATABASE_URL=sqlite+aiosqlite:///./test.db python scripts/seed.py
 
 import sqlalchemy as sa  # noqa: E402
+from sqlalchemy.dialects.postgresql import insert as pg_insert  # noqa: E402
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine  # noqa: E402
 
 from src.config import settings  # noqa: E402
@@ -309,38 +310,44 @@ async def seed(database_url: str) -> None:
 
     async with AsyncSession_() as session:
         # ── Supermarket ───────────────────────────────────────────────────────
-        await session.execute(
-            sa.insert(Supermarket).values(
-                id=SUPERMARKET_ID,
-                name="Supermercado Bairro Verde",
-                address="Av. Paulista, 1000, São Paulo - SP",
-            ).prefix_with("OR IGNORE" if use_sqlite else "")
-            if use_sqlite
-            else sa.insert(Supermarket).values(
-                id=SUPERMARKET_ID,
-                name="Supermercado Bairro Verde",
-                address="Av. Paulista, 1000, São Paulo - SP",
-            ).on_conflict_do_nothing(index_elements=["id"])
-        )
+        if use_sqlite:
+            await session.execute(
+                sa.insert(Supermarket).values(
+                    id=SUPERMARKET_ID,
+                    name="Supermercado Bairro Verde",
+                    address="Av. Paulista, 1000, São Paulo - SP",
+                ).prefix_with("OR IGNORE")
+            )
+        else:
+            await session.execute(
+                pg_insert(Supermarket).values(
+                    id=SUPERMARKET_ID,
+                    name="Supermercado Bairro Verde",
+                    address="Av. Paulista, 1000, São Paulo - SP",
+                ).on_conflict_do_nothing(index_elements=["id"])
+            )
 
         # ── Layout ────────────────────────────────────────────────────────────
-        await session.execute(
-            sa.insert(Layout).values(
-                id=LAYOUT_ID,
-                supermarket_id=SUPERMARKET_ID,
-                name="Planta Principal",
-                width_m=50.0,
-                height_m=30.0,
-            ).prefix_with("OR IGNORE" if use_sqlite else "")
-            if use_sqlite
-            else sa.insert(Layout).values(
-                id=LAYOUT_ID,
-                supermarket_id=SUPERMARKET_ID,
-                name="Planta Principal",
-                width_m=50.0,
-                height_m=30.0,
-            ).on_conflict_do_nothing(index_elements=["id"])
-        )
+        if use_sqlite:
+            await session.execute(
+                sa.insert(Layout).values(
+                    id=LAYOUT_ID,
+                    supermarket_id=SUPERMARKET_ID,
+                    name="Planta Principal",
+                    width_m=50.0,
+                    height_m=30.0,
+                ).prefix_with("OR IGNORE")
+            )
+        else:
+            await session.execute(
+                pg_insert(Layout).values(
+                    id=LAYOUT_ID,
+                    supermarket_id=SUPERMARKET_ID,
+                    name="Planta Principal",
+                    width_m=50.0,
+                    height_m=30.0,
+                ).on_conflict_do_nothing(index_elements=["id"])
+            )
 
         # ── Nodes ─────────────────────────────────────────────────────────────
         for node_data in NODES:
@@ -348,7 +355,7 @@ async def seed(database_url: str) -> None:
             if use_sqlite:
                 stmt = sa.insert(Node).values(**row).prefix_with("OR IGNORE")
             else:
-                stmt = sa.insert(Node).values(**row).on_conflict_do_nothing(index_elements=["id"])
+                stmt = pg_insert(Node).values(**row).on_conflict_do_nothing(index_elements=["id"])
             await session.execute(stmt)
 
         # ── Edges ─────────────────────────────────────────────────────────────
@@ -357,7 +364,7 @@ async def seed(database_url: str) -> None:
             if use_sqlite:
                 stmt = sa.insert(Edge).values(**row).prefix_with("OR IGNORE")
             else:
-                stmt = sa.insert(Edge).values(**row).on_conflict_do_nothing(index_elements=["id"])
+                stmt = pg_insert(Edge).values(**row).on_conflict_do_nothing(index_elements=["id"])
             await session.execute(stmt)
 
         # ── Shelves ───────────────────────────────────────────────────────────
@@ -366,7 +373,7 @@ async def seed(database_url: str) -> None:
             if use_sqlite:
                 stmt = sa.insert(Shelf).values(**row).prefix_with("OR IGNORE")
             else:
-                stmt = sa.insert(Shelf).values(**row).on_conflict_do_nothing(index_elements=["id"])
+                stmt = pg_insert(Shelf).values(**row).on_conflict_do_nothing(index_elements=["id"])
             await session.execute(stmt)
 
         # ── Products ──────────────────────────────────────────────────────────
@@ -374,11 +381,7 @@ async def seed(database_url: str) -> None:
             if use_sqlite:
                 stmt = sa.insert(Product).values(**product_data).prefix_with("OR IGNORE")
             else:
-                stmt = (
-                    sa.insert(Product)
-                    .values(**product_data)
-                    .on_conflict_do_nothing(index_elements=["id"])
-                )
+                stmt = pg_insert(Product).values(**product_data).on_conflict_do_nothing(index_elements=["id"])
             await session.execute(stmt)
 
         await session.commit()
@@ -390,5 +393,5 @@ async def seed(database_url: str) -> None:
 
 
 if __name__ == "__main__":
-    db_url = os.environ.get("DATABASE_URL", settings.DATABASE_URL)
+    db_url = os.environ.get("DATABASE_URL") or settings.DATABASE_URL
     asyncio.run(seed(db_url))
