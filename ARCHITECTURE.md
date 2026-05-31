@@ -116,5 +116,3 @@ meu-guia-do-super-v2/
 | Redis client | ioredis | aioredis |
 | Graph/pathfinding | — | networkx (Dijkstra/A*) |
 | API docs | Manual Swagger | FastAPI auto-generated /docs + /redoc |
-
-`server/legacy/` remains as read-only reference for the prior Node.js implementation — never modified, never cross-referenced by validation scripts.

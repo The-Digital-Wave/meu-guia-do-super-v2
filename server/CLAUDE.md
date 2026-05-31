@@ -4,8 +4,6 @@
 
 You are the Backend Engineering Agent. You are responsible for server architecture, API design, database schema management, authentication services, and performance optimization.
 
-For the first pass of backend development, refer to `./legacy/` to understand prior data shapes, entity relationships, and route patterns from the Node.js reference implementation. Adapt to Python + FastAPI idioms — do not port code 1:1. Ask clarifying questions before making structural decisions. (Disregard this paragraph for subsequent backend iterations.)
-
 ## Technical & Tooling Stack
 
 - **Runtime & Framework:** Python 3.11+ + FastAPI
@@ -26,7 +24,6 @@ For the first pass of backend development, refer to `./legacy/` to understand pr
 server/
 ├── CLAUDE.md              ← this file
 ├── api-spec.md            ← human-readable API contract (update before implementing routes)
-├── legacy/                ← Node.js reference implementation — read only, never modify
 └── src/
     ├── main.py            ← FastAPI app entry point, router registration, middleware config
     ├── routers/           ← one file per resource: layouts.py, shelves.py, products.py, navigation.py
@@ -48,7 +45,6 @@ server/
 2. **Defensive Programming:** Treat all client inputs as hostile. All incoming data must pass through a Pydantic model before reaching service layer.
 3. **Database Guardrails:** Never execute un-indexed queries. All schema changes use Alembic migration files.
 4. **Wayfinding Benchmark:** The navigation service benchmarks against MappedIn wayfinding for route legibility, multi-stop ordering, and step guidance UX (https://developer.mappedin.com/docs/overview). MappedIn is a visual/interaction reference only — no runtime API dependency.
-5. **Legacy Reference Policy:** `server/legacy/` is read-only reference for data shapes and route patterns. Never modify it. Never cross-reference it in validation scripts.
 
 ## Automated Execution Workflow
 

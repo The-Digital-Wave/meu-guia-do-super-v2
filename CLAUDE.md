@@ -34,21 +34,14 @@ meu-guia-do-super-v2/
 │   └── verify_navigation_graph.py   # Validates navigation graph integrity (no floating nodes)
 ├── tests/                    # Pytest test suite for validation scripts
 ├── client/                   # React Native / Expo frontend
-│   ├── legacy/               # Reference web app (Vite/React) — inspiration only, not to be copied 1:1
 │   └── src/
-│       ├── assets/           # App logo + full-page screenshots from legacy app for UX reference
+│       ├── assets/           # App logo + full-page screenshots for UX reference
 │       ├── components/
 │       ├── pages/
 │       ├── services/         # API clients — must match server/api-spec.md exactly
 │       ├── stores/           # Zustand state
 │       └── types/
 ├── server/                   # Python 3.11+ + FastAPI backend
-│   ├── legacy/               # Reference implementation — schema and route inspiration only
-│   │   ├── controllers/      # authController, layoutController, navigationController, productController, etc.
-│   │   ├── repositories/     # layoutRepository, productRepository, shelfRepository, supermarketRepository
-│   │   ├── routes/           # Express route hooks
-│   │   ├── services/         # navigationService.ts
-│   │   └── utils/            # env.ts, jwt.ts, prisma.ts, zodSchemas.ts
 │   ├── api-spec.md           # Single source of truth for all API contracts (v1)
 │   └── src/                  # controllers/, repositories/, routes/, services/, utils/
 ├── ARCHITECTURE.md           # Directory map and folder conventions
@@ -125,8 +118,6 @@ Three strict layers — no cross-layer access:
 - **Service** — business logic; no direct DB access
 - **Repository** — data access only; no business logic
 
-Reference implementations for all entities exist in `server/legacy/`.
-
 ### API Contract First
 
 `server/api-spec.md` is the single source of truth. **Update the spec before implementing routes or clients.** The client's `src/services/` must mirror endpoint signatures exactly.
@@ -164,12 +155,6 @@ App color ramp derives from `client/src/assets/app-logo.png`. Token file: `agent
 ### Wayfinding Integration
 
 Indoor navigation must be implemented with this project's proprietary code and architecture. MappedIn is a visual and interaction benchmark only. Route guidance, map control placement, and step progression should match the MappedIn grocery benchmark visually and interactively, without coupling runtime navigation to MappedIn services.
-
-### Legacy Code Policy
-
-`client/legacy/` and `server/legacy/` are **reference-only**. Read them for behavioral inspiration and data shape; adapt to mobile-first patterns, never port 1:1.
-
-UX screenshots in `client/src/assets/` (`[page]client-happy-path.png`, `[page]client-empty-state.png`, `[page]landing-full-page.png`) show the legacy web UI. Use for flow and hierarchy reference only.
 
 ---
 
