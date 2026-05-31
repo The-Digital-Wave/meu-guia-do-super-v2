@@ -10,6 +10,41 @@ Do the groups in order — you need the Render service URL (Group 2) before you 
 
 ---
 
+## Secret storage strategy
+
+Secrets live in three places depending on their purpose:
+
+| Where | What goes there |
+|---|---|
+| **GitHub Actions secrets** | CI/CD tokens (Docker Hub, Render, Vercel, Expo) |
+| **Render dashboard → Environment** | Backend runtime secrets (DB, JWT, Redis, Resend) |
+| **Bitwarden vault** (personal) | Master copy of every secret value — see [Bitwarden setup](#bitwarden-setup) below |
+
+`.env.example` files in the repo document every variable name and where to obtain its value, but **never store actual secrets in any committed file**.
+
+---
+
+## .env.example files
+
+Three example files are committed and kept in sync with the actual variables:
+
+| File | Purpose |
+|---|---|
+| `.env.example` | Root — CI/CD secrets passed through GitHub Actions |
+| `server/.env.example` | Backend local development |
+| `client/.env.example` | Expo/React Native local development |
+
+To start local development:
+
+```bash
+cp .env.example .env
+cp server/.env.example server/.env
+cp client/.env.example client/.env
+# Then fill in the values from your Bitwarden vault
+```
+
+---
+
 ## Group 1 — Docker Hub
 
 **Secrets:** `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`
@@ -97,12 +132,17 @@ Docker Hub repositories are created automatically on first push, so you need to 
 2. Set `JWT_SECRET` = first output, `JWT_REFRESH_SECRET` = second output.
 3. They **must be different strings**.
 
-### `REDIS_URL`
+### `REDIS_URL` and `REDIS_TOKEN`
+
+The production setup uses **Upstash Redis** via its REST API (HTTP, not the Redis wire protocol).
 
 1. Go to [upstash.com](https://upstash.com) → sign in → **Redis** → **Create Database**.
 2. Name it `meu-guia-do-super`, pick the region closest to your Render region, keep **TLS enabled**. Click **Create**.
-3. On the database page → **Details** tab → copy the **Redis URL** (starts with `rediss://`).
-4. Set as `REDIS_URL` in Render. The double `s` in `rediss://` means TLS — required by Upstash.
+3. On the database page → **Details** tab → **REST API** section:
+   - Copy the **UPSTASH_REDIS_REST_URL** → set as `REDIS_URL` in Render.
+   - Copy the **UPSTASH_REDIS_REST_TOKEN** → set as `REDIS_TOKEN` in Render.
+
+> Note: `REDIS_URL` here is the Upstash HTTPS endpoint (e.g. `https://communal-humpback-xxxxx.upstash.io`), not a `rediss://` Redis wire-protocol URL. The backend uses the Upstash REST client, which requires the token separately.
 
 ### `RESEND_API_KEY`
 
@@ -163,6 +203,75 @@ After getting your Vercel URL, go back to Group 3 and fill in `ALLOWED_ORIGINS`.
 
 ---
 
+## Bitwarden setup
+
+Bitwarden is the personal vault for storing all actual secret values. It keeps a master copy independent of any service, so you can recover credentials after rotating tokens or rebuilding environments.
+
+**Free account at:** [bitwarden.com](https://bitwarden.com) — the free tier covers everything needed here.
+
+### First-time setup
+
+1. Go to [vault.bitwarden.com](https://vault.bitwarden.com) → **Create account**.
+2. Use a strong master password (20+ chars). Store it somewhere completely offline (paper, hardware key) — Bitwarden cannot recover it for you.
+3. Install the browser extension or desktop app for easy access during setup.
+
+### Creating the secure note
+
+All project secrets are stored in a single **Secure Note** (not a Login item):
+
+1. In your vault: **+ New item** → **Secure Note**.
+2. **Name:** `meu-guia-do-super-v2 — Environment Secrets`
+3. **Folder:** Create a folder called `Projects` if you don't have one.
+4. In the **Notes** field, paste this template and fill in your real values:
+
+```
+=== GitHub Actions Secrets ===
+DOCKERHUB_USERNAME=
+DOCKERHUB_TOKEN=
+RENDER_API_KEY=
+RENDER_SERVICE_ID=
+VERCEL_TOKEN=
+VERCEL_ORG_ID=
+VERCEL_PROJECT_ID=
+EXPO_TOKEN=
+EXPO_PUBLIC_API_URL=
+
+=== Render Environment Variables ===
+DATABASE_URL=
+JWT_SECRET=
+JWT_REFRESH_SECRET=
+REDIS_URL=
+REDIS_TOKEN=
+RESEND_API_KEY=
+ALLOWED_ORIGINS=
+
+=== Local Dev Only (never in production) ===
+DATABASE_URL (local)=postgresql+asyncpg://meuguia:meuguia@localhost:5432/meuguia
+REDIS_URL (local)=redis://localhost:6379
+```
+
+5. Click **Save**.
+
+### Rotating a secret
+
+When you rotate a credential (e.g. a compromised token):
+
+1. Generate the new value at the service dashboard.
+2. Update it in GitHub Actions secrets / Render dashboard immediately.
+3. Open the Bitwarden note → edit → replace the old value → save.
+4. Add a one-line comment in the note next to the entry with the rotation date, e.g. `# rotated 2026-06-01`.
+
+### Sharing with a co-developer (future)
+
+When the team grows beyond one person, use a **Bitwarden Organization** (free for 2 users):
+
+1. In Bitwarden: avatar → **Organizations** → **New Organization** → Free plan.
+2. Invite the co-developer by email.
+3. Move the secure note to a shared **Collection** within the org.
+4. They get read access to secrets without ever seeing your master password.
+
+---
+
 ## Completion checklist
 
 | Secret | Destination | Done |
@@ -180,5 +289,7 @@ After getting your Vercel URL, go back to Group 3 and fill in `ALLOWED_ORIGINS`.
 | `JWT_SECRET` | Render dashboard → Environment | ☐ |
 | `JWT_REFRESH_SECRET` | Render dashboard → Environment | ☐ |
 | `REDIS_URL` | Render dashboard → Environment | ☐ |
+| `REDIS_TOKEN` | Render dashboard → Environment | ☐ |
 | `RESEND_API_KEY` | Render dashboard → Environment | ☐ |
 | `ALLOWED_ORIGINS` | Render dashboard → Environment | ☐ |
+| All of the above | Bitwarden secure note | ☐ |
