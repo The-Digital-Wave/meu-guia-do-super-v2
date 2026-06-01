@@ -30,7 +30,7 @@ jobs:
           context: ./server
           file: ./server/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/meu-guia-do-super-server:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/meu-guia-do-super-api:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

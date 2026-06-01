@@ -96,12 +96,6 @@ app.include_router(navigation.router, prefix=_API_PREFIX)
 # Health check (no prefix — infra/load-balancer friendly)
 # ---------------------------------------------------------------------------
 
-@app.get("/debug/cors", tags=["Debug"], response_model=None, include_in_schema=False)
-async def debug_cors() -> dict[str, Any]:
-    """Temporary: returns what ALLOWED_ORIGINS the running process actually sees."""
-    return {"allowed_origins": _origins, "raw_setting": settings.ALLOWED_ORIGINS}
-
-
 @app.get("/health", tags=["Health"], response_model=None)
 async def health_check() -> dict[str, Any] | JSONResponse:
     """Health check endpoint. Returns DB and Redis connectivity status.
