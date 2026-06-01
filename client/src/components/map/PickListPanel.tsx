@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { View, Text, FlatList, Pressable, StyleSheet } from "react-native";
 import type { RouteSegment } from "@/types";
 import PickListItem from "./PickListItem";
@@ -32,24 +32,28 @@ export default function PickListPanel({
   totalSeconds,
 }: Props) {
   const totalStops = segments.length;
-  const collectedSet = new Set(collectedIndices);
+
+  const collectedSet = useMemo(
+    () => new Set(collectedIndices),
+    [collectedIndices]
+  );
 
   // Build ordered list: collected first, then active, then upcoming
-  const collected: SegmentRow[] = [];
-  const active: SegmentRow[] = [];
-  const upcoming: SegmentRow[] = [];
-
-  segments.forEach((segment, index) => {
-    if (collectedSet.has(index)) {
-      collected.push({ index, segment });
-    } else if (index === activeIndex) {
-      active.push({ index, segment });
-    } else {
-      upcoming.push({ index, segment });
-    }
-  });
-
-  const orderedRows: SegmentRow[] = [...collected, ...active, ...upcoming];
+  const orderedRows = useMemo<SegmentRow[]>(() => {
+    const collected: SegmentRow[] = [];
+    const active: SegmentRow[] = [];
+    const upcoming: SegmentRow[] = [];
+    segments.forEach((segment, index) => {
+      if (collectedSet.has(index)) {
+        collected.push({ index, segment });
+      } else if (index === activeIndex) {
+        active.push({ index, segment });
+      } else {
+        upcoming.push({ index, segment });
+      }
+    });
+    return [...collected, ...active, ...upcoming];
+  }, [segments, activeIndex, collectedSet]);
 
   const keyExtractor = useCallback(
     (item: SegmentRow) => `seg-${item.index}`,

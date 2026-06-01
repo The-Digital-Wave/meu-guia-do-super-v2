@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useEffect } from "react";
+import React, { useMemo, useRef, useEffect, useCallback } from "react";
 import { View, Text, Dimensions, Animated, Easing } from "react-native";
 import Svg, { Circle, Line, G, Text as SvgText, Rect, Polyline } from "react-native-svg";
 import type { Node, Edge, Shelf } from "@/types";
@@ -70,9 +70,9 @@ export default function MapCanvas({
     [highlightedNodeIds]
   );
 
-  // Convert meter coords to canvas pixel coords
-  const toCanvasX = (x: number) => x * scale;
-  const toCanvasY = (y: number) => y * scale;
+  // Convert meter coords to canvas pixel coords — memoised to avoid stale closures in routePoints
+  const toCanvasX = useCallback((x: number) => x * scale, [scale]);
+  const toCanvasY = useCallback((y: number) => y * scale, [scale]);
 
   // User node SVG coords (for rotation center)
   const userNode = userNodeId ? nodeMap.get(userNodeId) : null;

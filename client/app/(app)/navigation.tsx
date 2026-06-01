@@ -188,10 +188,10 @@ export default function NavigationScreen() {
                     marginBottom: 4,
                   }}
                 >
-                  {currentSegment!.shelf_label ?? stepLabel}
+                  {currentSegment?.shelf_label ?? stepLabel}
                 </Text>
                 <Text style={{ fontSize: 13, color: "#8e8e93" }}>
-                  {currentSegment!.distance_m.toFixed(1)}m · {formatTime(currentSegment!.estimated_seconds)}
+                  {currentSegment?.distance_m.toFixed(1) ?? "0.0"}m · {formatTime(currentSegment?.estimated_seconds ?? 0)}
                 </Text>
               </View>
             </View>
