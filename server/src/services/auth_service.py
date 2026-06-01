@@ -1,20 +1,18 @@
 """Auth service — business logic for registration, login, and token refresh."""
-from passlib.context import CryptContext
+import bcrypt
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.user import User, UserRole
 from src.repositories import user_repository
 from src.utils.auth import create_access_token, create_refresh_token, decode_refresh_token
 
-_pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 def _hash_password(password: str) -> str:
-    return _pwd_context.hash(password)
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
 
 def _verify_password(plain: str, hashed: str) -> bool:
-    return _pwd_context.verify(plain, hashed)
+    return bcrypt.checkpw(plain.encode(), hashed.encode())
 
 
 async def register(
