@@ -411,9 +411,9 @@ Chain: `DevSecOps → Server + Client → QA → DevSecOps → Product Managemen
 
 1. Identify the current feature branch by running `git branch -a` — the highest-numbered `worktree-feature+phase-N-*` branch is the active one.
 2. Check it out in the main repo directory: `git checkout worktree-feature+phase-N-*`.
-3. Make all edits and commits from the main repo root.
-4. **Before pushing, always show the user the commits to be pushed and ask for explicit confirmation that they have reviewed the changes.** Only run `git push` after the user confirms.
-5. After the user confirms, push to `origin/<feature-branch>`.
+3. Make all edits from the main repo root — but **do not stage or commit yet**.
+4. **Before committing**, summarise the changes and ask for explicit confirmation that the user has reviewed them in the VSCode source control tab. Only stage and commit after the user confirms.
+5. After committing, push immediately to `origin/<feature-branch>` without a second confirmation.
 6. Open a PR from the feature branch to `master` on GitHub.
 7. After the PR merges, check out and pull master: `git checkout master && git pull origin master`.
 
@@ -422,7 +422,7 @@ Chain: `DevSecOps → Server + Client → QA → DevSecOps → Product Managemen
 git branch --show-current  # must NOT be master
 ```
 
-**Before every push**, show pending commits and ask:
-> "I'm about to push the following commits to `origin/<branch>`. Have you reviewed the changes? Should I go ahead?"
+**Before staging and committing**, tell the user what changed and ask:
+> "I've made the following changes: [summary]. Please review them in the VSCode source control tab and let me know when I can commit."
 
 If you accidentally committed to master, stop immediately and ask the user how to proceed — do not cherry-pick or rebase without explicit instruction.
