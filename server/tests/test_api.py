@@ -329,9 +329,12 @@ async def test_list_products_empty(client: AsyncClient) -> None:
     # Act
     resp = await client.get("/api/v1/products")
 
-    # Assert
+    # Assert — paginated envelope with empty items list
     assert resp.status_code == 200
-    assert resp.json() == []
+    body = resp.json()
+    assert body["items"] == []
+    assert body["total"] == 0
+    assert body["page"] == 1
 
 
 async def test_create_product_as_admin(
@@ -374,9 +377,9 @@ async def test_search_products_by_name(
     # Act — search for "queijo"
     resp = await client.get("/api/v1/products", params={"q": "queijo"})
 
-    # Assert
+    # Assert — paginated envelope; only matching products in items
     assert resp.status_code == 200
-    names = [p["name"] for p in resp.json()]
+    names = [p["name"] for p in resp.json()["items"]]
     assert "Queijo Minas" in names
     assert "Iogurte Natural" not in names
 
@@ -399,7 +402,7 @@ async def test_search_products_case_insensitive(
     assert resp.status_code == 200
     # SQLite's LIKE is case-insensitive for ASCII characters by default,
     # so "arroz" matches "Arroz Branco" in this test environment.
-    results = resp.json()
+    results = resp.json()["items"]
     assert any("Arroz" in p["name"] for p in results)
 
 
