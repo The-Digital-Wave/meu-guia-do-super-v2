@@ -3,9 +3,11 @@ from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
+from src.config import settings
 from src.database import AsyncSessionLocal, engine
 from src.redis_client import connect_redis, disconnect_redis
 from src.routers import (
@@ -59,6 +61,19 @@ app = FastAPI(
         "Shoppers can search for products and get turn-by-turn navigation guidance."
     ),
     lifespan=lifespan,
+)
+
+# ---------------------------------------------------------------------------
+# CORS
+# ---------------------------------------------------------------------------
+_origins = [o.strip() for o in settings.ALLOWED_ORIGINS.split(",") if o.strip()]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # ---------------------------------------------------------------------------
