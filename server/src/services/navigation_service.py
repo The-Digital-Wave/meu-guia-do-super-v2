@@ -190,6 +190,29 @@ async def calculate_route(
         if nid not in node_to_first_product:
             node_to_first_product[nid] = pid
 
+    # Pre-fetch enrichment data: product → shelf → shelf_front node
+    # Stored keyed by product_id for O(1) lookup during segment construction.
+    product_enrichment: dict[UUID, dict] = {}
+    for pid in product_ids:
+        enrichment: dict = {}
+        try:
+            product = await product_repository.get_by_id(db, pid)
+            if product is not None:
+                enrichment["product_name"] = product.name
+                if product.shelf_id is not None:
+                    shelf = await shelf_repository.get_by_id(db, product.shelf_id)
+                    if shelf is not None:
+                        enrichment["shelf_label"] = shelf.label
+                        if shelf.node_id is not None:
+                            node = await node_repository.get_by_id(db, shelf.node_id)
+                            if node is not None:
+                                enrichment["shelf_front_node_id"] = node.id
+                                enrichment["shelf_front_x"] = node.x
+                                enrichment["shelf_front_y"] = node.y
+        except Exception:  # best-effort join: never block routing on a DB/model failure
+            pass
+        product_enrichment[pid] = enrichment
+
     # Build segments
     segments: list[dict] = []
     all_waypoints: list[UUID] = [start_node_id]
@@ -201,14 +224,22 @@ async def calculate_route(
         except nx.NetworkXNoPath:
             raise ValueError(f"No path from {current} to {target_node} in layout {layout_id}")
 
+        segment_product_id = node_to_first_product.get(target_node)
+        enrichment = product_enrichment.get(segment_product_id, {}) if segment_product_id else {}
+
         segments.append(
             {
                 "from_node_id": current,
                 "to_node_id": target_node,
-                "product_id": node_to_first_product.get(target_node),
+                "product_id": segment_product_id,
                 "path_nodes": path,
                 "distance_m": round(dist, 4),
                 "estimated_seconds": math.ceil(dist / WALKING_SPEED_MS),
+                "product_name": enrichment.get("product_name"),
+                "shelf_label": enrichment.get("shelf_label"),
+                "shelf_front_node_id": enrichment.get("shelf_front_node_id"),
+                "shelf_front_x": enrichment.get("shelf_front_x"),
+                "shelf_front_y": enrichment.get("shelf_front_y"),
             }
         )
 

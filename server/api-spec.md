@@ -16,7 +16,36 @@ Manage top-level store or warehouse physical grid arrangements.
 - **PUT /layouts/:id** -> Updates layout metadata.
 - **DELETE /layouts/:id** -> Destroys layout and triggers cascading cleanup flags for orphaned components.
 - **GET /layouts/:id/shelves** -> Custom relational query gathering all associated shelf child entities.
-- **GET /layouts/:id/download** -> Compiles layout structure into an offline-ready format.
+- **GET /layouts/:id/download** -> Compiles layout structure into an offline-ready bundle.
+
+  Response body (`200 OK`):
+  ```json
+  {
+    "layout":   { /* LayoutOut */ },
+    "nodes":    [ /* NodeOut[] */ ],
+    "edges":    [ /* EdgeOut[] */ ],
+    "shelves":  [ /* ShelfOut[] — includes width and height */ ],
+    "products": [ /* ProductOut[] */ ]
+  }
+  ```
+
+  `ShelfOut` object shape (within the download bundle):
+  ```json
+  {
+    "id": "uuid",
+    "layout_id": "uuid",
+    "node_id": "uuid | null",
+    "aisle": "string",
+    "section": "string",
+    "label": "string | null",
+    "x": 1.5,
+    "y": 3.2,
+    "width": 2.0,
+    "height": 1.0,
+    "color": "#1f6f5f",
+    "created_at": "ISO8601"
+  }
+  ```
 
 ---
 
@@ -189,7 +218,12 @@ Route calculation endpoints (stub — full implementation in Phase 3).
         "product_id": "uuid | null",
         "path_nodes": ["uuid", "uuid", "uuid"],
         "distance_m": 3.5,
-        "estimated_seconds": 4
+        "estimated_seconds": 4,
+        "product_name": "string | null",
+        "shelf_label": "string | null",
+        "shelf_front_node_id": "uuid | null",
+        "shelf_front_x": 4.5,
+        "shelf_front_y": 2.1
       }
     ],
     "total_distance_m": 12.5,
@@ -210,11 +244,16 @@ Route calculation endpoints (stub — full implementation in Phase 3).
 
   `RouteSegment` field descriptions:
 
-  | Field               | Type          | Description                                                                     |
-  |---------------------|---------------|---------------------------------------------------------------------------------|
-  | `from_node_id`      | string        | UUID of the segment start node                                                  |
-  | `to_node_id`        | string        | UUID of the segment end node (the product's shelf_front node)                   |
-  | `product_id`        | string\|null  | UUID of the product reached at `to_node_id`; `null` for intermediate waypoints  |
-  | `path_nodes`        | string[]      | Full ordered list of node UUIDs traversed within this segment                   |
-  | `distance_m`        | number        | Segment distance in metres                                                       |
-  | `estimated_seconds` | number        | Estimated walking time for this segment in seconds                               |
+  | Field                  | Type          | Description                                                                                          |
+  |------------------------|---------------|------------------------------------------------------------------------------------------------------|
+  | `from_node_id`         | string        | UUID of the segment start node                                                                       |
+  | `to_node_id`           | string        | UUID of the segment end node (the product's shelf_front node)                                        |
+  | `product_id`           | string\|null  | UUID of the product reached at `to_node_id`; `null` for intermediate waypoints                       |
+  | `path_nodes`           | string[]      | Full ordered list of node UUIDs traversed within this segment                                        |
+  | `distance_m`           | number        | Segment distance in metres                                                                            |
+  | `estimated_seconds`    | number        | Estimated walking time for this segment in seconds                                                   |
+  | `product_name`         | string\|null  | Display name of the product reached at this segment; `null` if no product or join fails              |
+  | `shelf_label`          | string\|null  | Human-readable label of the shelf (e.g. "Leite & Derivados"); `null` if unset or join fails          |
+  | `shelf_front_node_id`  | string\|null  | UUID of the SHELF_FRONT anchor node; `null` if shelf has no node or join fails                       |
+  | `shelf_front_x`        | number\|null  | X coordinate of the shelf_front node in metres; `null` if join fails                                 |
+  | `shelf_front_y`        | number\|null  | Y coordinate of the shelf_front node in metres; `null` if join fails                                 |
