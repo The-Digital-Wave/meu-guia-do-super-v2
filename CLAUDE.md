@@ -106,6 +106,47 @@ npx expo start --ios
 npx expo start --android
 ```
 
+**CI/CD checks (mirrors GitHub Actions pipelines):**
+
+```bash
+make ci            # run full backend + frontend CI suite locally
+make ci-backend    # ruff + mypy + pytest with CI env vars
+make ci-frontend   # tsc --noEmit + eslint --max-warnings 0
+make check-secrets # validate Render / Vercel / Expo / Docker credentials
+make cd-frontend   # run Expo web export locally (mirrors deploy-frontend-web.yml)
+```
+
+### Mobile local testing (Expo Go on iPhone)
+
+Use this as the primary dev feedback loop — it gives full native behaviour, all APIs, and ~1 second hot reload.
+
+**Prerequisites (one-time):**
+1. Install **Expo Go** from the App Store on your iPhone.
+2. Make sure your iPhone and development PC are on the **same WiFi network**.
+
+**Start the dev server:**
+```bash
+cd client
+npx expo start
+```
+
+A QR code appears in the terminal. Open the iPhone **Camera** app, point it at the QR code, and tap the Expo Go banner. The app loads on the device with live reload active.
+
+**Point at the local backend (optional):**
+
+Create `client/.env.local` (gitignored):
+```
+EXPO_PUBLIC_API_URL=http://<your-pc-local-ip>:8000/api/v1
+```
+
+Find your PC's local IP with `ipconfig` (look for IPv4 Address under your WiFi adapter). Start the FastAPI server first:
+```bash
+cd server
+uvicorn src.main:app --reload
+```
+
+If `.env.local` is absent, the app falls back to the Render production URL — fine for most UI testing without needing the local server running.
+
 ---
 
 ## Architecture Decisions
