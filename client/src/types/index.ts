@@ -84,6 +84,12 @@ export interface RouteSegment {
   path_nodes: string[];
   distance_m: number;
   estimated_seconds: number;
+  // Phase 7: enriched by server
+  product_name: string | null;
+  shelf_label: string | null;
+  shelf_front_node_id: string | null;
+  shelf_front_x: number | null;
+  shelf_front_y: number | null;
 }
 
 export interface RouteResponse {

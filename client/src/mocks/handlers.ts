@@ -464,6 +464,12 @@ export const handlers = [
           path_nodes: pathToShelf,
           distance_m: segDist,
           estimated_seconds: Math.ceil(segDist / 0.8),
+          // Phase 7: enriched fields
+          product_name: "Leite Integral 1L",
+          shelf_label: "Laticínios",
+          shelf_front_node_id: "30000000-0000-0000-0000-000000000002",
+          shelf_front_x: 20.0,
+          shelf_front_y: 21.0,
         },
       ],
       total_distance_m: segDist,
