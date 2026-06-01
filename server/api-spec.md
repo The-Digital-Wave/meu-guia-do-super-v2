@@ -36,7 +36,39 @@ Physical shelf holding items assigned to a parent layout grid.
 
 Inventory items tracked across physical locations.
 
-- **GET /products** -> Fetch inventory with optional filtering by search term (q), category, or shelf_id query params.
+- **GET /products** -> Fetch inventory with optional filtering. Returns a paginated envelope.
+
+  Query parameters:
+  | Parameter  | Type    | Required | Default | Description                                      |
+  |------------|---------|----------|---------|--------------------------------------------------|
+  | `q`        | string  | no       | —       | Full-text search term matched against product name |
+  | `category` | string  | no       | —       | Filter by product category                        |
+  | `shelf_id` | string  | no       | —       | Filter by shelf UUID                              |
+  | `page`     | integer | no       | 1       | 1-based page number                               |
+  | `size`     | integer | no       | 20      | Number of items per page                          |
+
+  Response body (`200 OK`):
+  ```json
+  {
+    "items": [ /* Product[] */ ],
+    "total": 42,
+    "page": 1,
+    "size": 20
+  }
+  ```
+
+  `Product` object shape:
+  ```json
+  {
+    "id": "uuid",
+    "name": "string",
+    "sku": "string | null",
+    "category": "string | null",
+    "image_url": "string | null",
+    "shelf_id": "uuid"
+  }
+  ```
+
 - **GET /products/:id** -> Fetch explicit product metadata.
 - **POST /products** -> Register an item type.
 - **PUT /products/:id** -> Update pricing, name, or other metadata.
@@ -73,6 +105,29 @@ Navigation graph node management scoped to a layout.
 - **POST /layouts/:layout_id/nodes** -> Creates a new node; accepts x, y, node_type, optional label; returns created node with 201.
 - **DELETE /nodes/:node_id** -> Removes a node by id; returns 204 no content.
 
+`Node` object shape:
+```json
+{
+  "id": "uuid",
+  "layout_id": "uuid",
+  "x": 1.5,
+  "y": 3.2,
+  "node_type": "INTERSECTION",
+  "label": "string | null"
+}
+```
+
+`node_type` enumeration — the backend must accept and persist exactly these four string values:
+
+| Value          | Description                                                              |
+|----------------|--------------------------------------------------------------------------|
+| `INTERSECTION` | A walkway junction with no shelf association                             |
+| `SHELF_FRONT`  | The accessible face of a shelf unit; used as a product waypoint          |
+| `ENTRY`        | Store or aisle entry point; valid start node for route calculations      |
+| `EXIT`         | Store or aisle exit point; valid terminal node for route calculations    |
+
+Any other value must be rejected with `422 Unprocessable Entity`.
+
 ---
 
 ## 7. Edges
@@ -104,4 +159,62 @@ Authenticated user grocery list management with per-item CRUD and route optimiza
 
 Route calculation endpoints (stub — full implementation in Phase 3).
 
-- **POST /navigation/route** -> Accepts layout_id, start_node_id, and product_ids array; returns shortest path as array of nodes with x/y/label coordinates and total_distance_m.
+- **POST /navigation/route** -> Calculates the shortest path visiting all requested products, starting from the given node.
+
+  Request body:
+  ```json
+  {
+    "layout_id": "uuid",
+    "start_node_id": "uuid",
+    "product_ids": ["uuid", "uuid"]
+  }
+  ```
+
+  | Field           | Type       | Required | Description                                             |
+  |-----------------|------------|----------|---------------------------------------------------------|
+  | `layout_id`     | string     | yes      | UUID of the store layout graph to route within          |
+  | `start_node_id` | string     | yes      | UUID of the node where the shopper currently stands     |
+  | `product_ids`   | string[]   | yes      | Ordered list of product UUIDs to visit (min 1)          |
+
+  Response body (`200 OK`) — `RouteResponse`:
+  ```json
+  {
+    "layout_id": "uuid",
+    "start_node_id": "uuid",
+    "waypoints": ["node_uuid_1", "node_uuid_2"],
+    "segments": [
+      {
+        "from_node_id": "uuid",
+        "to_node_id": "uuid",
+        "product_id": "uuid | null",
+        "path_nodes": ["uuid", "uuid", "uuid"],
+        "distance_m": 3.5,
+        "estimated_seconds": 4
+      }
+    ],
+    "total_distance_m": 12.5,
+    "total_estimated_seconds": 15
+  }
+  ```
+
+  `RouteResponse` field descriptions:
+
+  | Field                    | Type            | Description                                                                  |
+  |--------------------------|-----------------|------------------------------------------------------------------------------|
+  | `layout_id`              | string          | UUID of the layout the route belongs to                                      |
+  | `start_node_id`          | string          | UUID of the starting node supplied in the request                            |
+  | `waypoints`              | string[]        | Ordered list of node UUIDs the shopper will pass through (start → end)       |
+  | `segments`               | RouteSegment[]  | One segment per leg of the journey (shopper → product stop)                  |
+  | `total_distance_m`       | number          | Sum of all segment distances in metres                                        |
+  | `total_estimated_seconds`| number          | Estimated total walking time in seconds (assumes ~0.8 m/s average walk speed) |
+
+  `RouteSegment` field descriptions:
+
+  | Field               | Type          | Description                                                                     |
+  |---------------------|---------------|---------------------------------------------------------------------------------|
+  | `from_node_id`      | string        | UUID of the segment start node                                                  |
+  | `to_node_id`        | string        | UUID of the segment end node (the product's shelf_front node)                   |
+  | `product_id`        | string\|null  | UUID of the product reached at `to_node_id`; `null` for intermediate waypoints  |
+  | `path_nodes`        | string[]      | Full ordered list of node UUIDs traversed within this segment                   |
+  | `distance_m`        | number        | Segment distance in metres                                                       |
+  | `estimated_seconds` | number        | Estimated walking time for this segment in seconds                               |
