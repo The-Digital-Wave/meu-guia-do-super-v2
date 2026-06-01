@@ -1,31 +1,12 @@
 import { create } from "zustand";
-
-interface RouteNode {
-  node_id: string;
-  x: number;
-  y: number;
-}
-
-interface RouteSegment {
-  from_node_id: string;
-  to_node_id: string;
-  product_id: string | null;
-  path_nodes: string[];
-  distance_m: number;
-  estimated_seconds: number;
-}
+import type { RouteResponse } from "@/types";
 
 interface NavigationState {
   userNodeId: string | null;
-  activeRoute: {
-    waypoints: string[];
-    segments: RouteSegment[];
-    total_distance_m: number;
-    total_estimated_seconds: number;
-  } | null;
+  activeRoute: RouteResponse | null;
   isNavigating: boolean;
-  setUserNodeId: (nodeId: string) => void;
-  setActiveRoute: (route: NavigationState["activeRoute"]) => void;
+  setUserNodeId: (nodeId: string | null) => void;
+  setActiveRoute: (route: RouteResponse | null) => void;
   startNavigation: () => void;
   stopNavigation: () => void;
   clearNavigation: () => void;

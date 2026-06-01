@@ -7,5 +7,26 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.d.ts", "expo-env.d.ts"]
+  "include": [
+    "app/**/*.ts",
+    "app/**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "components/**/*.ts",
+    "components/**/*.tsx",
+    "hooks/**/*.ts",
+    "hooks/**/*.tsx",
+    "stores/**/*.ts",
+    "stores/**/*.tsx",
+    "services/**/*.ts",
+    "services/**/*.tsx",
+    "types/**/*.ts",
+    "types/**/*.tsx",
+    ".expo/types/**/*.d.ts",
+    "expo-env.d.ts"
+  ],
+  "exclude": [
+    "legacy",
+    "src/mocks"
+  ]
 }

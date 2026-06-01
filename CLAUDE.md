@@ -34,21 +34,14 @@ meu-guia-do-super-v2/
 │   └── verify_navigation_graph.py   # Validates navigation graph integrity (no floating nodes)
 ├── tests/                    # Pytest test suite for validation scripts
 ├── client/                   # React Native / Expo frontend
-│   ├── legacy/               # Reference web app (Vite/React) — inspiration only, not to be copied 1:1
 │   └── src/
-│       ├── assets/           # App logo + full-page screenshots from legacy app for UX reference
+│       ├── assets/           # App logo + full-page screenshots for UX reference
 │       ├── components/
 │       ├── pages/
 │       ├── services/         # API clients — must match server/api-spec.md exactly
 │       ├── stores/           # Zustand state
 │       └── types/
 ├── server/                   # Python 3.11+ + FastAPI backend
-│   ├── legacy/               # Reference implementation — schema and route inspiration only
-│   │   ├── controllers/      # authController, layoutController, navigationController, productController, etc.
-│   │   ├── repositories/     # layoutRepository, productRepository, shelfRepository, supermarketRepository
-│   │   ├── routes/           # Express route hooks
-│   │   ├── services/         # navigationService.ts
-│   │   └── utils/            # env.ts, jwt.ts, prisma.ts, zodSchemas.ts
 │   ├── api-spec.md           # Single source of truth for all API contracts (v1)
 │   └── src/                  # controllers/, repositories/, routes/, services/, utils/
 ├── ARCHITECTURE.md           # Directory map and folder conventions
@@ -125,8 +118,6 @@ Three strict layers — no cross-layer access:
 - **Service** — business logic; no direct DB access
 - **Repository** — data access only; no business logic
 
-Reference implementations for all entities exist in `server/legacy/`.
-
 ### API Contract First
 
 `server/api-spec.md` is the single source of truth. **Update the spec before implementing routes or clients.** The client's `src/services/` must mirror endpoint signatures exactly.
@@ -164,12 +155,6 @@ App color ramp derives from `client/src/assets/app-logo.png`. Token file: `agent
 ### Wayfinding Integration
 
 Indoor navigation must be implemented with this project's proprietary code and architecture. MappedIn is a visual and interaction benchmark only. Route guidance, map control placement, and step progression should match the MappedIn grocery benchmark visually and interactively, without coupling runtime navigation to MappedIn services.
-
-### Legacy Code Policy
-
-`client/legacy/` and `server/legacy/` are **reference-only**. Read them for behavioral inspiration and data shape; adapt to mobile-first patterns, never port 1:1.
-
-UX screenshots in `client/src/assets/` (`[page]client-happy-path.png`, `[page]client-empty-state.png`, `[page]landing-full-page.png`) show the legacy web UI. Use for flow and hierarchy reference only.
 
 ---
 
@@ -419,3 +404,25 @@ Chain: `DevSecOps → Server + Client → QA → DevSecOps → Product Managemen
 - Feature branches: `feature/<issue-slug>` off `main`
 - Hotfix branches: `hotfix/<description>` off `main`
 - PR to `main` with passing CI before merge
+
+### Git Commit Workflow — MANDATORY
+
+**Never commit directly to local `master`.** All code changes follow this sequence:
+
+1. Identify the current feature branch by running `git branch -a` — the highest-numbered `worktree-feature+phase-N-*` branch is the active one.
+2. Check it out in the main repo directory: `git checkout worktree-feature+phase-N-*`.
+3. Make all edits and commits from the main repo root.
+4. **Before pushing, always show the user the commits to be pushed and ask for explicit confirmation that they have reviewed the changes.** Only run `git push` after the user confirms.
+5. After the user confirms, push to `origin/<feature-branch>`.
+6. Open a PR from the feature branch to `master` on GitHub.
+7. After the PR merges, check out and pull master: `git checkout master && git pull origin master`.
+
+**Before every commit**, verify the active branch:
+```bash
+git branch --show-current  # must NOT be master
+```
+
+**Before every push**, show pending commits and ask:
+> "I'm about to push the following commits to `origin/<branch>`. Have you reviewed the changes? Should I go ahead?"
+
+If you accidentally committed to master, stop immediately and ask the user how to proceed — do not cherry-pick or rebase without explicit instruction.

@@ -36,6 +36,10 @@ When tasked with system configuration, automation updates, or infrastructure dep
 - Release stages enforce blocking quality gates from mobile-focused QA results.
 - Monitoring includes mobile app API health SLOs and error-rate alerting.
 
+## Project-Specific Constraints
+
+- **Dependency sync:** `server/requirements.txt` and `server/pyproject.toml` must always declare the same production dependencies. The Dockerfile installs from `requirements.txt` (avoids local package resolution issues in Docker); `pyproject.toml` is used for local development (`pip install -e ".[dev]"`). Any dependency addition or removal must be applied to both files.
+
 ## Definition of Done (DoD)
 - Deployment pipelines run continuously to completion without hanging scripts.
 - Newly provisioned cloud assets enforce strict HTTPS/TLS encryption layers.

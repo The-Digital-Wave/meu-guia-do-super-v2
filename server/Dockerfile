@@ -3,27 +3,16 @@ FROM python:3.11-slim AS builder
 
 WORKDIR /build
 
-# Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
+# Copy requirements first for layer caching — reinstalls only when deps change
+COPY requirements.txt ./
 
-# Copy dependency manifests first for layer caching
-COPY pyproject.toml ./
-
-# Install all dependencies from pyproject.toml
+# asyncpg ships pre-built wheels — no gcc or libpq-dev needed
 RUN pip install --upgrade pip \
-    && pip install --no-cache-dir .
+    && pip install --no-cache-dir -r requirements.txt
 
 
 # ─── Stage 2: runtime ────────────────────────────────────────────────────────
 FROM python:3.11-slim AS runtime
-
-# Install runtime system deps
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
 RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser

@@ -26,6 +26,8 @@ pip-wheel-metadata/
 server/.env
 client/.env
 *.local
+# Google Play service account key (EAS submit credential — never commit)
+google-service-account.json
 
 # ── Node / Expo ───────────────────────────────────────────────────
 node_modules/
