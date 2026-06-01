@@ -45,6 +45,7 @@ server/
 2. **Defensive Programming:** Treat all client inputs as hostile. All incoming data must pass through a Pydantic model before reaching service layer.
 3. **Database Guardrails:** Never execute un-indexed queries. All schema changes use Alembic migration files.
 4. **Wayfinding Benchmark:** The navigation service benchmarks against MappedIn wayfinding for route legibility, multi-stop ordering, and step guidance UX (https://developer.mappedin.com/docs/overview). MappedIn is a visual/interaction reference only — no runtime API dependency.
+5. **Test Sync Rule:** Whenever you change the shape of any request or response object — adding, removing, or renaming a field; changing a type from scalar to envelope; making a field optional — you must update the corresponding test assertions in `server/tests/` in the same commit. Changing a Pydantic schema without updating tests that assert on that schema's output is a broken commit.
 
 ## Automated Execution Workflow
 

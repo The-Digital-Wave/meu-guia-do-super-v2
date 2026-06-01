@@ -8,6 +8,20 @@ from src.repositories import product_repository
 from src.schemas.product import ProductCreate, ProductUpdate
 
 
+async def list_products_paginated(
+    db: AsyncSession,
+    q: str | None = None,
+    category: str | None = None,
+    shelf_id: uuid.UUID | None = None,
+    page: int = 1,
+    size: int = 20,
+) -> tuple[list[Product], int]:
+    """Return (items, total) with pagination applied."""
+    return await product_repository.get_paginated(
+        db, q=q, category=category, shelf_id=shelf_id, page=page, size=size
+    )
+
+
 async def list_products(
     db: AsyncSession,
     q: str | None = None,
