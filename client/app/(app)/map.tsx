@@ -18,7 +18,7 @@ export default function MapScreen() {
   const firstLayoutId = layouts?.[0]?.id ?? null;
   const { data: bundle, isLoading: bundleLoading } = useLayoutBundle(firstLayoutId);
 
-  const { userNodeId, activeRoute, setUserNodeId, setActiveRoute, clearNavigation } =
+  const { userNodeId, activeRoute, setUserNodeId, setActiveRoute, clearNavigation, startNavigation } =
     useNavigationStore();
 
   const [routeLoading, setRouteLoading] = useState(false);
@@ -65,8 +65,9 @@ export default function MapScreen() {
   }, [clearNavigation]);
 
   const handleNavigate = useCallback(() => {
+    startNavigation();
     router.push("/(app)/navigation");
-  }, []);
+  }, [startNavigation]);
 
   // Collect all path nodes for highlighting
   const highlightedNodeIds = activeRoute?.waypoints ?? [];

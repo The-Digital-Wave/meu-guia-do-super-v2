@@ -96,15 +96,6 @@ NODES: list[dict] = [
     {"id": uuid.UUID("30000000-0000-0000-0000-000000000010"), "x": 0.5, "y": 0.10, "node_type": NodeType.SHELF_FRONT, "label": "SF-Checkout"},
 ]
 
-# Node ID shorthand helpers
-def n(suffix: str) -> uuid.UUID:  # ENTRY/EXIT: 1x (1-4)
-    return uuid.UUID(f"1000000{suffix}-0000-0000-0000-000000000000"[:37].ljust(36, "0"))
-
-def i(num: int) -> uuid.UUID:  # INTERSECTION: 2x
-    return uuid.UUID(f"20000000-0000-0000-0000-{num:012d}")
-
-def sf(num: int) -> uuid.UUID:  # SHELF_FRONT: 3x
-    return uuid.UUID(f"30000000-0000-0000-0000-{num:012d}")
 
 
 # Resolve UUIDs from node list by label for clarity

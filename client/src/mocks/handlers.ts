@@ -44,8 +44,32 @@ const MOCK_EDGES = [
 ];
 
 const MOCK_SHELVES = [
-  { id: "shelf-001", layout_id: "layout-001", label: "Laticínios", x: 10, y: 10, width_m: 4, height_m: 2 },
-  { id: "shelf-002", layout_id: "layout-001", label: "Padaria", x: 20, y: 10, width_m: 4, height_m: 2 },
+  {
+    id: "shelf-001",
+    layout_id: "layout-001",
+    node_id: "node-003",   // SHELF_FRONT at (10, 10)
+    aisle: "A",
+    section: "A1",
+    label: "Laticínios",
+    x: 10,
+    y: 10,
+    width: 4,
+    height: 2,
+    color: "#1f6f5f",
+  },
+  {
+    id: "shelf-002",
+    layout_id: "layout-001",
+    node_id: "node-004",   // SHELF_FRONT at (20, 10)
+    aisle: "B",
+    section: "B1",
+    label: "Padaria",
+    x: 20,
+    y: 10,
+    width: 4,
+    height: 2,
+    color: "#1f6f5f",
+  },
 ];
 
 const MOCK_PRODUCTS = [
@@ -420,30 +444,30 @@ export const handlers = [
     const startNodeId = body?.start_node_id ?? "node-001";
     const layoutId = body?.layout_id ?? MOCK_LAYOUT.id;
     const productId = body?.product_ids?.[0] ?? null;
+    // Build a coherent route from startNodeId through node-003 (first SHELF_FRONT)
+    // Simple linear path: start → node-002 → node-003
+    const pathToShelf = startNodeId === "node-001"
+      ? [startNodeId, "node-002", "node-003"]
+      : startNodeId === "node-002"
+        ? [startNodeId, "node-003"]
+        : [startNodeId];
+    const segDist = (pathToShelf.length - 1) * 10;
     return HttpResponse.json({
       layout_id: layoutId,
       start_node_id: startNodeId,
-      waypoints: ["node-001", "node-002", "node-003"],
+      waypoints: pathToShelf,
       segments: [
         {
-          from_node_id: "node-001",
-          to_node_id: "node-002",
-          product_id: null,
-          path_nodes: ["node-001", "node-002"],
-          distance_m: 10,
-          estimated_seconds: 8,
-        },
-        {
-          from_node_id: "node-002",
+          from_node_id: startNodeId,
           to_node_id: "node-003",
           product_id: productId,
-          path_nodes: ["node-002", "node-003"],
-          distance_m: 10,
-          estimated_seconds: 8,
+          path_nodes: pathToShelf,
+          distance_m: segDist,
+          estimated_seconds: Math.ceil(segDist / 0.8),
         },
       ],
-      total_distance_m: 20,
-      total_estimated_seconds: 16,
+      total_distance_m: segDist,
+      total_estimated_seconds: Math.ceil(segDist / 0.8),
     });
   }),
 ];

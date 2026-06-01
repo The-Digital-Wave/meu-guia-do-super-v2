@@ -28,10 +28,15 @@ export interface Edge {
 export interface Shelf {
   id: string;
   layout_id: string;
-  node_id: string;
+  node_id: string | null;  // null when shelf has no navigation anchor yet
   aisle: string;
   section: string;
-  label: string;
+  label: string | null;
+  x: number | null;
+  y: number | null;
+  width: number | null;
+  height: number | null;
+  color: string;
 }
 
 export interface Product {
@@ -40,7 +45,11 @@ export interface Product {
   sku: string | null;
   category: string | null;
   image_url: string | null;
-  shelf_id: string;
+  shelf_id: string | null;        // null when product has no shelf assignment
+  brand: string | null;
+  description: string | null;
+  quantity: number;
+  section_index: number | null;
   shelf?: Shelf;
 }
 

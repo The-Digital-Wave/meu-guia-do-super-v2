@@ -170,6 +170,13 @@ async def calculate_route(
             )
         product_to_node[pid] = shelf.node_id
 
+    # Guard: verify every resolved shelf node exists in this layout's graph
+    for pid, nid in product_to_node.items():
+        if nid not in graph:
+            raise ValueError(
+                f"Shelf anchor node {nid} for product {pid} is not part of layout {layout_id} graph"
+            )
+
     # De-duplicate target nodes while preserving product association order
     unique_target_nodes = list(dict.fromkeys(product_to_node.values()))
 
