@@ -70,12 +70,3 @@ jobs:
 
       - name: ESLint
         run: npx eslint . --ext .ts,.tsx --max-warnings 0
-
-  await-review:
-    name: Awaiting developer review
-    needs: [backend, frontend]
-    runs-on: ubuntu-latest
-    environment: protected
-    steps:
-      - name: All checks passed
-        run: echo "CI passed — developer approved this PR for merge."

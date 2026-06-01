@@ -404,3 +404,25 @@ Chain: `DevSecOps → Server + Client → QA → DevSecOps → Product Managemen
 - Feature branches: `feature/<issue-slug>` off `main`
 - Hotfix branches: `hotfix/<description>` off `main`
 - PR to `main` with passing CI before merge
+
+### Git Commit Workflow — MANDATORY
+
+**Never commit directly to local `master`.** All code changes follow this sequence:
+
+1. Identify the current feature branch by running `git branch -a` — the highest-numbered `worktree-feature+phase-N-*` branch is the active one.
+2. Check it out in the main repo directory: `git checkout worktree-feature+phase-N-*`.
+3. Make all edits and commits from the main repo root.
+4. **Before pushing, always show the user the commits to be pushed and ask for explicit confirmation that they have reviewed the changes.** Only run `git push` after the user confirms.
+5. After the user confirms, push to `origin/<feature-branch>`.
+6. Open a PR from the feature branch to `master` on GitHub.
+7. After the PR merges, check out and pull master: `git checkout master && git pull origin master`.
+
+**Before every commit**, verify the active branch:
+```bash
+git branch --show-current  # must NOT be master
+```
+
+**Before every push**, show pending commits and ask:
+> "I'm about to push the following commits to `origin/<branch>`. Have you reviewed the changes? Should I go ahead?"
+
+If you accidentally committed to master, stop immediately and ask the user how to proceed — do not cherry-pick or rebase without explicit instruction.
