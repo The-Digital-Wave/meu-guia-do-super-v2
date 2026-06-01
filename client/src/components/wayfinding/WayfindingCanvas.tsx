@@ -1,5 +1,5 @@
-import React, { useMemo, useRef, useState } from "react";
-import { View, Dimensions, GestureResponderEvent } from "react-native";
+import React, { useMemo } from "react";
+import { View, Dimensions } from "react-native";
 import Svg, { Circle, Line, G, Text as SvgText } from "react-native-svg";
 import type { Node, Edge } from "@/types";
 
