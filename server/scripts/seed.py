@@ -54,46 +54,47 @@ SUPERMARKET_ID = uuid.UUID("00000000-0000-0000-0000-000000000001")
 LAYOUT_ID = uuid.UUID("00000000-0000-0000-0000-000000000002")
 
 # 30 nodes: 2 ENTRY, 2 EXIT, 16 INTERSECTION, 10 SHELF_FRONT
-# Grid pattern: rows × cols with normalized coordinates (0.0–1.0)
+# Coordinates are in METRES matching the layout (width_m=50, height_m=30).
+# y=0 is north wall (exits), y=30 is south wall (entries).
 NODES: list[dict] = [
-    # ENTRY nodes (south wall)
-    {"id": uuid.UUID("10000000-0000-0000-0000-000000000001"), "x": 0.1, "y": 0.95, "node_type": NodeType.ENTRY, "label": "Entrada Principal"},
-    {"id": uuid.UUID("10000000-0000-0000-0000-000000000002"), "x": 0.9, "y": 0.95, "node_type": NodeType.ENTRY, "label": "Entrada Secundária"},
-    # EXIT nodes (north wall)
-    {"id": uuid.UUID("10000000-0000-0000-0000-000000000003"), "x": 0.1, "y": 0.05, "node_type": NodeType.EXIT, "label": "Saída Principal"},
-    {"id": uuid.UUID("10000000-0000-0000-0000-000000000004"), "x": 0.9, "y": 0.05, "node_type": NodeType.EXIT, "label": "Saída Secundária"},
-    # INTERSECTION nodes — main aisle grid
-    {"id": uuid.UUID("20000000-0000-0000-0000-000000000001"), "x": 0.1, "y": 0.80, "node_type": NodeType.INTERSECTION, "label": "Int-A1"},
-    {"id": uuid.UUID("20000000-0000-0000-0000-000000000002"), "x": 0.3, "y": 0.80, "node_type": NodeType.INTERSECTION, "label": "Int-B1"},
-    {"id": uuid.UUID("20000000-0000-0000-0000-000000000003"), "x": 0.5, "y": 0.80, "node_type": NodeType.INTERSECTION, "label": "Int-C1"},
-    {"id": uuid.UUID("20000000-0000-0000-0000-000000000004"), "x": 0.7, "y": 0.80, "node_type": NodeType.INTERSECTION, "label": "Int-D1"},
-    {"id": uuid.UUID("20000000-0000-0000-0000-000000000005"), "x": 0.9, "y": 0.80, "node_type": NodeType.INTERSECTION, "label": "Int-E1"},
-    {"id": uuid.UUID("20000000-0000-0000-0000-000000000006"), "x": 0.1, "y": 0.60, "node_type": NodeType.INTERSECTION, "label": "Int-A2"},
-    {"id": uuid.UUID("20000000-0000-0000-0000-000000000007"), "x": 0.3, "y": 0.60, "node_type": NodeType.INTERSECTION, "label": "Int-B2"},
-    {"id": uuid.UUID("20000000-0000-0000-0000-000000000008"), "x": 0.5, "y": 0.60, "node_type": NodeType.INTERSECTION, "label": "Int-C2"},
-    {"id": uuid.UUID("20000000-0000-0000-0000-000000000009"), "x": 0.7, "y": 0.60, "node_type": NodeType.INTERSECTION, "label": "Int-D2"},
-    {"id": uuid.UUID("20000000-0000-0000-0000-000000000010"), "x": 0.9, "y": 0.60, "node_type": NodeType.INTERSECTION, "label": "Int-E2"},
-    {"id": uuid.UUID("20000000-0000-0000-0000-000000000011"), "x": 0.1, "y": 0.40, "node_type": NodeType.INTERSECTION, "label": "Int-A3"},
-    {"id": uuid.UUID("20000000-0000-0000-0000-000000000012"), "x": 0.3, "y": 0.40, "node_type": NodeType.INTERSECTION, "label": "Int-B3"},
-    {"id": uuid.UUID("20000000-0000-0000-0000-000000000013"), "x": 0.5, "y": 0.40, "node_type": NodeType.INTERSECTION, "label": "Int-C3"},
-    {"id": uuid.UUID("20000000-0000-0000-0000-000000000014"), "x": 0.7, "y": 0.40, "node_type": NodeType.INTERSECTION, "label": "Int-D3"},
-    {"id": uuid.UUID("20000000-0000-0000-0000-000000000015"), "x": 0.9, "y": 0.40, "node_type": NodeType.INTERSECTION, "label": "Int-E3"},
-    {"id": uuid.UUID("20000000-0000-0000-0000-000000000016"), "x": 0.1, "y": 0.20, "node_type": NodeType.INTERSECTION, "label": "Int-A4"},
-    {"id": uuid.UUID("20000000-0000-0000-0000-000000000017"), "x": 0.3, "y": 0.20, "node_type": NodeType.INTERSECTION, "label": "Int-B4"},
-    {"id": uuid.UUID("20000000-0000-0000-0000-000000000018"), "x": 0.5, "y": 0.20, "node_type": NodeType.INTERSECTION, "label": "Int-C4"},
-    {"id": uuid.UUID("20000000-0000-0000-0000-000000000019"), "x": 0.7, "y": 0.20, "node_type": NodeType.INTERSECTION, "label": "Int-D4"},
-    {"id": uuid.UUID("20000000-0000-0000-0000-000000000020"), "x": 0.9, "y": 0.20, "node_type": NodeType.INTERSECTION, "label": "Int-E4"},
-    # SHELF_FRONT nodes (positioned between intersections)
-    {"id": uuid.UUID("30000000-0000-0000-0000-000000000001"), "x": 0.2, "y": 0.70, "node_type": NodeType.SHELF_FRONT, "label": "SF-Padaria"},
-    {"id": uuid.UUID("30000000-0000-0000-0000-000000000002"), "x": 0.4, "y": 0.70, "node_type": NodeType.SHELF_FRONT, "label": "SF-Laticínios"},
-    {"id": uuid.UUID("30000000-0000-0000-0000-000000000003"), "x": 0.6, "y": 0.70, "node_type": NodeType.SHELF_FRONT, "label": "SF-Carnes"},
-    {"id": uuid.UUID("30000000-0000-0000-0000-000000000004"), "x": 0.8, "y": 0.70, "node_type": NodeType.SHELF_FRONT, "label": "SF-Hortifruti"},
-    {"id": uuid.UUID("30000000-0000-0000-0000-000000000005"), "x": 0.2, "y": 0.50, "node_type": NodeType.SHELF_FRONT, "label": "SF-Bebidas"},
-    {"id": uuid.UUID("30000000-0000-0000-0000-000000000006"), "x": 0.4, "y": 0.50, "node_type": NodeType.SHELF_FRONT, "label": "SF-Limpeza"},
-    {"id": uuid.UUID("30000000-0000-0000-0000-000000000007"), "x": 0.6, "y": 0.50, "node_type": NodeType.SHELF_FRONT, "label": "SF-Higiene"},
-    {"id": uuid.UUID("30000000-0000-0000-0000-000000000008"), "x": 0.8, "y": 0.50, "node_type": NodeType.SHELF_FRONT, "label": "SF-Congelados"},
-    {"id": uuid.UUID("30000000-0000-0000-0000-000000000009"), "x": 0.2, "y": 0.30, "node_type": NodeType.SHELF_FRONT, "label": "SF-Mercearia"},
-    {"id": uuid.UUID("30000000-0000-0000-0000-000000000010"), "x": 0.5, "y": 0.10, "node_type": NodeType.SHELF_FRONT, "label": "SF-Checkout"},
+    # ENTRY nodes (south wall, y ≈ 28.5m)
+    {"id": uuid.UUID("10000000-0000-0000-0000-000000000001"), "x":  5.0, "y": 28.5, "node_type": NodeType.ENTRY, "label": "Entrada Principal"},
+    {"id": uuid.UUID("10000000-0000-0000-0000-000000000002"), "x": 45.0, "y": 28.5, "node_type": NodeType.ENTRY, "label": "Entrada Secundária"},
+    # EXIT nodes (north wall, y ≈ 1.5m)
+    {"id": uuid.UUID("10000000-0000-0000-0000-000000000003"), "x":  5.0, "y":  1.5, "node_type": NodeType.EXIT, "label": "Saída Principal"},
+    {"id": uuid.UUID("10000000-0000-0000-0000-000000000004"), "x": 45.0, "y":  1.5, "node_type": NodeType.EXIT, "label": "Saída Secundária"},
+    # INTERSECTION nodes — main aisle grid (5 cols × 4 rows)
+    {"id": uuid.UUID("20000000-0000-0000-0000-000000000001"), "x":  5.0, "y": 24.0, "node_type": NodeType.INTERSECTION, "label": "Int-A1"},
+    {"id": uuid.UUID("20000000-0000-0000-0000-000000000002"), "x": 15.0, "y": 24.0, "node_type": NodeType.INTERSECTION, "label": "Int-B1"},
+    {"id": uuid.UUID("20000000-0000-0000-0000-000000000003"), "x": 25.0, "y": 24.0, "node_type": NodeType.INTERSECTION, "label": "Int-C1"},
+    {"id": uuid.UUID("20000000-0000-0000-0000-000000000004"), "x": 35.0, "y": 24.0, "node_type": NodeType.INTERSECTION, "label": "Int-D1"},
+    {"id": uuid.UUID("20000000-0000-0000-0000-000000000005"), "x": 45.0, "y": 24.0, "node_type": NodeType.INTERSECTION, "label": "Int-E1"},
+    {"id": uuid.UUID("20000000-0000-0000-0000-000000000006"), "x":  5.0, "y": 18.0, "node_type": NodeType.INTERSECTION, "label": "Int-A2"},
+    {"id": uuid.UUID("20000000-0000-0000-0000-000000000007"), "x": 15.0, "y": 18.0, "node_type": NodeType.INTERSECTION, "label": "Int-B2"},
+    {"id": uuid.UUID("20000000-0000-0000-0000-000000000008"), "x": 25.0, "y": 18.0, "node_type": NodeType.INTERSECTION, "label": "Int-C2"},
+    {"id": uuid.UUID("20000000-0000-0000-0000-000000000009"), "x": 35.0, "y": 18.0, "node_type": NodeType.INTERSECTION, "label": "Int-D2"},
+    {"id": uuid.UUID("20000000-0000-0000-0000-000000000010"), "x": 45.0, "y": 18.0, "node_type": NodeType.INTERSECTION, "label": "Int-E2"},
+    {"id": uuid.UUID("20000000-0000-0000-0000-000000000011"), "x":  5.0, "y": 12.0, "node_type": NodeType.INTERSECTION, "label": "Int-A3"},
+    {"id": uuid.UUID("20000000-0000-0000-0000-000000000012"), "x": 15.0, "y": 12.0, "node_type": NodeType.INTERSECTION, "label": "Int-B3"},
+    {"id": uuid.UUID("20000000-0000-0000-0000-000000000013"), "x": 25.0, "y": 12.0, "node_type": NodeType.INTERSECTION, "label": "Int-C3"},
+    {"id": uuid.UUID("20000000-0000-0000-0000-000000000014"), "x": 35.0, "y": 12.0, "node_type": NodeType.INTERSECTION, "label": "Int-D3"},
+    {"id": uuid.UUID("20000000-0000-0000-0000-000000000015"), "x": 45.0, "y": 12.0, "node_type": NodeType.INTERSECTION, "label": "Int-E3"},
+    {"id": uuid.UUID("20000000-0000-0000-0000-000000000016"), "x":  5.0, "y":  6.0, "node_type": NodeType.INTERSECTION, "label": "Int-A4"},
+    {"id": uuid.UUID("20000000-0000-0000-0000-000000000017"), "x": 15.0, "y":  6.0, "node_type": NodeType.INTERSECTION, "label": "Int-B4"},
+    {"id": uuid.UUID("20000000-0000-0000-0000-000000000018"), "x": 25.0, "y":  6.0, "node_type": NodeType.INTERSECTION, "label": "Int-C4"},
+    {"id": uuid.UUID("20000000-0000-0000-0000-000000000019"), "x": 35.0, "y":  6.0, "node_type": NodeType.INTERSECTION, "label": "Int-D4"},
+    {"id": uuid.UUID("20000000-0000-0000-0000-000000000020"), "x": 45.0, "y":  6.0, "node_type": NodeType.INTERSECTION, "label": "Int-E4"},
+    # SHELF_FRONT nodes — midway between aisle rows
+    {"id": uuid.UUID("30000000-0000-0000-0000-000000000001"), "x": 10.0, "y": 21.0, "node_type": NodeType.SHELF_FRONT, "label": "SF-Padaria"},
+    {"id": uuid.UUID("30000000-0000-0000-0000-000000000002"), "x": 20.0, "y": 21.0, "node_type": NodeType.SHELF_FRONT, "label": "SF-Laticínios"},
+    {"id": uuid.UUID("30000000-0000-0000-0000-000000000003"), "x": 30.0, "y": 21.0, "node_type": NodeType.SHELF_FRONT, "label": "SF-Carnes"},
+    {"id": uuid.UUID("30000000-0000-0000-0000-000000000004"), "x": 40.0, "y": 21.0, "node_type": NodeType.SHELF_FRONT, "label": "SF-Hortifruti"},
+    {"id": uuid.UUID("30000000-0000-0000-0000-000000000005"), "x": 10.0, "y": 15.0, "node_type": NodeType.SHELF_FRONT, "label": "SF-Bebidas"},
+    {"id": uuid.UUID("30000000-0000-0000-0000-000000000006"), "x": 20.0, "y": 15.0, "node_type": NodeType.SHELF_FRONT, "label": "SF-Limpeza"},
+    {"id": uuid.UUID("30000000-0000-0000-0000-000000000007"), "x": 30.0, "y": 15.0, "node_type": NodeType.SHELF_FRONT, "label": "SF-Higiene"},
+    {"id": uuid.UUID("30000000-0000-0000-0000-000000000008"), "x": 40.0, "y": 15.0, "node_type": NodeType.SHELF_FRONT, "label": "SF-Congelados"},
+    {"id": uuid.UUID("30000000-0000-0000-0000-000000000009"), "x": 10.0, "y":  9.0, "node_type": NodeType.SHELF_FRONT, "label": "SF-Mercearia"},
+    {"id": uuid.UUID("30000000-0000-0000-0000-000000000010"), "x": 25.0, "y":  3.0, "node_type": NodeType.SHELF_FRONT, "label": "SF-Checkout"},
 ]
 
 
@@ -199,18 +200,18 @@ EDGES += [
     edge(NODE_IDS["SF-Checkout"], NODE_IDS["Saída Principal"], 4.0),
 ]
 
-# 10 shelves anchored to SHELF_FRONT nodes
+# 10 shelves anchored to SHELF_FRONT nodes — coordinates in metres (layout 50×30m)
 SHELVES: list[dict] = [
-    {"id": uuid.UUID("50000000-0000-0000-0000-000000000001"), "node_id": NODE_IDS["SF-Padaria"], "aisle": "A", "section": "Padaria", "label": "Pão & Confeitaria", "x": 0.18, "y": 0.68, "width": 0.08, "height": 0.05, "color": "#c8860a"},
-    {"id": uuid.UUID("50000000-0000-0000-0000-000000000002"), "node_id": NODE_IDS["SF-Laticínios"], "aisle": "B", "section": "Laticínios", "label": "Leite & Derivados", "x": 0.38, "y": 0.68, "width": 0.08, "height": 0.05, "color": "#1f6f5f"},
-    {"id": uuid.UUID("50000000-0000-0000-0000-000000000003"), "node_id": NODE_IDS["SF-Carnes"], "aisle": "C", "section": "Carnes", "label": "Açougue", "x": 0.58, "y": 0.68, "width": 0.08, "height": 0.05, "color": "#b03030"},
-    {"id": uuid.UUID("50000000-0000-0000-0000-000000000004"), "node_id": NODE_IDS["SF-Hortifruti"], "aisle": "D", "section": "Hortifruti", "label": "Frutas & Verduras", "x": 0.78, "y": 0.68, "width": 0.08, "height": 0.05, "color": "#2e7d32"},
-    {"id": uuid.UUID("50000000-0000-0000-0000-000000000005"), "node_id": NODE_IDS["SF-Bebidas"], "aisle": "A", "section": "Bebidas", "label": "Bebidas & Sucos", "x": 0.18, "y": 0.48, "width": 0.08, "height": 0.05, "color": "#1565c0"},
-    {"id": uuid.UUID("50000000-0000-0000-0000-000000000006"), "node_id": NODE_IDS["SF-Limpeza"], "aisle": "B", "section": "Limpeza", "label": "Produtos de Limpeza", "x": 0.38, "y": 0.48, "width": 0.08, "height": 0.05, "color": "#4a148c"},
-    {"id": uuid.UUID("50000000-0000-0000-0000-000000000007"), "node_id": NODE_IDS["SF-Higiene"], "aisle": "C", "section": "Higiene", "label": "Higiene Pessoal", "x": 0.58, "y": 0.48, "width": 0.08, "height": 0.05, "color": "#006064"},
-    {"id": uuid.UUID("50000000-0000-0000-0000-000000000008"), "node_id": NODE_IDS["SF-Congelados"], "aisle": "D", "section": "Congelados", "label": "Congelados", "x": 0.78, "y": 0.48, "width": 0.08, "height": 0.05, "color": "#0d47a1"},
-    {"id": uuid.UUID("50000000-0000-0000-0000-000000000009"), "node_id": NODE_IDS["SF-Mercearia"], "aisle": "A", "section": "Mercearia", "label": "Mercearia Seca", "x": 0.18, "y": 0.28, "width": 0.08, "height": 0.05, "color": "#e65100"},
-    {"id": uuid.UUID("50000000-0000-0000-0000-000000000010"), "node_id": NODE_IDS["SF-Checkout"], "aisle": "E", "section": "Checkout", "label": "Caixas", "x": 0.48, "y": 0.08, "width": 0.08, "height": 0.05, "color": "#37474f"},
+    {"id": uuid.UUID("50000000-0000-0000-0000-000000000001"), "node_id": NODE_IDS["SF-Padaria"],     "aisle": "A", "section": "Padaria",     "label": "Pão & Confeitaria",     "x":  9.0, "y": 20.4, "width": 4.0, "height": 1.5, "color": "#c8860a"},
+    {"id": uuid.UUID("50000000-0000-0000-0000-000000000002"), "node_id": NODE_IDS["SF-Laticínios"],  "aisle": "B", "section": "Laticínios",  "label": "Leite & Derivados",     "x": 19.0, "y": 20.4, "width": 4.0, "height": 1.5, "color": "#1f6f5f"},
+    {"id": uuid.UUID("50000000-0000-0000-0000-000000000003"), "node_id": NODE_IDS["SF-Carnes"],      "aisle": "C", "section": "Carnes",      "label": "Açougue",               "x": 29.0, "y": 20.4, "width": 4.0, "height": 1.5, "color": "#b03030"},
+    {"id": uuid.UUID("50000000-0000-0000-0000-000000000004"), "node_id": NODE_IDS["SF-Hortifruti"],  "aisle": "D", "section": "Hortifruti",  "label": "Frutas & Verduras",     "x": 39.0, "y": 20.4, "width": 4.0, "height": 1.5, "color": "#2e7d32"},
+    {"id": uuid.UUID("50000000-0000-0000-0000-000000000005"), "node_id": NODE_IDS["SF-Bebidas"],     "aisle": "A", "section": "Bebidas",     "label": "Bebidas & Sucos",       "x":  9.0, "y": 14.4, "width": 4.0, "height": 1.5, "color": "#1565c0"},
+    {"id": uuid.UUID("50000000-0000-0000-0000-000000000006"), "node_id": NODE_IDS["SF-Limpeza"],     "aisle": "B", "section": "Limpeza",     "label": "Produtos de Limpeza",   "x": 19.0, "y": 14.4, "width": 4.0, "height": 1.5, "color": "#4a148c"},
+    {"id": uuid.UUID("50000000-0000-0000-0000-000000000007"), "node_id": NODE_IDS["SF-Higiene"],     "aisle": "C", "section": "Higiene",     "label": "Higiene Pessoal",       "x": 29.0, "y": 14.4, "width": 4.0, "height": 1.5, "color": "#006064"},
+    {"id": uuid.UUID("50000000-0000-0000-0000-000000000008"), "node_id": NODE_IDS["SF-Congelados"],  "aisle": "D", "section": "Congelados",  "label": "Congelados",            "x": 39.0, "y": 14.4, "width": 4.0, "height": 1.5, "color": "#0d47a1"},
+    {"id": uuid.UUID("50000000-0000-0000-0000-000000000009"), "node_id": NODE_IDS["SF-Mercearia"],   "aisle": "A", "section": "Mercearia",   "label": "Mercearia Seca",        "x":  9.0, "y":  8.4, "width": 4.0, "height": 1.5, "color": "#e65100"},
+    {"id": uuid.UUID("50000000-0000-0000-0000-000000000010"), "node_id": NODE_IDS["SF-Checkout"],    "aisle": "E", "section": "Checkout",    "label": "Caixas",                "x": 24.0, "y":  2.4, "width": 4.0, "height": 1.5, "color": "#37474f"},
 ]
 
 SHELF_IDS = {shelf["section"]: shelf["id"] for shelf in SHELVES}
@@ -344,13 +345,20 @@ async def seed(database_url: str) -> None:
                 ).on_conflict_do_nothing(index_elements=["id"])
             )
 
-        # ── Nodes ─────────────────────────────────────────────────────────────
+        # ── Nodes — upsert x/y so re-running corrects wrong coordinates ─────
         for node_data in NODES:
             row = {**node_data, "layout_id": LAYOUT_ID}
             if use_sqlite:
                 stmt = sa.insert(Node).values(**row).prefix_with("OR IGNORE")
             else:
-                stmt = pg_insert(Node).values(**row).on_conflict_do_nothing(index_elements=["id"])
+                stmt = (
+                    pg_insert(Node)
+                    .values(**row)
+                    .on_conflict_do_update(
+                        index_elements=["id"],
+                        set_={"x": row["x"], "y": row["y"]},
+                    )
+                )
             await session.execute(stmt)
 
         # ── Edges ─────────────────────────────────────────────────────────────
@@ -362,13 +370,20 @@ async def seed(database_url: str) -> None:
                 stmt = pg_insert(Edge).values(**row).on_conflict_do_nothing(index_elements=["id"])
             await session.execute(stmt)
 
-        # ── Shelves ───────────────────────────────────────────────────────────
+        # ── Shelves — upsert x/y/width/height so re-running corrects coords ──
         for shelf_data in SHELVES:
             row = {**shelf_data, "layout_id": LAYOUT_ID}
             if use_sqlite:
                 stmt = sa.insert(Shelf).values(**row).prefix_with("OR IGNORE")
             else:
-                stmt = pg_insert(Shelf).values(**row).on_conflict_do_nothing(index_elements=["id"])
+                stmt = (
+                    pg_insert(Shelf)
+                    .values(**row)
+                    .on_conflict_do_update(
+                        index_elements=["id"],
+                        set_={"x": row["x"], "y": row["y"], "width": row["width"], "height": row["height"]},
+                    )
+                )
             await session.execute(stmt)
 
         # ── Products ──────────────────────────────────────────────────────────
