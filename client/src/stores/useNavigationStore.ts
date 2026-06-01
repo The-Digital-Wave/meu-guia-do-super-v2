@@ -10,9 +10,12 @@ interface NavigationState {
   // State machine
   phase:           NavigationPhase;
   activeStepIndex: number;
+  // Phase 7: bearing for map orientation
+  bearingDeg:      number;
   // Setters
   setUserNodeId:   (nodeId: string | null) => void;
   setActiveRoute:  (route: RouteResponse | null) => void;
+  setBearing:      (deg: number) => void;
   // State machine transitions
   startNavigation: () => void;                // idle → routing
   advance:         () => void;                // routing → routing (next step) or arrived
@@ -29,9 +32,12 @@ export const useNavigationStore = create<NavigationState>((set, get) => ({
   activeRoute:     null,
   phase:           "idle",
   activeStepIndex: 0,
+  bearingDeg:      0,
   isNavigating:    false,
 
   setUserNodeId: (nodeId) => set({ userNodeId: nodeId }),
+
+  setBearing: (deg) => set({ bearingDeg: deg }),
 
   setActiveRoute: (route) =>
     set({ activeRoute: route, phase: route ? "idle" : "idle", activeStepIndex: 0 }),
