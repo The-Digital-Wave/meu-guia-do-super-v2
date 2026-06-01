@@ -106,6 +106,47 @@ npx expo start --ios
 npx expo start --android
 ```
 
+**CI/CD checks (mirrors GitHub Actions pipelines):**
+
+```bash
+make ci            # run full backend + frontend CI suite locally
+make ci-backend    # ruff + mypy + pytest with CI env vars
+make ci-frontend   # tsc --noEmit + eslint --max-warnings 0
+make check-secrets # validate Render / Vercel / Expo / Docker credentials
+make cd-frontend   # run Expo web export locally (mirrors deploy-frontend-web.yml)
+```
+
+### Mobile local testing (Expo Go on iPhone)
+
+Use this as the primary dev feedback loop — it gives full native behaviour, all APIs, and ~1 second hot reload.
+
+**Prerequisites (one-time):**
+1. Install **Expo Go** from the App Store on your iPhone.
+2. Make sure your iPhone and development PC are on the **same WiFi network**.
+
+**Start the dev server:**
+```bash
+cd client
+npx expo start
+```
+
+A QR code appears in the terminal. Open the iPhone **Camera** app, point it at the QR code, and tap the Expo Go banner. The app loads on the device with live reload active.
+
+**Point at the local backend (optional):**
+
+Create `client/.env.local` (gitignored):
+```
+EXPO_PUBLIC_API_URL=http://<your-pc-local-ip>:8000/api/v1
+```
+
+Find your PC's local IP with `ipconfig` (look for IPv4 Address under your WiFi adapter). Start the FastAPI server first:
+```bash
+cd server
+uvicorn src.main:app --reload
+```
+
+If `.env.local` is absent, the app falls back to the Render production URL — fine for most UI testing without needing the local server running.
+
 ---
 
 ## Architecture Decisions
@@ -411,9 +452,9 @@ Chain: `DevSecOps → Server + Client → QA → DevSecOps → Product Managemen
 
 1. Identify the current feature branch by running `git branch -a` — the highest-numbered `worktree-feature+phase-N-*` branch is the active one.
 2. Check it out in the main repo directory: `git checkout worktree-feature+phase-N-*`.
-3. Make all edits and commits from the main repo root.
-4. **Before pushing, always show the user the commits to be pushed and ask for explicit confirmation that they have reviewed the changes.** Only run `git push` after the user confirms.
-5. After the user confirms, push to `origin/<feature-branch>`.
+3. Make all edits from the main repo root — but **do not stage or commit yet**.
+4. **Before committing**, summarise the changes and ask for explicit confirmation that the user has reviewed them in the VSCode source control tab. Only stage and commit after the user confirms.
+5. After committing, push immediately to `origin/<feature-branch>` without a second confirmation.
 6. Open a PR from the feature branch to `master` on GitHub.
 7. After the PR merges, check out and pull master: `git checkout master && git pull origin master`.
 
@@ -422,7 +463,7 @@ Chain: `DevSecOps → Server + Client → QA → DevSecOps → Product Managemen
 git branch --show-current  # must NOT be master
 ```
 
-**Before every push**, show pending commits and ask:
-> "I'm about to push the following commits to `origin/<branch>`. Have you reviewed the changes? Should I go ahead?"
+**Before staging and committing**, tell the user what changed and ask:
+> "I've made the following changes: [summary]. Please review them in the VSCode source control tab and let me know when I can commit."
 
 If you accidentally committed to master, stop immediately and ask the user how to proceed — do not cherry-pick or rebase without explicit instruction.
