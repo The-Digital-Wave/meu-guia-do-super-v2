@@ -9,6 +9,20 @@ from src.schemas.product import ProductCreate, ProductUpdate
 from src.services import product_service
 
 
+async def list_products_paginated(
+    db: AsyncSession,
+    q: str | None = None,
+    category: str | None = None,
+    shelf_id: uuid.UUID | None = None,
+    page: int = 1,
+    size: int = 20,
+) -> dict:
+    items, total = await product_service.list_products_paginated(
+        db, q=q, category=category, shelf_id=shelf_id, page=page, size=size
+    )
+    return {"items": items, "total": total, "page": page, "size": size}
+
+
 async def list_products(
     db: AsyncSession,
     q: str | None = None,

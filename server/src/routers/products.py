@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.controllers import product as product_controller
 from src.database import get_db
 from src.models.user import User
-from src.schemas.product import ProductCreate, ProductOut, ProductUpdate
+from src.schemas.product import ProductCreate, ProductOut, ProductPage, ProductUpdate
 from src.utils.auth import require_admin
 
 router = APIRouter(prefix="/products", tags=["products"])
@@ -30,7 +30,7 @@ async def list_products_by_section(
     return [ProductOut.model_validate(p) for p in products]
 
 
-@router.get("", response_model=list[ProductOut], status_code=status.HTTP_200_OK)
+@router.get("", response_model=ProductPage, status_code=status.HTTP_200_OK)
 async def list_products(
     db: Annotated[AsyncSession, Depends(get_db)],
     q: Annotated[
@@ -38,10 +38,19 @@ async def list_products(
     ] = None,
     category: Annotated[str | None, Query(description="Filter by exact category")] = None,
     shelf_id: Annotated[uuid.UUID | None, Query(description="Filter by shelf id")] = None,
-) -> list[ProductOut]:
-    """List all products with optional search/filter. Public."""
-    products = await product_controller.list_products(db, q=q, category=category, shelf_id=shelf_id)
-    return [ProductOut.model_validate(p) for p in products]
+    page: Annotated[int, Query(ge=1, description="1-based page number")] = 1,
+    size: Annotated[int, Query(ge=1, le=100, description="Items per page")] = 20,
+) -> ProductPage:
+    """List products with optional search/filter and pagination. Public."""
+    result = await product_controller.list_products_paginated(
+        db, q=q, category=category, shelf_id=shelf_id, page=page, size=size
+    )
+    return ProductPage(
+        items=[ProductOut.model_validate(p) for p in result["items"]],
+        total=result["total"],
+        page=result["page"],
+        size=result["size"],
+    )
 
 
 @router.get("/{product_id}", response_model=ProductOut, status_code=status.HTTP_200_OK)

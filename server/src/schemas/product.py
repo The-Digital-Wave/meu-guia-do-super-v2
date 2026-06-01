@@ -19,6 +19,13 @@ class ProductOut(BaseModel):
     section_index: int | None
 
 
+class ProductPage(BaseModel):
+    items: list[ProductOut]
+    total: int
+    page: int
+    size: int
+
+
 class ProductCreate(BaseModel):
     shelf_id: uuid.UUID | None = None
     name: str

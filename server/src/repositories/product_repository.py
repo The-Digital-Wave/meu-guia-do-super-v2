@@ -1,10 +1,42 @@
 """Product repository — SQLAlchemy async data access only. No business logic here."""
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.product import Product
+
+
+async def get_paginated(
+    db: AsyncSession,
+    q: str | None = None,
+    category: str | None = None,
+    shelf_id: uuid.UUID | None = None,
+    page: int = 1,
+    size: int = 20,
+) -> tuple[list[Product], int]:
+    """Return (items, total) with pagination applied.
+
+    Runs two queries: one COUNT for the total, one SELECT with OFFSET/LIMIT.
+    """
+    stmt = select(Product)
+    if q is not None:
+        escaped = q.replace("\\", "\\\\").replace("%", r"\%").replace("_", r"\_")
+        pattern = f"%{escaped}%"
+        stmt = stmt.where(
+            Product.name.ilike(pattern, escape="\\") | Product.brand.ilike(pattern, escape="\\")  # type: ignore[operator]
+        )
+    if category is not None:
+        stmt = stmt.where(Product.category == category)
+    if shelf_id is not None:
+        stmt = stmt.where(Product.shelf_id == shelf_id)
+
+    total_result = await db.execute(select(func.count()).select_from(stmt.subquery()))
+    total: int = total_result.scalar_one()
+
+    offset = (page - 1) * size
+    items_result = await db.execute(stmt.offset(offset).limit(size))
+    return list(items_result.scalars().all()), total
 
 
 async def get_all(
