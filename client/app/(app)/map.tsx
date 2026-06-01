@@ -26,6 +26,7 @@ export default function MapScreen() {
     setActiveRoute,
     clearNavigation,
     advance,
+    setBearing,
   } = useNavigationStore();
 
   const [routeLoading, setRouteLoading] = useState(false);
@@ -101,6 +102,11 @@ export default function MapScreen() {
       (180 / Math.PI)
     );
   }, [activeRoute, activeStepIndex, userNodeId, bundle]);
+
+  // Sync bearingDeg into store so navigation.tsx MiniMap stays in sync
+  useEffect(() => {
+    setBearing(bearingDeg);
+  }, [bearingDeg, setBearing]);
 
   // Product pins (derived)
   const productPins = useMemo(() => {

@@ -467,9 +467,9 @@ export const handlers = [
           // Phase 7: enriched fields
           product_name: "Leite Integral 1L",
           shelf_label: "Laticínios",
-          shelf_front_node_id: "30000000-0000-0000-0000-000000000002",
-          shelf_front_x: 20.0,
-          shelf_front_y: 21.0,
+          shelf_front_node_id: "node-003",
+          shelf_front_x: 10.0,
+          shelf_front_y: 10.0,
         },
       ],
       total_distance_m: segDist,
