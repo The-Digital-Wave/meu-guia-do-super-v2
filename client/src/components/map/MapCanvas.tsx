@@ -34,8 +34,6 @@ const NODE_COLORS: Record<string, string> = {
   EXIT: "#c82014",
 };
 
-const AnimatedSvg = Animated.createAnimatedComponent(Svg);
-
 export default function MapCanvas({
   nodes,
   edges,
