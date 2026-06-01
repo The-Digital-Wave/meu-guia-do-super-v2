@@ -26,6 +26,12 @@ class RouteSegment(BaseModel):
     path_nodes: list[uuid.UUID]
     distance_m: float
     estimated_seconds: int
+    # Pick&Pack enrichment — populated when the segment has a product with a routable shelf
+    product_name: str | None = None
+    shelf_label: str | None = None
+    shelf_front_node_id: uuid.UUID | None = None
+    shelf_front_x: float | None = None
+    shelf_front_y: float | None = None
 
 
 class RouteResponse(BaseModel):

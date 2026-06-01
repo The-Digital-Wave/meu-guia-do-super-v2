@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { View, Text, ActivityIndicator, Pressable, SafeAreaView } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { useLayouts, useLayoutBundle } from "@/hooks/useLayouts";
 import { useNavigationStore } from "@/stores/useNavigationStore";
 import { api } from "@/services/api";
 import MapCanvas from "@/components/map/MapCanvas";
-import RouteOverlay from "@/components/map/RouteOverlay";
+import PickListPanel from "@/components/map/PickListPanel";
 import type { Node, RouteResponse } from "@/types";
 
 export default function MapScreen() {
@@ -18,11 +18,20 @@ export default function MapScreen() {
   const firstLayoutId = layouts?.[0]?.id ?? null;
   const { data: bundle, isLoading: bundleLoading } = useLayoutBundle(firstLayoutId);
 
-  const { userNodeId, activeRoute, setUserNodeId, setActiveRoute, clearNavigation, startNavigation } =
-    useNavigationStore();
+  const {
+    userNodeId,
+    activeRoute,
+    activeStepIndex,
+    setUserNodeId,
+    setActiveRoute,
+    clearNavigation,
+    advance,
+    setBearing,
+  } = useNavigationStore();
 
   const [routeLoading, setRouteLoading] = useState(false);
   const [routeError, setRouteError] = useState<string | null>(null);
+  const [collectedIndices, setCollectedIndices] = useState<number[]>([]);
 
   // Auto-calculate route when userNodeId and productId are both set
   useEffect(() => {
@@ -52,7 +61,7 @@ export default function MapScreen() {
     };
   }, [userNodeId, productId, firstLayoutId, setActiveRoute]);
 
-  const handleNodeTap = useCallback(
+  const handleNodePress = useCallback(
     (node: Node) => {
       setUserNodeId(node.id);
     },
@@ -62,12 +71,60 @@ export default function MapScreen() {
   const handleClearRoute = useCallback(() => {
     clearNavigation();
     setRouteError(null);
+    setCollectedIndices([]);
   }, [clearNavigation]);
 
-  const handleNavigate = useCallback(() => {
-    startNavigation();
-    router.push("/(app)/navigation");
-  }, [startNavigation]);
+  const handleCollect = useCallback(
+    (index: number) => {
+      setCollectedIndices((prev) => [...prev, index]);
+      advance();
+    },
+    [advance]
+  );
+
+  const handleSkip = useCallback(
+    (_index: number) => {
+      // For now: skip = also advance (can be improved later)
+      advance();
+    },
+    [advance]
+  );
+
+  // Bearing computation (derived, not stored)
+  const bearingDeg = useMemo(() => {
+    if (!activeRoute || !bundle) return 0;
+    const seg = activeRoute.segments[activeStepIndex ?? 0];
+    if (!seg?.shelf_front_x || !seg?.shelf_front_y) return 0;
+    const uNode = bundle.nodes.find((n) => n.id === userNodeId);
+    if (!uNode) return 0;
+    return (
+      Math.atan2(seg.shelf_front_x - uNode.x, uNode.y - seg.shelf_front_y) *
+      (180 / Math.PI)
+    );
+  }, [activeRoute, activeStepIndex, userNodeId, bundle]);
+
+  // Sync bearingDeg into store so navigation.tsx MiniMap stays in sync
+  useEffect(() => {
+    setBearing(bearingDeg);
+  }, [bearingDeg, setBearing]);
+
+  // Product pins (derived)
+  const productPins = useMemo(() => {
+    if (!activeRoute || !bundle) return [];
+    return activeRoute.segments
+      .filter(
+        (s) =>
+          s.shelf_front_node_id &&
+          s.shelf_front_x != null &&
+          s.shelf_front_y != null
+      )
+      .map((s, i) => ({
+        nodeId: s.shelf_front_node_id!,
+        number: i + 1,
+        x: s.shelf_front_x!,
+        y: s.shelf_front_y!,
+      }));
+  }, [activeRoute, bundle]);
 
   // Collect all path nodes for highlighting
   const highlightedNodeIds = activeRoute?.waypoints ?? [];
@@ -246,20 +303,55 @@ export default function MapScreen() {
             <MapCanvas
               nodes={bundle.nodes}
               edges={bundle.edges}
+              shelves={bundle.shelves}
+              productPins={productPins}
+              bearingDeg={bearingDeg}
+              tiltEnabled={!!activeRoute}
               layoutWidthM={bundle.layout.width_m}
               layoutHeightM={bundle.layout.height_m}
               userNodeId={userNodeId}
               highlightedNodeIds={highlightedNodeIds}
-              onNodeTap={handleNodeTap}
+              onNodeTap={handleNodePress}
             />
+
+            {/* FAB — re-center / position mode toggle */}
+            <Pressable
+              onPress={handleClearRoute}
+              accessibilityLabel="Recentrar mapa"
+              accessibilityRole="button"
+              style={({ pressed }) => ({
+                position: "absolute",
+                bottom: 16,
+                right: 16,
+                width: 48,
+                height: 48,
+                borderRadius: 24,
+                backgroundColor: "#1E3932",
+                alignItems: "center",
+                justifyContent: "center",
+                transform: [{ scale: pressed ? 0.95 : 1 }],
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.2,
+                shadowRadius: 4,
+                elevation: 6,
+              })}
+            >
+              <Text style={{ fontSize: 20 }}>📍</Text>
+            </Pressable>
           </View>
 
-          {/* Route overlay bottom sheet */}
+          {/* Pick list panel */}
           {activeRoute && (
-            <RouteOverlay
-              route={activeRoute}
-              onClearRoute={handleClearRoute}
-              onNavigate={handleNavigate}
+            <PickListPanel
+              segments={activeRoute.segments}
+              activeIndex={activeStepIndex ?? 0}
+              collectedIndices={collectedIndices}
+              onCollect={handleCollect}
+              onSkip={handleSkip}
+              onStartNavigation={() => router.push("/(app)/navigation")}
+              totalDistanceM={activeRoute.total_distance_m}
+              totalSeconds={activeRoute.total_estimated_seconds}
             />
           )}
         </View>
