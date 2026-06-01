@@ -60,3 +60,6 @@ Thumbs.db
 # ── Agent outputs (generated, not source-controlled) ──────────────
 agents/wayfinding/layout_parser/output/*.json
 agents/wayfinding/routing_logic/output/*.json
+
+# ── Playwright MCP session output (screenshots, logs, snapshots) ──
+.playwright-mcp/
