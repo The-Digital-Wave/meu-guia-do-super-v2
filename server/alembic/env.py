@@ -3,17 +3,18 @@ import os
 import sys
 from logging.config import fileConfig
 
-from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import create_async_engine
+
+from alembic import context
 
 # ── Make src/ importable ──────────────────────────────────────────────────────
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 # ── Import all models so Alembic can detect them for autogenerate ─────────────
-from src.models import Base  # noqa: E402  (must come after sys.path adjustment)
 from src.models import (  # noqa: F401  (imported for side-effects / metadata registration)
+    Base,  # noqa: E402  (must come after sys.path adjustment)
     Edge,
     GroceryList,
     GroceryListItem,

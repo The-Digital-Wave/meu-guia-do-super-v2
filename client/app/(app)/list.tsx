@@ -5,7 +5,6 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import {
   useGroceryLists,
   useGroceryList,
-  useCreateGroceryList,
   useRemoveGroceryItem,
   useUpdateGroceryItem,
   useOptimizeGroceryList,
@@ -17,7 +16,6 @@ export default function ListScreen() {
   const { data: lists, isLoading: listsLoading } = useGroceryLists();
   const firstListId = lists?.[0]?.id ?? null;
   const { data: list, isLoading: listLoading } = useGroceryList(firstListId);
-  const createList = useCreateGroceryList();
   const removeItem = useRemoveGroceryItem(firstListId ?? "");
   const updateItem = useUpdateGroceryItem(firstListId ?? "");
   const optimize = useOptimizeGroceryList(firstListId ?? "");

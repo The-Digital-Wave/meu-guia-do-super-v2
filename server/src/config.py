@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRE_MINUTES: int = 60
     REDIS_URL: str = "redis://localhost:6379"
+    REDIS_TOKEN: str = ""
+    ALLOWED_ORIGINS: str = "http://localhost:8081"
     ENVIRONMENT: str = "development"
     RESEND_API_KEY: str = ""
     CONTACT_EMAIL: str = "fabio9162@gmail.com"

@@ -30,7 +30,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import sqlalchemy as sa  # noqa: E402
 from sqlalchemy.dialects.postgresql import insert as pg_insert  # noqa: E402
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine  # noqa: E402
+from sqlalchemy.ext.asyncio import (  # noqa: E402
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 
 from src.config import settings  # noqa: E402
 from src.models import (  # noqa: E402
