@@ -36,6 +36,9 @@ jobs:
       - name: Install Vercel CLI
         run: npm install -g vercel@latest
 
+      - name: Prepare dist for Vercel
+        run: cp vercel.json dist/
+
       - name: Deploy to Vercel
         run: vercel deploy ./dist --prod --token=${{ secrets.VERCEL_TOKEN }}
         env:
