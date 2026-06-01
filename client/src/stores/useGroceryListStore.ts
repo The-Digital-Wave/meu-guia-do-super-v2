@@ -3,7 +3,7 @@ import { create } from "zustand";
 interface GroceryItem {
   id: string;
   product_id: string;
-  product_name: string;
+  product_name_snapshot: string;
   sort_order: number;
   checked: boolean;
 }

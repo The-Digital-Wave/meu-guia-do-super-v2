@@ -109,6 +109,18 @@ export default function MapScreen() {
               Toque em um ponto do mapa para definir sua posição
             </Text>
           )}
+          {!productId && (
+            <Text
+              style={{
+                fontFamily: "Inter_400Regular",
+                fontSize: 12,
+                color: "rgba(255,255,255,0.70)",
+                marginTop: 2,
+              }}
+            >
+              Busque um produto para ver a rota no mapa
+            </Text>
+          )}
           {userNodeId && !activeRoute && productId && (
             <Text
               style={{

@@ -2,13 +2,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/services/api";
 import type { GroceryList, GroceryItem } from "@/types";
 
-export function useGroceryLists() {
+export function useGroceryLists(options?: { enabled?: boolean }) {
   return useQuery<GroceryList[]>({
     queryKey: ["grocery-lists"],
     queryFn: async () => {
       const { data } = await api.get<GroceryList[]>("/grocery-lists");
       return data;
     },
+    enabled: options?.enabled !== false,
   });
 }
 

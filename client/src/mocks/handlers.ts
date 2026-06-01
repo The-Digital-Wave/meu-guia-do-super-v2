@@ -29,11 +29,11 @@ const MOCK_LAYOUT = {
 };
 
 const MOCK_NODES = [
-  { id: "node-001", layout_id: "layout-001", x: 0, y: 0, node_type: "entrance", label: "Entrada" },
-  { id: "node-002", layout_id: "layout-001", x: 10, y: 0, node_type: "waypoint", label: null },
-  { id: "node-003", layout_id: "layout-001", x: 10, y: 10, node_type: "shelf", label: "Corredor A" },
-  { id: "node-004", layout_id: "layout-001", x: 20, y: 10, node_type: "shelf", label: "Corredor B" },
-  { id: "node-005", layout_id: "layout-001", x: 50, y: 30, node_type: "exit", label: "Saída" },
+  { id: "node-001", layout_id: "layout-001", x: 0, y: 0, node_type: "ENTRY", label: "Entrada" },
+  { id: "node-002", layout_id: "layout-001", x: 10, y: 0, node_type: "INTERSECTION", label: null },
+  { id: "node-003", layout_id: "layout-001", x: 10, y: 10, node_type: "SHELF_FRONT", label: "Corredor A" },
+  { id: "node-004", layout_id: "layout-001", x: 20, y: 10, node_type: "SHELF_FRONT", label: "Corredor B" },
+  { id: "node-005", layout_id: "layout-001", x: 50, y: 30, node_type: "EXIT", label: "Saída" },
 ];
 
 const MOCK_EDGES = [
@@ -416,12 +416,33 @@ export const handlers = [
 
   http.post(`${BASE}/navigation/route`, async ({ request }) => {
     const body = await request.json() as { layout_id: string; start_node_id: string; product_ids: string[] };
-    const routeNodes = MOCK_NODES.slice(0, 3).map((n) => ({ ...n, label: n.label ?? "" }));
+    const startNodeId = body?.start_node_id ?? "node-001";
+    const layoutId = body?.layout_id ?? MOCK_LAYOUT.id;
+    const productId = body?.product_ids?.[0] ?? null;
     return HttpResponse.json({
-      layout_id: body?.layout_id ?? MOCK_LAYOUT.id,
-      start_node_id: body?.start_node_id ?? "node-001",
-      route: routeNodes,
+      layout_id: layoutId,
+      start_node_id: startNodeId,
+      waypoints: ["node-001", "node-002", "node-003"],
+      segments: [
+        {
+          from_node_id: "node-001",
+          to_node_id: "node-002",
+          product_id: null,
+          path_nodes: ["node-001", "node-002"],
+          distance_m: 10,
+          estimated_seconds: 8,
+        },
+        {
+          from_node_id: "node-002",
+          to_node_id: "node-003",
+          product_id: productId,
+          path_nodes: ["node-002", "node-003"],
+          distance_m: 10,
+          estimated_seconds: 8,
+        },
+      ],
       total_distance_m: 20,
+      total_estimated_seconds: 16,
     });
   }),
 ];

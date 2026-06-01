@@ -5,8 +5,15 @@ import { queryClient } from "@/lib/queryClient";
 import { useFonts, Inter_400Regular, Inter_600SemiBold } from "@expo-google-fonts/inter";
 import { useEffect } from "react";
 import { SplashScreen } from "expo-router";
+import { Platform } from "react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
 import "../src/global.css";
+
+// Start MSW browser worker for web dev builds only
+if (process.env.NODE_ENV !== "production" && Platform.OS === "web") {
+  const { worker } = require("../src/mocks/browser");
+  worker.start({ onUnhandledRequest: "bypass" });
+}
 
 SplashScreen.preventAutoHideAsync();
 

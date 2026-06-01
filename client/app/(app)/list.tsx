@@ -13,7 +13,7 @@ import type { GroceryItem } from "@/types";
 
 export default function ListScreen() {
   const { isAuthenticated } = useAuthStore();
-  const { data: lists, isLoading: listsLoading } = useGroceryLists();
+  const { data: lists, isLoading: listsLoading } = useGroceryLists({ enabled: isAuthenticated });
   const firstListId = lists?.[0]?.id ?? null;
   const { data: list, isLoading: listLoading } = useGroceryList(firstListId);
   const removeItem = useRemoveGroceryItem(firstListId ?? "");
