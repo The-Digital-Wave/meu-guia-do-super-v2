@@ -9,12 +9,6 @@ import { Platform } from "react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
 import "../src/global.css";
 
-// Start MSW browser worker for web dev builds only
-if (process.env.NODE_ENV !== "production" && Platform.OS === "web") {
-  const { worker } = require("../src/mocks/browser");
-  worker.start({ onUnhandledRequest: "bypass" });
-}
-
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -23,6 +17,14 @@ export default function RootLayout() {
     Inter_600SemiBold,
   });
   const restoreSession = useAuthStore((s) => s.restoreSession);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "production" && Platform.OS === "web") {
+      import("../src/mocks/browser").then(({ worker }) => {
+        worker.start({ onUnhandledRequest: "bypass" });
+      });
+    }
+  }, []);
 
   useEffect(() => {
     restoreSession();

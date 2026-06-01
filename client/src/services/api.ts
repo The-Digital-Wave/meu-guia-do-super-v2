@@ -1,7 +1,7 @@
 import axios from "axios";
 import { storage } from "@/services/storage";
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? "https://meu-guia-do-super-api-v2.onrender.com/api/v1";
 
 export const api = axios.create({
   baseURL: BASE_URL,

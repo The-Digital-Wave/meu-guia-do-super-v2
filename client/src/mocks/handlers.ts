@@ -85,9 +85,10 @@ export const handlers = [
   }),
 
   http.post(`${BASE}/auth/login`, async ({ request }) => {
-    const body = await request.formData().catch(() => null);
-    const username = body?.get("username");
-    const password = body?.get("password");
+    const raw = await request.text().catch(() => "");
+    const params = new URLSearchParams(raw);
+    const username = params.get("username");
+    const password = params.get("password");
     if (!username || !password) {
       return HttpResponse.json({ detail: "Credenciais inválidas" }, { status: 401 });
     }
