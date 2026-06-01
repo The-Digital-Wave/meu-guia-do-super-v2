@@ -1,11 +1,10 @@
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import { View, Text, Pressable, SafeAreaView } from "react-native";
 import { router } from "expo-router";
 import { useNavigationStore } from "@/stores/useNavigationStore";
 
 export default function NavigationScreen() {
-  const { activeRoute, clearNavigation } = useNavigationStore();
-  const [stepIndex, setStepIndex] = useState(0);
+  const { activeRoute, clearNavigation, phase, activeStepIndex, advance } = useNavigationStore();
 
   const handleFinish = useCallback(() => {
     clearNavigation();
@@ -29,8 +28,8 @@ export default function NavigationScreen() {
   }
 
   const totalSteps = activeRoute.segments.length;
-  const isComplete = stepIndex >= totalSteps;
-  const currentSegment = isComplete ? null : activeRoute.segments[stepIndex];
+  const isComplete = phase === "arrived" || activeStepIndex >= totalSteps;
+  const currentSegment = isComplete ? null : activeRoute.segments[activeStepIndex];
 
   const stepLabels = activeRoute.segments.map((seg, i) => {
     if (seg.product_id) return `Pegar item ${i + 1}`;
@@ -51,7 +50,7 @@ export default function NavigationScreen() {
             height: 4,
             borderRadius: 2,
             backgroundColor: "#00754A",
-            width: `${isComplete ? 100 : (stepIndex / totalSteps) * 100}%`,
+            width: `${isComplete ? 100 : (activeStepIndex / totalSteps) * 100}%`,
           }}
         />
       </View>
@@ -59,7 +58,7 @@ export default function NavigationScreen() {
       {/* Step counter */}
       <View style={{ paddingHorizontal: 24, paddingTop: 16 }}>
         <Text style={{ fontFamily: "Inter_400Regular", fontSize: 13, color: "rgba(255,255,255,0.58)", textTransform: "uppercase", letterSpacing: 0.5 }}>
-          {isComplete ? "Concluído" : `Passo ${stepIndex + 1} de ${totalSteps}`}
+          {isComplete ? "Concluído" : `Passo ${activeStepIndex + 1} de ${totalSteps}`}
         </Text>
       </View>
 
@@ -79,7 +78,7 @@ export default function NavigationScreen() {
           <View>
             {/* Direction */}
             <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 32, color: "#ffffff", letterSpacing: -0.16, marginBottom: 16 }}>
-              {stepLabels[stepIndex]}
+              {stepLabels[activeStepIndex]}
             </Text>
 
             {/* Stats */}
@@ -103,12 +102,12 @@ export default function NavigationScreen() {
             </View>
 
             {/* Step list preview (next 3 steps) */}
-            {stepIndex + 1 < totalSteps && (
+            {activeStepIndex + 1 < totalSteps && (
               <View style={{ backgroundColor: "rgba(255,255,255,0.08)", borderRadius: 12, padding: 12 }}>
                 <Text style={{ fontFamily: "Inter_400Regular", fontSize: 12, color: "rgba(255,255,255,0.40)", marginBottom: 8 }}>A seguir:</Text>
-                {stepLabels.slice(stepIndex + 1, stepIndex + 4).map((label, i) => (
+                {stepLabels.slice(activeStepIndex + 1, activeStepIndex + 4).map((label, i) => (
                   <Text key={i} style={{ fontFamily: "Inter_400Regular", fontSize: 13, color: "rgba(255,255,255,0.58)", paddingVertical: 3 }}>
-                    {stepIndex + i + 2}. {label}
+                    {activeStepIndex + i + 2}. {label}
                   </Text>
                 ))}
               </View>
@@ -122,7 +121,7 @@ export default function NavigationScreen() {
         {!isComplete ? (
           <>
             <Pressable
-              onPress={() => setStepIndex((s) => s + 1)}
+              onPress={advance}
               style={({ pressed }) => ({
                 backgroundColor: "#00754A",
                 borderRadius: 50,
@@ -133,7 +132,7 @@ export default function NavigationScreen() {
               })}
             >
               <Text style={{ color: "#ffffff", fontFamily: "Inter_600SemiBold", fontSize: 18 }}>
-                {stepIndex + 1 === totalSteps ? "Finalizar" : "Próximo →"}
+                {activeStepIndex + 1 === totalSteps ? "Finalizar" : "Próximo →"}
               </Text>
             </Pressable>
             <Pressable
