@@ -271,8 +271,14 @@ class TestNearestNeighborTSP:
 
 
 @pytest.mark.asyncio
-async def test_route_endpoint_unauthenticated_returns_401(client: AsyncClient) -> None:
-    """POST /navigation/route without token must return 401."""
+async def test_route_endpoint_unauthenticated_allowed_returns_404_for_missing_layout(
+    client: AsyncClient,
+) -> None:
+    """POST /navigation/route is public (spec §9 — no auth required).
+
+    An unauthenticated request with a random layout_id must reach the service
+    layer and return 404 (layout not found), not 401.
+    """
     # Arrange
     payload = {
         "layout_id": str(uuid.uuid4()),
@@ -283,8 +289,8 @@ async def test_route_endpoint_unauthenticated_returns_401(client: AsyncClient) -
     # Act
     resp = await client.post("/api/v1/navigation/route", json=payload)
 
-    # Assert
-    assert resp.status_code == 401
+    # Assert — endpoint is public; 404 because the random layout doesn't exist
+    assert resp.status_code == 404
 
 
 @pytest.mark.asyncio
