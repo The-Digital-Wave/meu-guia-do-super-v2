@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import * as SecureStore from "expo-secure-store";
+import { storage } from "@/services/storage";
 import { api } from "@/services/api";
 
 interface User {
@@ -32,14 +32,14 @@ export const useAuthStore = create<AuthState>((set) => ({
       const { data } = await api.post("/auth/login", params, {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
-      await SecureStore.setItemAsync("access_token", data.access_token);
-      await SecureStore.setItemAsync("refresh_token", data.refresh_token);
+      await storage.setItem("access_token", data.access_token);
+      await storage.setItem("refresh_token", data.refresh_token);
       const { data: me } = await api.get("/users/me");
       set({ user: me, isAuthenticated: true });
     } catch (e) {
       // Clean up any partially-written tokens
-      await SecureStore.deleteItemAsync("access_token");
-      await SecureStore.deleteItemAsync("refresh_token");
+      await storage.deleteItem("access_token");
+      await storage.deleteItem("refresh_token");
       throw e; // re-throw so the UI can show the error
     } finally {
       set({ isLoading: false });
@@ -57,14 +57,14 @@ export const useAuthStore = create<AuthState>((set) => ({
       const { data } = await api.post("/auth/login", params, {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
-      await SecureStore.setItemAsync("access_token", data.access_token);
-      await SecureStore.setItemAsync("refresh_token", data.refresh_token);
+      await storage.setItem("access_token", data.access_token);
+      await storage.setItem("refresh_token", data.refresh_token);
       const { data: me } = await api.get("/users/me");
       set({ user: me, isAuthenticated: true });
     } catch (e) {
       // Clean up any partially-written tokens
-      await SecureStore.deleteItemAsync("access_token");
-      await SecureStore.deleteItemAsync("refresh_token");
+      await storage.deleteItem("access_token");
+      await storage.deleteItem("refresh_token");
       throw e; // re-throw so the UI can show the error
     } finally {
       set({ isLoading: false });
@@ -72,8 +72,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
-    await SecureStore.deleteItemAsync("access_token");
-    await SecureStore.deleteItemAsync("refresh_token");
+    await storage.deleteItem("access_token");
+    await storage.deleteItem("refresh_token");
     set({ user: null, isAuthenticated: false });
   },
 
@@ -82,7 +82,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     const { isLoading } = useAuthStore.getState();
     if (isLoading) return;
     set({ isLoading: true });
-    const token = await SecureStore.getItemAsync("access_token");
+    const token = await storage.getItem("access_token");
     if (!token) {
       set({ isLoading: false });
       return;
@@ -91,8 +91,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       const { data: me } = await api.get("/users/me");
       set({ user: me, isAuthenticated: true });
     } catch {
-      await SecureStore.deleteItemAsync("access_token");
-      await SecureStore.deleteItemAsync("refresh_token");
+      await storage.deleteItem("access_token");
+      await storage.deleteItem("refresh_token");
     } finally {
       set({ isLoading: false });
     }
