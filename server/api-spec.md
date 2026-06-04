@@ -11,6 +11,12 @@ All v1 routes are prefixed with `/api/v1`.
 Manage top-level store or warehouse physical grid arrangements.
 
 - **GET /layouts** -> Returns a list of all layouts.
+
+  Query parameters:
+  | Parameter       | Type   | Required | Default | Description                        |
+  |-----------------|--------|----------|---------|-------------------------------------|
+  | `supermarket_id` | uuid  | no       | —       | Filter layouts by supermarket UUID |
+
 - **GET /layouts/:id** -> Returns a single layout object.
 - **POST /layouts** -> Creates a new layout.
 - **PUT /layouts/:id** -> Updates layout metadata.
@@ -119,6 +125,7 @@ Active store locations available for indoor navigation.
       "id": "uuid",
       "name": "Supermercado A",
       "slug": "supermercado-a",
+      "address": "string | null",
       "logo_url": null,
       "is_active": true,
       "created_at": "ISO8601"
@@ -134,14 +141,13 @@ Active store locations available for indoor navigation.
     "id": "uuid",
     "name": "Supermercado A",
     "slug": "supermercado-a",
+    "address": "string | null",
     "logo_url": null,
     "is_active": true,
     "created_at": "ISO8601",
     "layouts": [ /* LayoutOut[] */ ]
   }
   ```
-
-Also document that `GET /layouts` now accepts an optional `supermarket_id` query parameter (UUID) to filter layouts by supermarket.
 
 ---
 
