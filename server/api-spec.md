@@ -106,7 +106,46 @@ Inventory items tracked across physical locations.
 
 ---
 
-## 4. Auth
+## 4. Supermarkets
+
+Active store locations available for indoor navigation.
+
+- **GET /supermarkets** → Returns a list of active supermarkets.
+
+  Response body (`200 OK`):
+  ```json
+  [
+    {
+      "id": "uuid",
+      "name": "Supermercado A",
+      "slug": "supermercado-a",
+      "logo_url": null,
+      "is_active": true,
+      "created_at": "ISO8601"
+    }
+  ]
+  ```
+
+- **GET /supermarkets/:id** → Returns a single supermarket with its layouts.
+
+  Response body (`200 OK`):
+  ```json
+  {
+    "id": "uuid",
+    "name": "Supermercado A",
+    "slug": "supermercado-a",
+    "logo_url": null,
+    "is_active": true,
+    "created_at": "ISO8601",
+    "layouts": [ /* LayoutOut[] */ ]
+  }
+  ```
+
+Also document that `GET /layouts` now accepts an optional `supermarket_id` query parameter (UUID) to filter layouts by supermarket.
+
+---
+
+## 5. Auth
 
 Authentication endpoints for user registration, login, token refresh, and logout.
 
@@ -117,7 +156,7 @@ Authentication endpoints for user registration, login, token refresh, and logout
 
 ---
 
-## 5. Users
+## 6. Users
 
 Endpoints for the authenticated user to view and update their own profile.
 
@@ -126,7 +165,7 @@ Endpoints for the authenticated user to view and update their own profile.
 
 ---
 
-## 6. Nodes
+## 7. Nodes
 
 Navigation graph node management scoped to a layout.
 
@@ -159,7 +198,7 @@ Any other value must be rejected with `422 Unprocessable Entity`.
 
 ---
 
-## 7. Edges
+## 8. Edges
 
 Navigation graph edge management scoped to a layout.
 
@@ -169,7 +208,7 @@ Navigation graph edge management scoped to a layout.
 
 ---
 
-## 8. Grocery Lists
+## 9. Grocery Lists
 
 Authenticated user grocery list management with per-item CRUD and route optimization stub.
 
@@ -184,7 +223,7 @@ Authenticated user grocery list management with per-item CRUD and route optimiza
 
 ---
 
-## 9. Navigation
+## 10. Navigation
 
 Route calculation endpoints (stub — full implementation in Phase 3).
 
