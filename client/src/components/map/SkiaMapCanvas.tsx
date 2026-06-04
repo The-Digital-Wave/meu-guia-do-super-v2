@@ -1,5 +1,5 @@
 // client/src/components/map/SkiaMapCanvas.tsx
-import { useState } from "react";
+import { useState, useMemo, useRef } from "react";
 import { Canvas, Circle, Group, RoundedRect, Rect } from "@shopify/react-native-skia";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import type { LayoutBundle, RouteResponse } from "@/types";
@@ -25,23 +25,39 @@ export default function SkiaMapCanvas({
   const [panX, setPanX] = useState(0);
   const [panY, setPanY] = useState(0);
   const [zoom, setZoom] = useState(1);
-  const [savedPan, setSavedPan] = useState({ x: 0, y: 0 });
-  const [savedZoom, setSavedZoom] = useState(1);
+  const savedPanRef = useRef({ x: 0, y: 0 });
+  const savedZoomRef = useRef(1);
 
-  const panGesture = Gesture.Pan()
-    .runOnJS(true)
-    .onStart(() => setSavedPan({ x: panX, y: panY }))
-    .onUpdate((e) => {
-      setPanX(savedPan.x + e.translationX);
-      setPanY(savedPan.y + e.translationY);
-    });
+  const panGesture = useMemo(
+    () =>
+      Gesture.Pan()
+        .runOnJS(true)
+        .onStart(() => {
+          savedPanRef.current = { x: panX, y: panY };
+        })
+        .onUpdate((e) => {
+          setPanX(savedPanRef.current.x + e.translationX);
+          setPanY(savedPanRef.current.y + e.translationY);
+        }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
 
-  const pinchGesture = Gesture.Pinch()
-    .runOnJS(true)
-    .onStart(() => setSavedZoom(zoom))
-    .onUpdate((e) => setZoom(Math.min(4, Math.max(0.5, savedZoom * e.scale))));
+  const pinchGesture = useMemo(
+    () =>
+      Gesture.Pinch()
+        .runOnJS(true)
+        .onStart(() => {
+          savedZoomRef.current = zoom;
+        })
+        .onUpdate((e) => {
+          setZoom(Math.min(4, Math.max(0.5, savedZoomRef.current * e.scale)));
+        }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
 
-  const combined = Gesture.Simultaneous(panGesture, pinchGesture);
+  const combined = useMemo(() => Gesture.Simultaneous(panGesture, pinchGesture), [panGesture, pinchGesture]);
 
   function project(x: number, y: number) {
     const uX = userPos?.x ?? layout.width_m / 2;

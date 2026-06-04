@@ -62,9 +62,10 @@ export function toScreen3D(
  */
 export function metreToPixel2D(
   layoutW: number,
+  layoutH: number,
   canvasW: number,
   canvasH: number,
   zoom: number,
 ): number {
-  return Math.min((canvasW * zoom) / layoutW, (canvasH * zoom) / layoutW);
+  return Math.min((canvasW * zoom) / layoutW, (canvasH * zoom) / layoutH);
 }
