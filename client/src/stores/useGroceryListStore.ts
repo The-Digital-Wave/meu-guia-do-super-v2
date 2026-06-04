@@ -1,50 +1,62 @@
 import { create } from "zustand";
+import type { Product } from "@/types";
 
-interface GroceryItem {
+export interface CartItem {
   id: string;
   product_id: string;
   product_name_snapshot: string;
+  category: string | null;
   sort_order: number;
   checked: boolean;
 }
 
-interface GroceryList {
-  id: string;
-  layout_id: string | null;
-  items: GroceryItem[];
-}
-
 interface GroceryListState {
-  currentList: GroceryList | null;
-  setCurrentList: (list: GroceryList) => void;
-  updateItems: (items: GroceryItem[]) => void;
-  toggleItem: (itemId: string) => void;
+  items: CartItem[];
+  isEphemeral: boolean;
+
+  addItem: (product: Product) => void;
+  removeItem: (productId: string) => void;
+  toggleItem: (productId: string) => void;
+  reorderItems: (newItems: CartItem[]) => void;
+  setEphemeral: (value: boolean) => void;
   clearList: () => void;
 }
 
-export const useGroceryListStore = create<GroceryListState>((set) => ({
-  currentList: null,
+export const useGroceryListStore = create<GroceryListState>((set, get) => ({
+  items: [],
+  isEphemeral: false,
 
-  setCurrentList: (list) => set({ currentList: list }),
+  addItem: (product) => {
+    const { items } = get();
+    if (items.find((i) => i.product_id === product.id)) return;
+    const newItem: CartItem = {
+      id: product.id,
+      product_id: product.id,
+      product_name_snapshot: product.name,
+      category: product.category ?? null,
+      sort_order: items.length,
+      checked: false,
+    };
+    set({ items: [...items, newItem] });
+  },
 
-  updateItems: (items) =>
+  removeItem: (productId) =>
     set((state) => ({
-      currentList: state.currentList
-        ? { ...state.currentList, items }
-        : null,
+      items: state.items
+        .filter((i) => i.product_id !== productId)
+        .map((item, index) => ({ ...item, sort_order: index })),
     })),
 
-  toggleItem: (itemId) =>
+  toggleItem: (productId) =>
     set((state) => ({
-      currentList: state.currentList
-        ? {
-            ...state.currentList,
-            items: state.currentList.items.map((item) =>
-              item.id === itemId ? { ...item, checked: !item.checked } : item
-            ),
-          }
-        : null,
+      items: state.items.map((item) =>
+        item.product_id === productId ? { ...item, checked: !item.checked } : item
+      ),
     })),
 
-  clearList: () => set({ currentList: null }),
+  reorderItems: (newItems) => set({ items: newItems }),
+
+  setEphemeral: (value) => set({ isEphemeral: value }),
+
+  clearList: () => set({ items: [], isEphemeral: false }),
 }));
