@@ -1,47 +1,15 @@
-import { Tabs } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { Stack } from "expo-router";
 
 export default function AppLayout() {
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: "#00754A",
-        tabBarInactiveTintColor: "rgba(0,0,0,0.58)",
-        tabBarStyle: { backgroundColor: "#ffffff" },
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Buscar",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="search-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="map"
-        options={{
-          title: "Mapa",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="map-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="list"
-        options={{
-          title: "Lista",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="list-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="navigation"
-        options={{ href: null }}
-      />
-    </Tabs>
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="store-select" options={{ presentation: "modal" }} />
+      <Stack.Screen name="store-loading" />
+      <Stack.Screen name="settings" />
+      <Stack.Screen name="list" />
+      <Stack.Screen name="map" />
+      <Stack.Screen name="navigation" />
+    </Stack>
   );
 }
