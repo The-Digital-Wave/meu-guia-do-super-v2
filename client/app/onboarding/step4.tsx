@@ -2,7 +2,6 @@ import { View, Text, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { markOnboardingComplete } from "@/utils/onboarding";
 import OnboardingStep from "@/components/OnboardingStep";
-import { colors } from "@/theme/tokens";
 
 async function completeOnboarding() {
   const saved = await markOnboardingComplete();

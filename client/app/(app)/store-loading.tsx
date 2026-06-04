@@ -3,7 +3,7 @@ import { View, Text, Pressable, StyleSheet } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useNavigationStore } from "@/stores/useNavigationStore";
 import { useLayoutBundle } from "@/hooks/useLayouts";
-import { colors, spacing } from "@/theme/tokens";
+import { colors } from "@/theme/tokens";
 
 // Demo: Supermercado A maps to the seed layout id from MSW
 const DEMO_LAYOUT_ID: Record<string, string> = {

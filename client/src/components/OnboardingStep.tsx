@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { router } from "expo-router";
-import { colors, spacing, typography } from "@/theme/tokens";
+import { colors, spacing } from "@/theme/tokens";
 import { markOnboardingComplete } from "@/utils/onboarding";
 
 interface OnboardingStepProps {

@@ -1,5 +1,5 @@
 import { View, Text, ActivityIndicator, StyleSheet } from "react-native";
-import { colors, spacing } from "@/theme/tokens";
+import { colors } from "@/theme/tokens";
 
 export default function SplashScreen() {
   return (

@@ -1,7 +1,6 @@
 import { View, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import OnboardingStep from "@/components/OnboardingStep";
-import { colors } from "@/theme/tokens";
 
 export default function Step1() {
   return (

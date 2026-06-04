@@ -1,13 +1,10 @@
-import { useState, useCallback } from "react";
-import { View, Text, Pressable, StyleSheet, useWindowDimensions } from "react-native";
+import { View, Text, Pressable, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { useNavigationStore } from "@/stores/useNavigationStore";
-import { useAuthStore } from "@/stores/useAuthStore";
 import { colors, spacing } from "@/theme/tokens";
 
 export default function HomeScreen() {
   const { activeSupermarketId, activeSupermarketName } = useNavigationStore();
-  const { isGuest } = useAuthStore();
   const hasStore = !!activeSupermarketId;
 
   function handleFabPress() {

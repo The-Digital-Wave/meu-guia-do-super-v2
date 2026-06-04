@@ -5,7 +5,7 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { colors, spacing, typography } from "@/theme/tokens";
+import { colors, spacing } from "@/theme/tokens";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
