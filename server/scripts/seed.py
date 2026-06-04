@@ -51,6 +51,8 @@ from src.models import (  # noqa: E402
 # ── Seed data ────────────────────────────────────────────────────────────────
 
 SUPERMARKET_ID = uuid.UUID("00000000-0000-0000-0000-000000000001")
+SUPERMARKET_B_ID = uuid.UUID("00000000-0000-0000-0000-000000000011")
+SUPERMARKET_C_ID = uuid.UUID("00000000-0000-0000-0000-000000000012")
 LAYOUT_ID = uuid.UUID("00000000-0000-0000-0000-000000000002")
 
 # 30 nodes: 2 ENTRY, 2 EXIT, 16 INTERSECTION, 10 SHELF_FRONT
@@ -305,23 +307,24 @@ async def seed(database_url: str) -> None:
     AsyncSession_ = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     async with AsyncSession_() as session:
-        # ── Supermarket ───────────────────────────────────────────────────────
-        if use_sqlite:
-            await session.execute(
-                sa.insert(Supermarket).values(
-                    id=SUPERMARKET_ID,
-                    name="Supermercado Bairro Verde",
-                    address="Av. Paulista, 1000, São Paulo - SP",
-                ).prefix_with("OR IGNORE")
-            )
-        else:
-            await session.execute(
-                pg_insert(Supermarket).values(
-                    id=SUPERMARKET_ID,
-                    name="Supermercado Bairro Verde",
-                    address="Av. Paulista, 1000, São Paulo - SP",
-                ).on_conflict_do_nothing(index_elements=["id"])
-            )
+        # ── Supermarkets ─────────────────────────────────────────────────────
+        _supermarkets = [
+            dict(id=SUPERMARKET_ID, name="Supermercado A", slug="supermercado-a",
+                 address="Av. Paulista, 1000, São Paulo - SP", is_active=True),
+            dict(id=SUPERMARKET_B_ID, name="Supermercado B", slug="supermercado-b",
+                 address="Rua Augusta, 500, São Paulo - SP", is_active=True),
+            dict(id=SUPERMARKET_C_ID, name="Supermercado C", slug="supermercado-c",
+                 address="Rua Oscar Freire, 200, São Paulo - SP", is_active=True),
+        ]
+        for _sm in _supermarkets:
+            if use_sqlite:
+                await session.execute(
+                    sa.insert(Supermarket).values(**_sm).prefix_with("OR IGNORE")
+                )
+            else:
+                await session.execute(
+                    pg_insert(Supermarket).values(**_sm).on_conflict_do_nothing(index_elements=["id"])
+                )
 
         # ── Layout ────────────────────────────────────────────────────────────
         if use_sqlite:
@@ -398,7 +401,7 @@ async def seed(database_url: str) -> None:
 
     await engine.dispose()
     print("Seed completed successfully.")
-    print(f"  Supermarket: 1  |  Layout: 1  |  Nodes: {len(NODES)}")
+    print(f"  Supermarkets: 3  |  Layout: 1  |  Nodes: {len(NODES)}")
     print(f"  Edges: {len(EDGES)}  |  Shelves: {len(SHELVES)}  |  Products: {len(PRODUCTS)}")
 
 
