@@ -1,128 +1,121 @@
 import { useState, useCallback } from "react";
-import { View, Text, TextInput, FlatList, Pressable, ActivityIndicator } from "react-native";
+import { View, Text, Pressable, StyleSheet, useWindowDimensions } from "react-native";
 import { router } from "expo-router";
-import { useProductSearch } from "@/hooks/useProducts";
-import type { Product } from "@/types";
+import { useNavigationStore } from "@/stores/useNavigationStore";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { colors, spacing } from "@/theme/tokens";
 
 export default function HomeScreen() {
-  const [query, setQuery] = useState("");
-  const { data, isLoading, isError } = useProductSearch(query);
+  const { activeSupermarketId, activeSupermarketName } = useNavigationStore();
+  const { isGuest } = useAuthStore();
+  const hasStore = !!activeSupermarketId;
 
-  const handleProductPress = useCallback((product: Product) => {
-    router.push({
-      pathname: "/(app)/map",
-      params: { productId: product.id, productName: product.name },
-    });
-  }, []);
-
-  const renderProduct = useCallback(
-    ({ item }: { item: Product }) => (
-      <Pressable
-        onPress={() => handleProductPress(item)}
-        style={({ pressed }) => ({
-          backgroundColor: pressed ? "rgba(0,0,0,0.04)" : "#ffffff",
-          paddingHorizontal: 16,
-          paddingVertical: 14,
-          borderBottomWidth: 1,
-          borderBottomColor: "#f2f0eb",
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-          minHeight: 60,
-        })}
-      >
-        <View style={{ flex: 1 }}>
-          <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 15, color: "rgba(0,0,0,0.87)", marginBottom: 2 }}>
-            {item.name}
-          </Text>
-          <Text style={{ fontFamily: "Inter_400Regular", fontSize: 12, color: "rgba(0,0,0,0.58)" }}>
-            {item.shelf?.label ?? item.shelf?.aisle ?? "Prateleira"}
-          </Text>
-        </View>
-        {item.category ? (
-          <View style={{ backgroundColor: "#d4e9e2", borderRadius: 50, paddingHorizontal: 10, paddingVertical: 3 }}>
-            <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 11, color: "#006241" }}>
-              {item.category}
-            </Text>
-          </View>
-        ) : null}
-      </Pressable>
-    ),
-    [handleProductPress]
-  );
+  function handleFabPress() {
+    // Guest auth gate will be handled in Phase 8e
+    router.push("/(app)/list");
+  }
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#f2f0eb" }}>
-      {/* Header */}
-      <View style={{ backgroundColor: "#1E3932", paddingTop: 56, paddingBottom: 20, paddingHorizontal: 16 }}>
-        <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 22, color: "#ffffff", letterSpacing: -0.16 }}>
-          Meu Guia do Super
-        </Text>
-        <Text style={{ fontFamily: "Inter_400Regular", fontSize: 13, color: "rgba(255,255,255,0.70)", marginTop: 4 }}>
-          Encontre qualquer produto na loja
-        </Text>
-      </View>
-
-      {/* Search bar */}
-      <View style={{ backgroundColor: "#1E3932", paddingHorizontal: 16, paddingBottom: 16 }}>
-        <View style={{ backgroundColor: "#ffffff", borderRadius: 50, flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 10, minHeight: 48 }}>
-          <Text style={{ fontSize: 16, marginRight: 8 }}>🔍</Text>
-          <TextInput
-            value={query}
-            onChangeText={setQuery}
-            placeholder="Buscar produto..."
-            placeholderTextColor="rgba(0,0,0,0.38)"
-            style={{ flex: 1, fontFamily: "Inter_400Regular", fontSize: 15, color: "rgba(0,0,0,0.87)" }}
-            returnKeyType="search"
-            autoCorrect={false}
-          />
-          {query.length > 0 && (
-            <Pressable onPress={() => setQuery("")} hitSlop={8}>
-              <Text style={{ fontSize: 18, color: "rgba(0,0,0,0.38)" }}>✕</Text>
-            </Pressable>
-          )}
+    <View style={styles.container}>
+      {/* Top nav */}
+      <View style={styles.navBar}>
+        <View style={styles.logoWrap}>
+          <View style={styles.logoBg}>
+            <Text style={{ fontSize: 14 }}>🛒</Text>
+          </View>
+          <Text style={styles.logoText}>Meu Guia{"\n"}do Super</Text>
         </View>
-      </View>
 
-      {/* Results */}
-      {query.length >= 2 ? (
-        isLoading ? (
-          <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-            <ActivityIndicator size="large" color="#00754A" />
-          </View>
-        ) : isError ? (
-          <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32 }}>
-            <Text style={{ fontFamily: "Inter_400Regular", fontSize: 15, color: "rgba(0,0,0,0.58)", textAlign: "center" }}>
-              Erro ao buscar produtos. Verifique sua conexão.
-            </Text>
-          </View>
-        ) : !data?.items?.length ? (
-          <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32 }}>
-            <Text style={{ fontFamily: "Inter_400Regular", fontSize: 15, color: "rgba(0,0,0,0.58)", textAlign: "center" }}>
-              Nenhum produto encontrado para "{query}"
-            </Text>
-          </View>
-        ) : (
-          <FlatList
-            data={data.items}
-            keyExtractor={(item) => item.id}
-            renderItem={renderProduct}
-            style={{ backgroundColor: "#ffffff" }}
-            contentContainerStyle={{ paddingBottom: 32 }}
-          />
-        )
-      ) : (
-        <View style={{ flex: 1, padding: 16 }}>
-          <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 13, color: "rgba(0,0,0,0.58)", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 12 }}>
-            Recentes
+        <Pressable
+          style={[styles.storePicker, hasStore && styles.storePickerActive]}
+          onPress={() => router.push("/(app)/store-select" as any)}
+          accessibilityLabel="Selecionar supermercado"
+        >
+          <Text style={styles.storePickerText} numberOfLines={1}>
+            {hasStore ? activeSupermarketName : "Selecione um supermercado"}
           </Text>
-          <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-            <Text style={{ fontFamily: "Inter_400Regular", fontSize: 14, color: "rgba(0,0,0,0.38)", textAlign: "center" }}>
-              Suas buscas recentes aparecerão aqui
-            </Text>
-          </View>
+          <Text style={styles.storePickerArrow}>{hasStore ? "↑" : "↓"}</Text>
+        </Pressable>
+
+        <Pressable
+          style={styles.avatar}
+          onPress={() => router.push("/(app)/settings")}
+          accessibilityLabel="Configurações"
+        >
+          <Text style={styles.avatarText}>EU</Text>
+        </Pressable>
+      </View>
+
+      {/* Body */}
+      {!hasStore ? <EmptyState /> : <LoadedState />}
+
+      {/* Cart FAB */}
+      <Pressable
+        style={[styles.fab, !hasStore && styles.fabDisabled]}
+        disabled={!hasStore}
+        onPress={handleFabPress}
+        accessibilityLabel="Ver lista de compras"
+      >
+        <Text style={styles.fabIcon}>🛒</Text>
+        <View style={styles.fabBadge}>
+          <Text style={styles.fabBadgeText}>0</Text>
         </View>
-      )}
+      </Pressable>
     </View>
   );
 }
+
+function EmptyState() {
+  return (
+    <View style={styles.emptyContainer}>
+      <Text style={styles.emptyIcon}>🗺</Text>
+      <Text style={styles.emptyText}>Nenhum supermercado selecionado.</Text>
+    </View>
+  );
+}
+
+function LoadedState() {
+  return (
+    <View style={styles.loadedContainer}>
+      {/* Map canvas placeholder — will be replaced with SkiaMapCanvas in Phase 8f */}
+      <View style={styles.mapPlaceholder}>
+        <Text style={styles.mapPlaceholderText}>Mapa (Phase 8f)</Text>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.bgLight },
+  navBar: {
+    backgroundColor: colors.white,
+    paddingTop: spacing.safeAreaTop + 8,
+    paddingBottom: 12,
+    paddingHorizontal: spacing.gutter,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  logoWrap: { flexDirection: "row", alignItems: "center", gap: 6, minWidth: 80 },
+  logoBg: { width: 24, height: 24, backgroundColor: colors.brandDark, borderRadius: 4, alignItems: "center", justifyContent: "center" },
+  logoText: { fontSize: 9, fontWeight: "900", color: colors.brandDark, lineHeight: 12 },
+  storePicker: { flex: 1, backgroundColor: colors.bgLight, borderWidth: 1, borderColor: colors.border, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 6, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  storePickerActive: { borderColor: colors.routeActive, backgroundColor: colors.white },
+  storePickerText: { fontSize: 11, fontWeight: "600", color: colors.textPrimary, flex: 1 },
+  storePickerArrow: { fontSize: 11, color: colors.textSecondary, marginLeft: 4 },
+  avatar: { width: 28, height: 28, borderRadius: 14, backgroundColor: colors.border, alignItems: "center", justifyContent: "center" },
+  avatarText: { fontSize: 8, fontWeight: "700", color: colors.textSecondary },
+  emptyContainer: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12 },
+  emptyIcon: { fontSize: 48, opacity: 0.3 },
+  emptyText: { fontSize: 14, color: colors.textSecondary },
+  loadedContainer: { flex: 1 },
+  mapPlaceholder: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#f8fafc", margin: 16, borderRadius: 12, borderWidth: 1, borderColor: colors.border, borderStyle: "dashed" },
+  mapPlaceholderText: { fontSize: 12, color: colors.textMeta },
+  fab: { position: "absolute", bottom: spacing.safeAreaBottom + 16, right: 16, width: 52, height: 52, borderRadius: 16, backgroundColor: colors.brandDark, alignItems: "center", justifyContent: "center" },
+  fabDisabled: { opacity: 0.5 },
+  fabIcon: { fontSize: 22 },
+  fabBadge: { position: "absolute", top: -4, right: -4, width: 18, height: 18, borderRadius: 9, backgroundColor: "#06b6d4", alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: colors.white },
+  fabBadgeText: { fontSize: 9, fontWeight: "900", color: colors.white },
+});

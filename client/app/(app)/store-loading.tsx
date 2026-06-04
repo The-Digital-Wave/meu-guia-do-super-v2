@@ -23,7 +23,7 @@ export default function StoreLoadingScreen() {
   useEffect(() => {
     if (isSuccess && bundle) {
       setActiveSupermarket(supermarketId, supermarketName ?? "");
-      router.replace("/(app)/");
+      router.replace("/(app)/" as any);
     }
   }, [isSuccess, bundle, supermarketId, supermarketName, setActiveSupermarket]);
 
