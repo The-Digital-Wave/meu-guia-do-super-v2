@@ -79,10 +79,14 @@ const MOCK_SHELVES = [
 ];
 
 const MOCK_PRODUCTS = [
-  { id: "prod-001", name: "Leite Integral 1L", category: "Laticínios", shelf_id: "shelf-001", price: 5.49, unit: "un" },
-  { id: "prod-002", name: "Pão de Forma", category: "Padaria", shelf_id: "shelf-002", price: 8.99, unit: "un" },
-  { id: "prod-003", name: "Queijo Minas", category: "Laticínios", shelf_id: "shelf-001", price: 12.9, unit: "kg" },
-  { id: "prod-004", name: "Iogurte Natural", category: "Laticínios", shelf_id: "shelf-001", price: 3.79, unit: "un" },
+  { id: "prod-001", name: "Leite Integral 1L",       category: "Laticínios",  shelf_id: "shelf-001", sku: "LEIT001", image_url: null, brand: null, description: null, quantity: 1, section_index: null },
+  { id: "prod-002", name: "Queijo Mussarela 500g",    category: "Laticínios",  shelf_id: "shelf-001", sku: "QUEJ001", image_url: null, brand: null, description: null, quantity: 1, section_index: null },
+  { id: "prod-003", name: "Iogurte Natural 170g",     category: "Laticínios",  shelf_id: "shelf-001", sku: "IOGR001", image_url: null, brand: null, description: null, quantity: 1, section_index: null },
+  { id: "prod-004", name: "Pão de Forma Integral",    category: "Padaria",     shelf_id: "shelf-002", sku: "PAOF001", image_url: null, brand: null, description: null, quantity: 1, section_index: null },
+  { id: "prod-005", name: "Frango Inteiro 1kg",       category: "Carnes",      shelf_id: "shelf-002", sku: "FRAN001", image_url: null, brand: null, description: null, quantity: 1, section_index: null },
+  { id: "prod-006", name: "Arroz Branco 5kg",         category: "Mercearia",   shelf_id: "shelf-002", sku: "ARRZ001", image_url: null, brand: null, description: null, quantity: 1, section_index: null },
+  { id: "prod-007", name: "Feijão Carioca 1kg",       category: "Mercearia",   shelf_id: "shelf-002", sku: "FEIJ001", image_url: null, brand: null, description: null, quantity: 1, section_index: null },
+  { id: "prod-008", name: "Detergente Líquido 500ml", category: "Limpeza",     shelf_id: "shelf-002", sku: "DETE001", image_url: null, brand: null, description: null, quantity: 1, section_index: null },
 ];
 
 const MOCK_GROCERY_LIST = {
@@ -314,23 +318,15 @@ export const handlers = [
 
   http.get(`${BASE}/products`, ({ request }) => {
     const url = new URL(request.url);
-    const q = url.searchParams.get("q")?.toLowerCase();
-    const category = url.searchParams.get("category");
-    const shelfId = url.searchParams.get("shelf_id");
-    const page = parseInt(url.searchParams.get("page") ?? "1", 10);
-    const size = parseInt(url.searchParams.get("size") ?? "20", 10);
-
-    let filtered = MOCK_PRODUCTS;
-    if (q) filtered = filtered.filter((p) => p.name.toLowerCase().includes(q));
-    if (category) filtered = filtered.filter((p) => p.category === category);
-    if (shelfId) filtered = filtered.filter((p) => p.shelf_id === shelfId);
-
-    const start = (page - 1) * size;
+    const q = url.searchParams.get("q")?.toLowerCase() ?? "";
+    const filtered = q
+      ? MOCK_PRODUCTS.filter((p) => p.name.toLowerCase().includes(q))
+      : MOCK_PRODUCTS;
     return HttpResponse.json({
-      items: filtered.slice(start, start + size),
+      items: filtered,
       total: filtered.length,
-      page,
-      size,
+      page: 1,
+      size: 20,
     });
   }),
 
