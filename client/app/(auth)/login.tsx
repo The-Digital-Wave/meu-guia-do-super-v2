@@ -111,9 +111,11 @@ export default function LoginScreen() {
         </Text>
       </Pressable>
 
-      <Pressable style={styles.guestBtn} onPress={handleGuest} accessibilityLabel="Entrar como convidado">
-        <Text style={styles.guestBtnText}>Entrar como convidado</Text>
-      </Pressable>
+      <View style={{ flex: 1, justifyContent: "flex-end" }}>
+        <Pressable onPress={handleGuest} accessibilityLabel="Entrar como convidado">
+          <Text style={styles.guestBtnText}>Entrar como convidado</Text>
+        </Pressable>
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -139,6 +141,5 @@ const styles = StyleSheet.create({
   ctaText: { fontSize: 13, fontWeight: "900", color: colors.brandDark, letterSpacing: 2 },
   registerLink: { fontSize: 12, textAlign: "center", color: colors.textSecondary },
   registerLinkBold: { color: colors.routeActive, fontWeight: "600" },
-  guestBtn: { alignItems: "center", marginTop: "auto" as any },
-  guestBtnText: { fontSize: 12, fontWeight: "700", color: colors.brandDark, textDecorationLine: "underline", letterSpacing: 1 },
+  guestBtnText: { fontSize: 12, fontWeight: "700", color: colors.brandDark, textDecorationLine: "underline", letterSpacing: 1, textAlign: "center" },
 });

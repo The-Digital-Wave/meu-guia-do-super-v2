@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { colors, spacing, typography } from "@/theme/tokens";
-import { storage } from "@/services/storage";
+import { markOnboardingComplete } from "@/utils/onboarding";
 
 interface OnboardingStepProps {
   stepIndex: number;
@@ -15,8 +15,8 @@ interface OnboardingStepProps {
 }
 
 async function skipOnboarding() {
-  await storage.setItem("onboarding_complete", "true");
-  router.replace("/(auth)/login");
+  const saved = await markOnboardingComplete();
+  if (saved) router.replace("/(auth)/login");
 }
 
 export default function OnboardingStep({

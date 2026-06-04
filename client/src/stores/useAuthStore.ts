@@ -26,6 +26,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
   isGuest: false,
 
+  // Guest sessions are intentionally ephemeral — isGuest resets to false on app restart.
+  // This is by design: guests cannot save lists or access profile data across sessions.
   loginAsGuest: () => set({ isGuest: true, user: null, isAuthenticated: false }),
 
   login: async (email, password) => {
@@ -65,7 +67,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       await storage.setItem("access_token", data.access_token);
       await storage.setItem("refresh_token", data.refresh_token);
       const { data: me } = await api.get("/users/me");
-      set({ user: me, isAuthenticated: true });
+      set({ user: me, isAuthenticated: true, isGuest: false });
     } catch (e) {
       // Clean up any partially-written tokens
       await storage.deleteItem("access_token");

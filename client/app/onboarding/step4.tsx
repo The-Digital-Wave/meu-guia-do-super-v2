@@ -1,12 +1,12 @@
 import { View, Text, StyleSheet } from "react-native";
 import { router } from "expo-router";
-import { storage } from "@/services/storage";
+import { markOnboardingComplete } from "@/utils/onboarding";
 import OnboardingStep from "@/components/OnboardingStep";
 import { colors } from "@/theme/tokens";
 
 async function completeOnboarding() {
-  await storage.setItem("onboarding_complete", "true");
-  router.replace("/(auth)/login");
+  const saved = await markOnboardingComplete();
+  if (saved) router.replace("/(auth)/login");
 }
 
 export default function Step4() {
