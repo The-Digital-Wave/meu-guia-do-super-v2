@@ -17,10 +17,10 @@ export default function MapScreen() {
   const drawerH = spacing.drawerPeek + spacing.safeAreaBottom + 8;
   const canvasH = height - navBarH - drawerH;
 
-  const { activeRoute, setActiveRoute } = useNavigationStore();
+  const { activeRoute, setActiveRoute, activeSupermarketId } = useNavigationStore();
   const { items } = useGroceryListStore();
 
-  const { data: layouts } = useLayouts();
+  const { data: layouts } = useLayouts(activeSupermarketId);
   const firstLayoutId = layouts?.[0]?.id ?? null;
   const { data: bundle, isLoading } = useLayoutBundle(firstLayoutId);
 

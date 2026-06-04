@@ -31,10 +31,11 @@ export default function NavigationScreen() {
     setTransitionProgress,
     advance,
     clearNavigation,
+    activeSupermarketId,
   } = useNavigationStore();
 
   const { items, removeItem } = useGroceryListStore();
-  const { data: layouts } = useLayouts();
+  const { data: layouts } = useLayouts(activeSupermarketId);
   const firstLayoutId = layouts?.[0]?.id ?? null;
   const { data: bundle } = useLayoutBundle(firstLayoutId);
 
@@ -91,10 +92,14 @@ export default function NavigationScreen() {
   }, [activeItem, items, setNavState]);
 
   const handleConfirmationComplete = useCallback(() => {
+    setNavState("QUEUE_ADVANCING");
     if (activeItem) removeItem(activeItem.product_id);
     advance();
     const remaining = useGroceryListStore.getState().items;
-    setNavState(remaining.length === 0 ? "TRIP_COMPLETE" : "GUIDANCE_ACTIVE");
+    // Brief delay for camera pan animation, then move to next state
+    setTimeout(() => {
+      setNavState(remaining.length === 0 ? "TRIP_COMPLETE" : "GUIDANCE_ACTIVE");
+    }, 200);
   }, [activeItem, removeItem, advance, setNavState]);
 
   if (navState === "TRIP_COMPLETE") {

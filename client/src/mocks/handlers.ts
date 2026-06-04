@@ -31,6 +31,7 @@ const MOCK_LAYOUT = {
   supermarket_id: "super-001",
   width_m: 50,
   height_m: 30,
+  image_url: null,
   created_at: "2026-01-01T00:00:00Z",
 };
 

@@ -73,7 +73,7 @@ export const useNavigationStore = create<NavigationState>((set, get) => ({
     set({ activeRoute: route, phase: route ? "idle" : "idle", activeStepIndex: 0 }),
 
   startNavigation: () =>
-    set({ phase: "routing", activeStepIndex: 0, isNavigating: true }),
+    set({ phase: "routing", activeStepIndex: 0, isNavigating: true, navState: "GUIDANCE_ACTIVE", transitionProgress: 0 }),
 
   advance: () => {
     const { activeRoute, activeStepIndex } = get();
@@ -98,6 +98,8 @@ export const useNavigationStore = create<NavigationState>((set, get) => ({
       isNavigating:          false,
       activeSupermarketId:   null,
       activeSupermarketName: null,
+      navState:              "GUIDANCE_ACTIVE",
+      transitionProgress:    0,
     }),
 
   // Legacy compat — existing screens use startNavigation / stopNavigation

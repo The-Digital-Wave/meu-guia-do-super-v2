@@ -140,7 +140,8 @@ function EmptyState() {
 
 function LoadedState() {
   const { width, height } = useWindowDimensions();
-  const { data: layouts } = useLayouts();
+  const { activeSupermarketId } = useNavigationStore();
+  const { data: layouts } = useLayouts(activeSupermarketId);
   const firstLayoutId = layouts?.[0]?.id ?? null;
   const { data: bundle } = useLayoutBundle(firstLayoutId);
   if (!bundle) return <View style={{ flex: 1, backgroundColor: colors.bgLight }} />;

@@ -2,11 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/services/api";
 import type { Layout, LayoutBundle } from "@/types";
 
-export function useLayouts() {
+export function useLayouts(supermarketId?: string | null) {
   return useQuery<Layout[]>({
-    queryKey: ["layouts"],
+    queryKey: ["layouts", supermarketId],
     queryFn: async () => {
-      const { data } = await api.get<Layout[]>("/layouts");
+      const params = supermarketId ? { supermarket_id: supermarketId } : {};
+      const { data } = await api.get<Layout[]>("/layouts", { params });
       return data;
     },
     staleTime: 1000 * 60 * 10,
