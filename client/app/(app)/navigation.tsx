@@ -3,7 +3,6 @@ import { View, Text, Pressable, SafeAreaView } from "react-native";
 import { router } from "expo-router";
 import { useNavigationStore } from "@/stores/useNavigationStore";
 import { useLayouts, useLayoutBundle } from "@/hooks/useLayouts";
-import MiniMap from "@/components/map/MiniMap";
 
 export default function NavigationScreen() {
   const { activeRoute, clearNavigation, phase, activeStepIndex, advance, bearingDeg } =
@@ -155,16 +154,20 @@ export default function NavigationScreen() {
                 gap: 16,
               }}
             >
-              {/* MiniMap */}
+              {/* MiniMap — replaced by SkiaMapCanvas in Phase 8g */}
               {bundle && (
-                <MiniMap
-                  nodes={bundle.nodes}
-                  edges={bundle.edges}
-                  shelves={bundle.shelves}
-                  layout={bundle.layout}
-                  currentWaypointNodeId={currentWaypointNodeId}
-                  bearingDeg={bearingDeg}
-                />
+                <View
+                  style={{
+                    width: 120,
+                    height: 120,
+                    borderRadius: 12,
+                    backgroundColor: "rgba(255,255,255,0.08)",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text style={{ fontSize: 10, color: "rgba(255,255,255,0.40)" }}>Mapa</Text>
+                </View>
               )}
 
               {/* Direction text */}
