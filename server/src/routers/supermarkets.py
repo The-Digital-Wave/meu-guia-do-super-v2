@@ -21,7 +21,11 @@ async def list_supermarkets(
     return [SupermarketOut.model_validate(sm) for sm in supermarkets]
 
 
-@router.get("/{supermarket_id}", response_model=SupermarketDetailOut, status_code=status.HTTP_200_OK)
+@router.get(
+    "/{supermarket_id}",
+    response_model=SupermarketDetailOut,
+    status_code=status.HTTP_200_OK,
+)
 async def get_supermarket(
     supermarket_id: uuid.UUID,
     db: Annotated[AsyncSession, Depends(get_db)],
