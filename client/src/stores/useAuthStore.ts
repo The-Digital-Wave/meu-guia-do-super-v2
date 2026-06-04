@@ -12,16 +12,21 @@ interface AuthState {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  isGuest: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   restoreSession: () => Promise<void>;
+  loginAsGuest: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isLoading: false,
   isAuthenticated: false,
+  isGuest: false,
+
+  loginAsGuest: () => set({ isGuest: true, user: null, isAuthenticated: false }),
 
   login: async (email, password) => {
     set({ isLoading: true });
@@ -35,7 +40,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       await storage.setItem("access_token", data.access_token);
       await storage.setItem("refresh_token", data.refresh_token);
       const { data: me } = await api.get("/users/me");
-      set({ user: me, isAuthenticated: true });
+      set({ user: me, isAuthenticated: true, isGuest: false });
     } catch (e) {
       // Clean up any partially-written tokens
       await storage.deleteItem("access_token");
@@ -74,7 +79,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: async () => {
     await storage.deleteItem("access_token");
     await storage.deleteItem("refresh_token");
-    set({ user: null, isAuthenticated: false });
+    set({ user: null, isAuthenticated: false, isGuest: false });
   },
 
   restoreSession: async () => {
