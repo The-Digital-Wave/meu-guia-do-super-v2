@@ -1,16 +1,36 @@
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { useState, useCallback } from "react";
+import { View, Text, Pressable, StyleSheet, FlatList, TextInput } from "react-native";
 import { router } from "expo-router";
 import { useNavigationStore } from "@/stores/useNavigationStore";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { useProductSearch } from "@/hooks/useProducts";
+import { useGroceryListStore } from "@/stores/useGroceryListStore";
+import AuthGateSheet from "@/components/AuthGateSheet";
 import { colors, spacing } from "@/theme/tokens";
+import type { Product } from "@/types";
 
 export default function HomeScreen() {
   const { activeSupermarketId, activeSupermarketName } = useNavigationStore();
+  const { isGuest } = useAuthStore();
   const hasStore = !!activeSupermarketId;
 
-  function handleFabPress() {
-    // Guest auth gate will be handled in Phase 8e
-    router.push("/(app)/list");
-  }
+  const [query, setQuery] = useState("");
+  const [showAuthGate, setShowAuthGate] = useState(false);
+  const { data: searchResults } = useProductSearch(query);
+  const { addItem, items } = useGroceryListStore();
+
+  const handleAddProduct = useCallback((product: Product) => {
+    addItem(product);
+    setQuery("");
+  }, [addItem]);
+
+  const handleFabPress = useCallback(() => {
+    if (isGuest) {
+      setShowAuthGate(true);
+    } else {
+      router.push("/(app)/list");
+    }
+  }, [isGuest]);
 
   return (
     <View style={styles.container}>
@@ -34,6 +54,20 @@ export default function HomeScreen() {
           <Text style={styles.storePickerArrow}>{hasStore ? "↑" : "↓"}</Text>
         </Pressable>
 
+        {hasStore && (
+          <View style={styles.searchWrap}>
+            <TextInput
+              style={styles.searchInput}
+              value={query}
+              onChangeText={setQuery}
+              placeholder="Buscar produto..."
+              placeholderTextColor={colors.textSecondary}
+              returnKeyType="search"
+              accessibilityLabel="Buscar produto"
+            />
+          </View>
+        )}
+
         <Pressable
           style={styles.avatar}
           onPress={() => router.push("/(app)/settings")}
@@ -42,6 +76,27 @@ export default function HomeScreen() {
           <Text style={styles.avatarText}>EU</Text>
         </Pressable>
       </View>
+
+      {/* Search dropdown */}
+      {hasStore && query.length > 0 && searchResults && searchResults.items.length > 0 && (
+        <View style={styles.searchDropdown}>
+          <FlatList
+            data={searchResults.items.slice(0, 6)}
+            keyExtractor={(item) => item.id}
+            keyboardShouldPersistTaps="handled"
+            renderItem={({ item }) => (
+              <Pressable style={styles.searchRow} onPress={() => handleAddProduct(item)}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.searchRowName}>{item.name}</Text>
+                  {item.category && <Text style={styles.searchRowCat}>{item.category}</Text>}
+                </View>
+                <Text style={styles.searchRowAdd}>＋</Text>
+              </Pressable>
+            )}
+            ItemSeparatorComponent={() => <View style={styles.searchSep} />}
+          />
+        </View>
+      )}
 
       {/* Body */}
       {!hasStore ? <EmptyState /> : <LoadedState />}
@@ -55,9 +110,19 @@ export default function HomeScreen() {
       >
         <Text style={styles.fabIcon}>🛒</Text>
         <View style={styles.fabBadge}>
-          <Text style={styles.fabBadgeText}>0</Text>
+          <Text style={styles.fabBadgeText}>{items.length.toString()}</Text>
         </View>
       </Pressable>
+
+      <AuthGateSheet
+        visible={showAuthGate}
+        onDismiss={() => setShowAuthGate(false)}
+        onContinueWithoutSaving={() => {
+          setShowAuthGate(false);
+          useGroceryListStore.getState().setEphemeral(true);
+          router.push("/(app)/list");
+        }}
+      />
     </View>
   );
 }
@@ -102,6 +167,14 @@ const styles = StyleSheet.create({
   storePickerActive: { borderColor: colors.routeActive, backgroundColor: colors.white },
   storePickerText: { fontSize: 11, fontWeight: "600", color: colors.textPrimary, flex: 1 },
   storePickerArrow: { fontSize: 11, color: colors.textSecondary, marginLeft: 4 },
+  searchWrap: { flex: 1, backgroundColor: colors.white, borderWidth: 1, borderColor: colors.border, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 5, flexDirection: "row", alignItems: "center" },
+  searchInput: { fontSize: 14, color: colors.textPrimary, flex: 1, padding: 0 },
+  searchDropdown: { position: "absolute", top: spacing.navBarHeight + spacing.safeAreaTop + 8, left: spacing.gutter, right: spacing.gutter, backgroundColor: colors.white, borderRadius: 12, borderWidth: 1, borderColor: colors.border, zIndex: 30, maxHeight: 280, shadowColor: colors.shadow, shadowOffset: { width: 0, height: 8 }, shadowRadius: 12, elevation: 8 },
+  searchRow: { flexDirection: "row", alignItems: "center", paddingHorizontal: 12, paddingVertical: 10 },
+  searchRowName: { fontSize: 14, fontWeight: "600", color: colors.textPrimary },
+  searchRowCat: { fontSize: 12, color: colors.textSecondary },
+  searchRowAdd: { fontSize: 18, color: colors.routeActive, fontWeight: "700" },
+  searchSep: { height: 1, backgroundColor: colors.bgLight, marginHorizontal: 12 },
   avatar: { width: 28, height: 28, borderRadius: 14, backgroundColor: colors.border, alignItems: "center", justifyContent: "center" },
   avatarText: { fontSize: 8, fontWeight: "700", color: colors.textSecondary },
   emptyContainer: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12 },
