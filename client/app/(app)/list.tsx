@@ -1,203 +1,109 @@
-import { useCallback } from "react";
-import { View, Text, FlatList, Pressable, ActivityIndicator } from "react-native";
+import { useState } from "react";
+import { View, Text, Pressable, StyleSheet, ActivityIndicator, Alert, FlatList } from "react-native";
 import { router } from "expo-router";
-import { useAuthStore } from "@/stores/useAuthStore";
-import {
-  useGroceryLists,
-  useGroceryList,
-  useRemoveGroceryItem,
-  useUpdateGroceryItem,
-  useOptimizeGroceryList,
-} from "@/hooks/useGroceryLists";
-import type { GroceryItem } from "@/types";
+import { useGroceryListStore, type CartItem } from "@/stores/useGroceryListStore";
+import { useNavigationStore } from "@/stores/useNavigationStore";
+import { colors, spacing } from "@/theme/tokens";
 
-export default function ListScreen() {
-  const { isAuthenticated } = useAuthStore();
-  const { data: lists, isLoading: listsLoading } = useGroceryLists({ enabled: isAuthenticated });
-  const firstListId = lists?.[0]?.id ?? null;
-  const { data: list, isLoading: listLoading } = useGroceryList(firstListId);
-  const removeItem = useRemoveGroceryItem(firstListId ?? "");
-  const updateItem = useUpdateGroceryItem(firstListId ?? "");
-  const optimize = useOptimizeGroceryList(firstListId ?? "");
+// react-native-reorderable-list may not yet be configured; use FlatList as fallback
 
-  const renderItem = useCallback(
-    ({ item }: { item: GroceryItem }) => (
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          backgroundColor: "#ffffff",
-          paddingHorizontal: 16,
-          paddingVertical: 14,
-          borderBottomWidth: 1,
-          borderBottomColor: "#f2f0eb",
-          minHeight: 60,
-        }}
-      >
-        {/* Check button */}
-        <Pressable
-          onPress={() => updateItem.mutate({ itemId: item.id, checked: !item.checked })}
-          style={{
-            width: 28,
-            height: 28,
-            borderRadius: 14,
-            borderWidth: 2,
-            borderColor: item.checked ? "#00754A" : "#d6dbde",
-            backgroundColor: item.checked ? "#00754A" : "transparent",
-            alignItems: "center",
-            justifyContent: "center",
-            marginRight: 12,
-          }}
-          hitSlop={8}
-        >
-          {item.checked && <Text style={{ color: "#ffffff", fontSize: 14, lineHeight: 16 }}>✓</Text>}
-        </Pressable>
+export default function ListModal() {
+  const { items, removeItem } = useGroceryListStore();
+  const { activeRoute } = useNavigationStore();
+  const [loading, setLoading] = useState(false);
 
-        {/* Name */}
-        <Text
-          style={{
-            flex: 1,
-            fontFamily: "Inter_400Regular",
-            fontSize: 15,
-            color: item.checked ? "rgba(0,0,0,0.38)" : "rgba(0,0,0,0.87)",
-            textDecorationLine: item.checked ? "line-through" : "none",
-          }}
-          numberOfLines={2}
-        >
-          {item.product_name_snapshot}
-        </Text>
-
-        {/* Delete button */}
-        <Pressable
-          onPress={() => removeItem.mutate(item.id)}
-          hitSlop={8}
-          style={{ width: 36, height: 36, alignItems: "center", justifyContent: "center", marginLeft: 8 }}
-        >
-          <Text style={{ fontSize: 18, color: "rgba(0,0,0,0.38)" }}>✕</Text>
-        </Pressable>
-      </View>
-    ),
-    [updateItem, removeItem]
-  );
-
-  // Not authenticated guard
-  if (!isAuthenticated) {
-    return (
-      <View style={{ flex: 1, backgroundColor: "#f2f0eb", alignItems: "center", justifyContent: "center", padding: 32 }}>
-        <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 18, color: "#006241", textAlign: "center", marginBottom: 8 }}>Lista de Compras</Text>
-        <Text style={{ fontFamily: "Inter_400Regular", fontSize: 14, color: "rgba(0,0,0,0.58)", textAlign: "center", marginBottom: 24 }}>
-          Faça login para salvar e acessar sua lista de compras.
-        </Text>
-        <Pressable
-          onPress={() => router.push("/(auth)/login")}
-          style={({ pressed }) => ({
-            backgroundColor: "#00754A",
-            borderRadius: 50,
-            paddingVertical: 14,
-            paddingHorizontal: 32,
-            transform: [{ scale: pressed ? 0.95 : 1 }],
-            minHeight: 48,
-          })}
-        >
-          <Text style={{ color: "#ffffff", fontFamily: "Inter_600SemiBold", fontSize: 16 }}>Entrar</Text>
-        </Pressable>
-      </View>
-    );
+  async function handleStartNavigation() {
+    if (items.length === 0) return;
+    setLoading(true);
+    try {
+      // If we already have a route from a previous session, go straight to map
+      if (activeRoute) {
+        router.replace("/(app)/map");
+        return;
+      }
+      // Otherwise navigate to map — route will be calculated there
+      router.replace("/(app)/map");
+    } catch {
+      Alert.alert("Erro", "Não foi possível calcular a rota. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  const isLoading = listsLoading || listLoading;
-  const items = list ? [...list.items].sort((a, b) => a.sort_order - b.sort_order) : [];
-
   return (
-    <View style={{ flex: 1, backgroundColor: "#f2f0eb" }}>
-      {/* Header */}
-      <View style={{ backgroundColor: "#1E3932", paddingTop: 56, paddingBottom: 20, paddingHorizontal: 16 }}>
-        <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 22, color: "#ffffff", letterSpacing: -0.16 }}>
-          Lista de Compras
-        </Text>
-        {list && (
-          <Text style={{ fontFamily: "Inter_400Regular", fontSize: 13, color: "rgba(255,255,255,0.70)", marginTop: 4 }}>
-            {items.length} {items.length === 1 ? "item" : "itens"}
-          </Text>
-        )}
+    <View style={styles.container}>
+      <View style={styles.handle} />
+
+      <View style={styles.header}>
+        <Text style={styles.title}>Lista de Compras</Text>
+        <View style={styles.countBadge}>
+          <Text style={styles.countText}>{items.length} {items.length === 1 ? "Item" : "Itens"}</Text>
+        </View>
       </View>
 
-      {/* Body */}
-      {isLoading ? (
-        <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-          <ActivityIndicator size="large" color="#00754A" />
-        </View>
-      ) : !list || items.length === 0 ? (
-        <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 32 }}>
-          <Text style={{ fontFamily: "Inter_400Regular", fontSize: 15, color: "rgba(0,0,0,0.58)", textAlign: "center", marginBottom: 24 }}>
-            Lista vazia. Busque um produto para adicionar.
-          </Text>
-          <Pressable
-            onPress={() => router.push("/(app)")}
-            style={({ pressed }) => ({
-              backgroundColor: "#00754A",
-              borderRadius: 50,
-              paddingVertical: 12,
-              paddingHorizontal: 28,
-              transform: [{ scale: pressed ? 0.95 : 1 }],
-              minHeight: 48,
-            })}
-          >
-            <Text style={{ color: "#ffffff", fontFamily: "Inter_600SemiBold", fontSize: 14 }}>Buscar produto</Text>
-          </Pressable>
+      {items.length === 0 ? (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyText}>Sua lista está vazia.</Text>
+          <Text style={styles.emptySubText}>Pesquise produtos e adicione-os à lista.</Text>
         </View>
       ) : (
-        <>
-          <FlatList
-            data={items}
-            keyExtractor={(item) => item.id}
-            renderItem={renderItem}
-            style={{ flex: 1 }}
-            contentContainerStyle={{ paddingBottom: 120 }}
-          />
-
-          {/* Bottom optimize bar */}
-          <View
-            style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              backgroundColor: "#ffffff",
-              paddingHorizontal: 16,
-              paddingVertical: 16,
-              paddingBottom: 32,
-              borderTopWidth: 1,
-              borderTopColor: "#f2f0eb",
-            }}
-          >
-            <Pressable
-              onPress={() => optimize.mutate()}
-              disabled={optimize.isPending}
-              style={({ pressed }) => ({
-                backgroundColor: "#00754A",
-                borderRadius: 50,
-                paddingVertical: 14,
-                alignItems: "center",
-                opacity: optimize.isPending ? 0.7 : 1,
-                transform: [{ scale: pressed ? 0.95 : 1 }],
-                minHeight: 48,
-              })}
-            >
-              {optimize.isPending ? (
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                  <ActivityIndicator size="small" color="#ffffff" />
-                  <Text style={{ color: "#ffffff", fontFamily: "Inter_600SemiBold", fontSize: 16 }}>Calculando...</Text>
-                </View>
-              ) : (
-                <Text style={{ color: "#ffffff", fontFamily: "Inter_600SemiBold", fontSize: 16 }}>
-                  🗺️ Otimizar rota
-                </Text>
-              )}
-            </Pressable>
-          </View>
-        </>
+        <FlatList
+          data={items}
+          keyExtractor={(item) => item.id}
+          style={styles.list}
+          renderItem={({ item }: { item: CartItem }) => (
+            <View style={styles.row}>
+              <Text style={styles.rowEmoji}>🛍</Text>
+              <Text style={styles.rowName} numberOfLines={1}>{item.product_name_snapshot}</Text>
+              <Pressable
+                onPress={() => removeItem(item.product_id)}
+                style={styles.deleteBtn}
+                accessibilityLabel={`Remover ${item.product_name_snapshot}`}
+              >
+                <Text style={styles.deleteBtnText}>✕</Text>
+              </Pressable>
+            </View>
+          )}
+          ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+        />
       )}
+
+      <Pressable
+        style={({ pressed }) => [
+          styles.cta,
+          items.length === 0 && styles.ctaDisabled,
+          pressed && items.length > 0 && { opacity: 0.85, transform: [{ scale: 0.98 }] },
+        ]}
+        onPress={handleStartNavigation}
+        disabled={items.length === 0 || loading}
+        accessibilityLabel="Iniciar navegação"
+      >
+        {loading
+          ? <ActivityIndicator color={colors.white} size="small" />
+          : <Text style={styles.ctaText}>Iniciar navegação →</Text>
+        }
+      </Pressable>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.white, borderTopLeftRadius: 32, borderTopRightRadius: 32, paddingTop: 12, paddingHorizontal: spacing.gutter, paddingBottom: spacing.safeAreaBottom + 16 },
+  handle: { width: 48, height: 4, backgroundColor: colors.border, borderRadius: 2, alignSelf: "center", marginBottom: 16 },
+  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 16 },
+  title: { fontSize: 18, fontWeight: "700", color: colors.brandDark },
+  countBadge: { backgroundColor: "#ecfdf5", borderWidth: 1, borderColor: "#a7f3d0", borderRadius: 20, paddingHorizontal: 10, paddingVertical: 2 },
+  countText: { fontSize: 10, fontWeight: "700", color: "#059669" },
+  list: { flex: 1, marginBottom: 16 },
+  row: { flexDirection: "row", alignItems: "center", backgroundColor: colors.bgLight, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, borderWidth: 1, borderColor: colors.border, gap: 10 },
+  rowEmoji: { fontSize: 18 },
+  rowName: { fontSize: 14, fontWeight: "600", color: colors.textPrimary, flex: 1 },
+  deleteBtn: { padding: 4 },
+  deleteBtnText: { fontSize: 14, color: "#ef4444", fontWeight: "600" },
+  emptyState: { flex: 1, alignItems: "center", justifyContent: "center", gap: 8, paddingVertical: 48 },
+  emptyText: { fontSize: 14, fontWeight: "600", color: colors.textSecondary },
+  emptySubText: { fontSize: 12, color: colors.textSecondary, textAlign: "center" },
+  cta: { backgroundColor: "#15803d", borderRadius: spacing.pillRadius, paddingVertical: 16, alignItems: "center", justifyContent: "center" },
+  ctaDisabled: { opacity: 0.35 },
+  ctaText: { fontSize: 14, fontWeight: "700", color: colors.white, letterSpacing: 0.5 },
+});

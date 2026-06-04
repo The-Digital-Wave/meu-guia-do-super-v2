@@ -1,6 +1,13 @@
 import { create } from "zustand";
 import type { RouteResponse } from "@/types";
 
+export type NavState =
+  | "GUIDANCE_ACTIVE"
+  | "SWIPE_REVEALED"
+  | "CONFIRMING"
+  | "QUEUE_ADVANCING"
+  | "TRIP_COMPLETE";
+
 export type NavigationPhase = "idle" | "routing" | "arrived";
 
 interface NavigationState {
@@ -12,10 +19,20 @@ interface NavigationState {
   activeStepIndex: number;
   // Phase 7: bearing for map orientation
   bearingDeg:      number;
+  // Phase 8d: active supermarket
+  activeSupermarketId:   string | null;
+  activeSupermarketName: string | null;
+  // Phase 8g: NavState machine
+  navState: NavState;
+  transitionProgress: number;  // 0→1, drives 2D→3D switch
+  setNavState: (state: NavState) => void;
+  setTransitionProgress: (progress: number) => void;
   // Setters
   setUserNodeId:   (nodeId: string | null) => void;
   setActiveRoute:  (route: RouteResponse | null) => void;
   setBearing:      (deg: number) => void;
+  setActiveSupermarket: (id: string, name: string) => void;
+  clearSupermarket: () => void;
   // State machine transitions
   startNavigation: () => void;                // idle → routing
   advance:         () => void;                // routing → routing (next step) or arrived
@@ -34,16 +51,29 @@ export const useNavigationStore = create<NavigationState>((set, get) => ({
   activeStepIndex: 0,
   bearingDeg:      0,
   isNavigating:    false,
+  activeSupermarketId:   null,
+  activeSupermarketName: null,
+  navState: "GUIDANCE_ACTIVE",
+  transitionProgress: 0,
+
+  setNavState: (state) => set({ navState: state }),
+  setTransitionProgress: (progress) => set({ transitionProgress: progress }),
 
   setUserNodeId: (nodeId) => set({ userNodeId: nodeId }),
 
   setBearing: (deg) => set({ bearingDeg: deg }),
 
+  setActiveSupermarket: (id, name) =>
+    set({ activeSupermarketId: id, activeSupermarketName: name }),
+
+  clearSupermarket: () =>
+    set({ activeSupermarketId: null, activeSupermarketName: null }),
+
   setActiveRoute: (route) =>
     set({ activeRoute: route, phase: route ? "idle" : "idle", activeStepIndex: 0 }),
 
   startNavigation: () =>
-    set({ phase: "routing", activeStepIndex: 0, isNavigating: true }),
+    set({ phase: "routing", activeStepIndex: 0, isNavigating: true, navState: "GUIDANCE_ACTIVE", transitionProgress: 0 }),
 
   advance: () => {
     const { activeRoute, activeStepIndex } = get();
@@ -61,11 +91,15 @@ export const useNavigationStore = create<NavigationState>((set, get) => ({
 
   clearNavigation: () =>
     set({
-      userNodeId:      null,
-      activeRoute:     null,
-      phase:           "idle",
-      activeStepIndex: 0,
-      isNavigating:    false,
+      userNodeId:            null,
+      activeRoute:           null,
+      phase:                 "idle",
+      activeStepIndex:       0,
+      isNavigating:          false,
+      activeSupermarketId:   null,
+      activeSupermarketName: null,
+      navState:              "GUIDANCE_ACTIVE",
+      transitionProgress:    0,
     }),
 
   // Legacy compat — existing screens use startNavigation / stopNavigation

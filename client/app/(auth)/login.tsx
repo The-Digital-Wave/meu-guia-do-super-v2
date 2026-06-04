@@ -1,169 +1,145 @@
-import { View, Text, TextInput, Pressable, Image, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { useState } from "react";
+import {
+  View, Text, TextInput, Pressable, ActivityIndicator,
+  StyleSheet, KeyboardAvoidingView, Platform, Alert,
+} from "react-native";
 import { router } from "expo-router";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { colors, spacing } from "@/theme/tokens";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const { login, isLoading } = useAuthStore();
+  const { login, loginAsGuest, isLoading } = useAuthStore();
 
-  const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) {
-      setError("Preencha todos os campos");
+  async function handleLogin() {
+    if (!email || !password) {
+      Alert.alert("Campos obrigatórios", "Por favor, preencha o e-mail e a senha.");
       return;
     }
-    setError(null);
     try {
-      await login(email.trim(), password);
+      await login(email, password);
       router.replace("/(app)");
-    } catch (e: unknown) {
-      const msg = (e as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
-      setError(msg ?? "Email ou senha incorretos");
+    } catch {
+      Alert.alert("Erro ao entrar", "E-mail ou senha inválidos.");
     }
-  };
+  }
+
+  function handleGuest() {
+    loginAsGuest();
+    router.replace("/(app)");
+  }
+
+  function handleSocialToast() {
+    Alert.alert("Em breve", "Login social estará disponível em breve.");
+  }
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1 bg-neutralWarm"
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View className="flex-1 px-outerGutter pt-16 pb-8 justify-center">
-          {/* Logo */}
-          <View className="items-center mb-8">
-            <Image
-              source={require("../../src/assets/app-logo-1.png")}
-              style={{ width: 80, height: 80, borderRadius: 16 }}
-              resizeMode="contain"
-            />
-          </View>
+      <View style={styles.logoRow}>
+        <View style={styles.logoBg}>
+          <Text style={{ fontSize: 22 }}>🛒</Text>
+        </View>
+        <View>
+          <Text style={styles.logoTitle}>Bem-vindo</Text>
+          <Text style={styles.logoSub}>Aqui você encontra o que procura</Text>
+        </View>
+      </View>
 
-          {/* Header */}
-          <Text
-            style={{ fontFamily: "Inter_600SemiBold", color: "#006241", fontSize: 28, letterSpacing: -0.16, textAlign: "center", marginBottom: 8 }}
-          >
-            Bem-vindo
-          </Text>
-          <Text
-            style={{ fontFamily: "Inter_400Regular", color: "rgba(0,0,0,0.58)", fontSize: 14, textAlign: "center", marginBottom: 32 }}
-          >
-            Encontre o que você procura
-          </Text>
+      <View style={styles.socialGroup}>
+        <Pressable style={styles.socialBtn} onPress={handleSocialToast} accessibilityLabel="Continuar com Facebook">
+          <Text style={styles.socialBtnText}>f  Continue with Facebook</Text>
+        </Pressable>
+        <Pressable style={styles.socialBtn} onPress={handleSocialToast} accessibilityLabel="Continuar com Google">
+          <Text style={styles.socialBtnText}>G  Continue with Google</Text>
+        </Pressable>
+      </View>
 
-          {/* Email input */}
-          <View className="mb-4">
-            <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 12, color: "rgba(0,0,0,0.58)", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>
-              Email
-            </Text>
-            <TextInput
-              value={email}
-              onChangeText={setEmail}
-              placeholder="seu@email.com"
-              placeholderTextColor="rgba(0,0,0,0.38)"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              style={{
-                borderWidth: 1,
-                borderColor: "#d6dbde",
-                borderRadius: 4,
-                paddingHorizontal: 12,
-                paddingVertical: 14,
-                fontFamily: "Inter_400Regular",
-                fontSize: 16,
-                color: "rgba(0,0,0,0.87)",
-                backgroundColor: "#ffffff",
-                minHeight: 48,
-              }}
-            />
-          </View>
+      <Text style={styles.orDivider}>OU</Text>
 
-          {/* Password input */}
-          <View className="mb-6">
-            <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 12, color: "rgba(0,0,0,0.58)", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>
-              Senha
-            </Text>
-            <View style={{ position: "relative" }}>
-              <TextInput
-                value={password}
-                onChangeText={setPassword}
-                placeholder="Mínimo 8 caracteres"
-                placeholderTextColor="rgba(0,0,0,0.38)"
-                secureTextEntry={!showPassword}
-                autoCapitalize="none"
-                style={{
-                  borderWidth: 1,
-                  borderColor: "#d6dbde",
-                  borderRadius: 4,
-                  paddingHorizontal: 12,
-                  paddingRight: 48,
-                  paddingVertical: 14,
-                  fontFamily: "Inter_400Regular",
-                  fontSize: 16,
-                  color: "rgba(0,0,0,0.87)",
-                  backgroundColor: "#ffffff",
-                  minHeight: 48,
-                }}
-              />
-              <Pressable
-                onPress={() => setShowPassword((v) => !v)}
-                hitSlop={8}
-                style={{ position: "absolute", right: 12, top: 0, bottom: 0, justifyContent: "center" }}
-              >
-                <Text style={{ fontSize: 12, color: "#00754A", fontFamily: "Inter_600SemiBold" }}>
-                  {showPassword ? "OCULTAR" : "MOSTRAR"}
-                </Text>
-              </Pressable>
-            </View>
-          </View>
+      <View style={styles.fieldGroup}>
+        <Text style={styles.fieldLabel}>EMAIL</Text>
+        <TextInput
+          style={styles.input}
+          value={email}
+          onChangeText={setEmail}
+          placeholder="seu@email.com"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoComplete="email"
+          accessibilityLabel="Campo de e-mail"
+        />
+      </View>
 
-          {/* Error */}
-          {error && (
-            <Text style={{ color: "#c82014", fontSize: 14, fontFamily: "Inter_400Regular", marginBottom: 12, textAlign: "center" }}>
-              {error}
-            </Text>
-          )}
-
-          {/* Login button */}
-          <Pressable
-            onPress={handleLogin}
-            disabled={isLoading}
-            style={({ pressed }) => ({
-              backgroundColor: "#00754A",
-              borderRadius: 50,
-              paddingVertical: 14,
-              alignItems: "center",
-              opacity: isLoading ? 0.7 : 1,
-              transform: [{ scale: pressed ? 0.95 : 1 }],
-              minHeight: 48,
-            })}
-          >
-            {isLoading ? (
-              <ActivityIndicator color="#ffffff" />
-            ) : (
-              <Text style={{ color: "#ffffff", fontFamily: "Inter_600SemiBold", fontSize: 16, letterSpacing: -0.16 }}>
-                Entrar
-              </Text>
-            )}
-          </Pressable>
-
-          {/* Register link */}
-          <Pressable
-            onPress={() => router.push("/(auth)/register")}
-            style={{ marginTop: 16, alignItems: "center", minHeight: 44, justifyContent: "center" }}
-          >
-            <Text style={{ color: "#00754A", fontFamily: "Inter_400Regular", fontSize: 14 }}>
-              Não tem conta? <Text style={{ fontFamily: "Inter_600SemiBold" }}>Criar conta</Text>
-            </Text>
+      <View style={styles.fieldGroup}>
+        <View style={styles.passHeader}>
+          <Text style={styles.fieldLabel}>SENHA</Text>
+          <Pressable onPress={() => setShowPassword(!showPassword)}>
+            <Text style={styles.showPassBtn}>{showPassword ? "OCULTAR" : "MOSTRAR"}</Text>
           </Pressable>
         </View>
-      </ScrollView>
+        <TextInput
+          style={styles.input}
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={!showPassword}
+          placeholder="••••••••"
+          autoComplete="password"
+          accessibilityLabel="Campo de senha"
+        />
+      </View>
+
+      <Pressable
+        style={({ pressed }) => [styles.cta, pressed && styles.ctaPressed, isLoading && styles.ctaDisabled]}
+        onPress={handleLogin}
+        disabled={isLoading}
+        accessibilityLabel="Entrar"
+      >
+        {isLoading
+          ? <ActivityIndicator color={colors.brandDark} />
+          : <Text style={styles.ctaText}>ENTRAR</Text>
+        }
+      </Pressable>
+
+      <Pressable onPress={() => router.push("/(auth)/register")}>
+        <Text style={styles.registerLink}>
+          Não tem conta? <Text style={styles.registerLinkBold}>Criar conta</Text>
+        </Text>
+      </Pressable>
+
+      <View style={{ flex: 1, justifyContent: "flex-end" }}>
+        <Pressable onPress={handleGuest} accessibilityLabel="Entrar como convidado">
+          <Text style={styles.guestBtnText}>Entrar como convidado</Text>
+        </Pressable>
+      </View>
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.bgLight, paddingHorizontal: spacing.gutter, paddingTop: spacing.safeAreaTop + 16, paddingBottom: 32, gap: 16 },
+  logoRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 8 },
+  logoBg: { width: 48, height: 48, backgroundColor: colors.brandDark, borderRadius: 12, alignItems: "center", justifyContent: "center" },
+  logoTitle: { fontSize: 18, fontWeight: "600", color: colors.brandDark, letterSpacing: -0.3 },
+  logoSub: { fontSize: 12, color: colors.textSecondary },
+  socialGroup: { gap: 8 },
+  socialBtn: { backgroundColor: colors.white, borderWidth: 1, borderColor: colors.border, borderRadius: 10, paddingVertical: 10, alignItems: "center" },
+  socialBtnText: { fontSize: 12, fontWeight: "600", color: colors.textPrimary },
+  orDivider: { textAlign: "center", fontSize: 12, fontWeight: "700", color: colors.textSecondary, letterSpacing: 2 },
+  fieldGroup: { gap: 4 },
+  fieldLabel: { fontSize: 10, fontWeight: "700", color: colors.textSecondary, letterSpacing: 2 },
+  input: { backgroundColor: colors.white, borderWidth: 1, borderColor: colors.border, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 11, fontSize: 14, color: colors.textPrimary },
+  passHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  showPassBtn: { fontSize: 10, fontWeight: "700", color: colors.routeActive, letterSpacing: 1 },
+  cta: { backgroundColor: colors.brandVibrant, borderRadius: spacing.pillRadius, paddingVertical: 14, alignItems: "center", marginTop: 4 },
+  ctaPressed: { opacity: 0.85, transform: [{ scale: 0.97 }] },
+  ctaDisabled: { opacity: 0.4 },
+  ctaText: { fontSize: 13, fontWeight: "900", color: colors.brandDark, letterSpacing: 2 },
+  registerLink: { fontSize: 12, textAlign: "center", color: colors.textSecondary },
+  registerLinkBold: { color: colors.routeActive, fontWeight: "600" },
+  guestBtnText: { fontSize: 12, fontWeight: "700", color: colors.brandDark, textDecorationLine: "underline", letterSpacing: 1, textAlign: "center" },
+});

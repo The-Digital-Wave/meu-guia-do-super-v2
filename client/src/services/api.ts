@@ -1,5 +1,6 @@
 import axios from "axios";
 import { storage } from "@/services/storage";
+import type { Supermarket, Layout } from "@/types";
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? "https://meu-guia-do-super-api-v2.onrender.com/api/v1";
 
@@ -29,3 +30,15 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+export async function getSupermarkets(): Promise<Supermarket[]> {
+  const { data } = await api.get<Supermarket[]>("/supermarkets");
+  return data;
+}
+
+export async function getLayoutsByStore(supermarketId: string): Promise<Layout[]> {
+  const { data } = await api.get<Layout[]>("/layouts", {
+    params: { supermarket_id: supermarketId },
+  });
+  return data;
+}
