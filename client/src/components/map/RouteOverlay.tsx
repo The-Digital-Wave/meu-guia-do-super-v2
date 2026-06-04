@@ -1,89 +1,56 @@
-import React from "react";
-import { View, Text, Pressable } from "react-native";
-import type { RouteResponse } from "@/types";
+// client/src/components/map/RouteOverlay.tsx
+import { Path, Skia } from "@shopify/react-native-skia";
+import type { RouteResponse, Node } from "@/types";
+import { toScreen2D, toScreen3D, type ScreenPoint } from "@/utils/projection";
+import { colors } from "@/theme/tokens";
 
-interface Props {
+interface RouteOverlayProps {
   route: RouteResponse;
-  onClearRoute: () => void;
-  onNavigate: () => void;
+  nodes: Node[];
+  layoutW: number;
+  layoutH: number;
+  canvasW: number;
+  canvasH: number;
+  panX: number;
+  panY: number;
+  zoom: number;
+  mode: "2d" | "3d";
+  userX: number;
+  userY: number;
 }
 
-function formatTime(seconds: number): string {
-  if (seconds < 60) return `${seconds}s`;
-  const m = Math.round(seconds / 60);
-  return `${m} min`;
+function project(
+  x: number, y: number, mode: "2d" | "3d",
+  lW: number, lH: number, cW: number, cH: number,
+  panX: number, panY: number, zoom: number, uX: number, uY: number,
+): ScreenPoint {
+  return mode === "2d"
+    ? toScreen2D(x, y, lW, lH, cW, cH, panX, panY, zoom)
+    : toScreen3D(x, y, uX, uY, cW, cH, zoom);
 }
 
-export default function RouteOverlay({ route, onClearRoute, onNavigate }: Props) {
+export default function RouteOverlay({
+  route, nodes, layoutW, layoutH, canvasW, canvasH, panX, panY, zoom, mode, userX, userY,
+}: RouteOverlayProps) {
+  const nodeMap = new Map(nodes.map((n) => [n.id, n]));
+  const path = Skia.Path.Make();
+  let firstPoint = true;
+
+  for (const segment of route.segments) {
+    for (const nodeId of segment.path_nodes) {
+      const node = nodeMap.get(nodeId);
+      if (!node) continue;
+      const { sx, sy } = project(node.x, node.y, mode, layoutW, layoutH, canvasW, canvasH, panX, panY, zoom, userX, userY);
+      if (firstPoint) {
+        path.moveTo(sx, sy);
+        firstPoint = false;
+      } else {
+        path.lineTo(sx, sy);
+      }
+    }
+  }
+
   return (
-    <View
-      style={{
-        backgroundColor: "#ffffff",
-        borderTopLeftRadius: 16,
-        borderTopRightRadius: 16,
-        padding: 20,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 8,
-      }}
-    >
-      {/* Route summary */}
-      <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 16 }}>
-        <View>
-          <Text style={{ fontFamily: "Inter_400Regular", fontSize: 12, color: "rgba(0,0,0,0.58)", textTransform: "uppercase", letterSpacing: 0.5 }}>
-            Distância
-          </Text>
-          <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 20, color: "#006241", marginTop: 2 }}>
-            {route.total_distance_m.toFixed(1)}m
-          </Text>
-        </View>
-        <View style={{ alignItems: "flex-end" }}>
-          <Text style={{ fontFamily: "Inter_400Regular", fontSize: 12, color: "rgba(0,0,0,0.58)", textTransform: "uppercase", letterSpacing: 0.5 }}>
-            Tempo estimado
-          </Text>
-          <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 20, color: "#006241", marginTop: 2 }}>
-            {formatTime(route.total_estimated_seconds)}
-          </Text>
-        </View>
-      </View>
-
-      {/* Action row */}
-      <View style={{ flexDirection: "row", gap: 12 }}>
-        <Pressable
-          onPress={onClearRoute}
-          style={{
-            flex: 1,
-            borderWidth: 1,
-            borderColor: "#00754A",
-            borderRadius: 50,
-            paddingVertical: 12,
-            alignItems: "center",
-            minHeight: 48,
-          }}
-        >
-          <Text style={{ color: "#00754A", fontFamily: "Inter_600SemiBold", fontSize: 14 }}>
-            Limpar rota
-          </Text>
-        </Pressable>
-        <Pressable
-          onPress={onNavigate}
-          style={({ pressed }) => ({
-            flex: 2,
-            backgroundColor: "#00754A",
-            borderRadius: 50,
-            paddingVertical: 12,
-            alignItems: "center",
-            transform: [{ scale: pressed ? 0.95 : 1 }],
-            minHeight: 48,
-          })}
-        >
-          <Text style={{ color: "#ffffff", fontFamily: "Inter_600SemiBold", fontSize: 14 }}>
-            Iniciar navegação
-          </Text>
-        </Pressable>
-      </View>
-    </View>
+    <Path path={path} color={colors.routeActive} style="stroke" strokeWidth={4} strokeCap="round" strokeJoin="round" />
   );
 }
