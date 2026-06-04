@@ -4,6 +4,12 @@ const BASE = "http://localhost:8000/api/v1";
 
 // ─── Seed data ────────────────────────────────────────────────────────────────
 
+const MOCK_SUPERMARKETS = [
+  { id: "super-001", name: "Supermercado A", slug: "supermercado-a", logo_url: null, is_active: true },
+  { id: "super-002", name: "Supermercado B", slug: "supermercado-b", logo_url: null, is_active: true },
+  { id: "super-003", name: "Supermercado C", slug: "supermercado-c", logo_url: null, is_active: true },
+];
+
 const MOCK_USER = {
   id: "user-001",
   email: "usuario@example.com",
@@ -150,9 +156,26 @@ export const handlers = [
     return HttpResponse.json({ ...MOCK_USER, ...body });
   }),
 
+  // ── Supermarkets ─────────────────────────────────────────────────────────
+
+  http.get(`${BASE}/supermarkets`, () => {
+    return HttpResponse.json(MOCK_SUPERMARKETS);
+  }),
+
+  http.get(`${BASE}/supermarkets/:id`, ({ params }) => {
+    const sm = MOCK_SUPERMARKETS.find((s) => s.id === params.id);
+    if (!sm) return new HttpResponse(null, { status: 404 });
+    return HttpResponse.json({ ...sm, layouts: [MOCK_LAYOUT] });
+  }),
+
   // ── Layouts ───────────────────────────────────────────────────────────────
 
-  http.get(`${BASE}/layouts`, () => {
+  http.get(`${BASE}/layouts`, ({ request }) => {
+    const url = new URL(request.url);
+    const supermarketId = url.searchParams.get("supermarket_id");
+    if (supermarketId && supermarketId !== "super-001") {
+      return HttpResponse.json([]);
+    }
     return HttpResponse.json([MOCK_LAYOUT]);
   }),
 
