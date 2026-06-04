@@ -108,3 +108,15 @@ export interface LayoutBundle {
   shelves: Shelf[];
   products: Product[];
 }
+
+export interface Supermarket {
+  id: string;
+  name: string;
+  slug: string;
+  logo_url: string | null;
+  is_active: boolean;
+}
+
+export interface SupermarketDetail extends Supermarket {
+  layouts: Layout[];
+}
