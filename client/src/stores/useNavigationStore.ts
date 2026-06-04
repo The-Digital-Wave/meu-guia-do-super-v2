@@ -12,10 +12,15 @@ interface NavigationState {
   activeStepIndex: number;
   // Phase 7: bearing for map orientation
   bearingDeg:      number;
+  // Phase 8d: active supermarket
+  activeSupermarketId:   string | null;
+  activeSupermarketName: string | null;
   // Setters
   setUserNodeId:   (nodeId: string | null) => void;
   setActiveRoute:  (route: RouteResponse | null) => void;
   setBearing:      (deg: number) => void;
+  setActiveSupermarket: (id: string, name: string) => void;
+  clearSupermarket: () => void;
   // State machine transitions
   startNavigation: () => void;                // idle → routing
   advance:         () => void;                // routing → routing (next step) or arrived
@@ -34,10 +39,18 @@ export const useNavigationStore = create<NavigationState>((set, get) => ({
   activeStepIndex: 0,
   bearingDeg:      0,
   isNavigating:    false,
+  activeSupermarketId:   null,
+  activeSupermarketName: null,
 
   setUserNodeId: (nodeId) => set({ userNodeId: nodeId }),
 
   setBearing: (deg) => set({ bearingDeg: deg }),
+
+  setActiveSupermarket: (id, name) =>
+    set({ activeSupermarketId: id, activeSupermarketName: name }),
+
+  clearSupermarket: () =>
+    set({ activeSupermarketId: null, activeSupermarketName: null }),
 
   setActiveRoute: (route) =>
     set({ activeRoute: route, phase: route ? "idle" : "idle", activeStepIndex: 0 }),
@@ -61,11 +74,13 @@ export const useNavigationStore = create<NavigationState>((set, get) => ({
 
   clearNavigation: () =>
     set({
-      userNodeId:      null,
-      activeRoute:     null,
-      phase:           "idle",
-      activeStepIndex: 0,
-      isNavigating:    false,
+      userNodeId:            null,
+      activeRoute:           null,
+      phase:                 "idle",
+      activeStepIndex:       0,
+      isNavigating:          false,
+      activeSupermarketId:   null,
+      activeSupermarketName: null,
     }),
 
   // Legacy compat — existing screens use startNavigation / stopNavigation
