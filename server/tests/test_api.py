@@ -72,9 +72,13 @@ def auth_headers(token: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {token}"}
 
 
-async def _create_supermarket(db_session: AsyncSession, name: str = "Test Market") -> uuid.UUID:
+async def _create_supermarket(
+    db_session: AsyncSession,
+    name: str = "Test Market",
+    slug: str = "test-market",
+) -> uuid.UUID:
     """Insert a Supermarket row directly and return its id."""
-    sm = Supermarket(name=name)
+    sm = Supermarket(name=name, slug=slug, is_active=True)
     db_session.add(sm)
     await db_session.flush()
     await db_session.refresh(sm)
