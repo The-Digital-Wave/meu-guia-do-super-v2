@@ -20,9 +20,10 @@ router = APIRouter(prefix="/layouts", tags=["layouts"])
 @router.get("", response_model=list[LayoutOut], status_code=status.HTTP_200_OK)
 async def list_layouts(
     db: Annotated[AsyncSession, Depends(get_db)],
+    supermarket_id: uuid.UUID | None = None,
 ) -> list[LayoutOut]:
-    """List all layouts."""
-    layouts = await layout_controller.list_layouts(db)
+    """List all layouts, optionally filtered by supermarket_id."""
+    layouts = await layout_controller.list_layouts(db, supermarket_id=supermarket_id)
     return [LayoutOut.model_validate(layout) for layout in layouts]
 
 

@@ -91,7 +91,7 @@ async def _seed_layout_graph(
     # Create supermarket directly in DB
     from src.models.supermarket import Supermarket as SM
 
-    sm = SM(name="Test Market Nav")
+    sm = SM(name="Test Market Nav", slug="test-market-nav", is_active=True)
     db_session.add(sm)
     await db_session.flush()
     await db_session.refresh(sm)
