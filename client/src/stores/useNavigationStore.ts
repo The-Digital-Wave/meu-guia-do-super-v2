@@ -1,6 +1,13 @@
 import { create } from "zustand";
 import type { RouteResponse } from "@/types";
 
+export type NavState =
+  | "GUIDANCE_ACTIVE"
+  | "SWIPE_REVEALED"
+  | "CONFIRMING"
+  | "QUEUE_ADVANCING"
+  | "TRIP_COMPLETE";
+
 export type NavigationPhase = "idle" | "routing" | "arrived";
 
 interface NavigationState {
@@ -15,6 +22,11 @@ interface NavigationState {
   // Phase 8d: active supermarket
   activeSupermarketId:   string | null;
   activeSupermarketName: string | null;
+  // Phase 8g: NavState machine
+  navState: NavState;
+  transitionProgress: number;  // 0→1, drives 2D→3D switch
+  setNavState: (state: NavState) => void;
+  setTransitionProgress: (progress: number) => void;
   // Setters
   setUserNodeId:   (nodeId: string | null) => void;
   setActiveRoute:  (route: RouteResponse | null) => void;
@@ -41,6 +53,11 @@ export const useNavigationStore = create<NavigationState>((set, get) => ({
   isNavigating:    false,
   activeSupermarketId:   null,
   activeSupermarketName: null,
+  navState: "GUIDANCE_ACTIVE",
+  transitionProgress: 0,
+
+  setNavState: (state) => set({ navState: state }),
+  setTransitionProgress: (progress) => set({ transitionProgress: progress }),
 
   setUserNodeId: (nodeId) => set({ userNodeId: nodeId }),
 
