@@ -11,7 +11,7 @@ from src.models.supermarket import Supermarket
 async def get_all_active(db: AsyncSession) -> list[Supermarket]:
     """Return all active supermarkets ordered by name."""
     result = await db.execute(
-        select(Supermarket).where(Supermarket.is_active == True).order_by(Supermarket.name)  # noqa: E712
+        select(Supermarket).where(Supermarket.is_active.is_(True)).order_by(Supermarket.name)
     )
     return list(result.scalars().all())
 
@@ -21,6 +21,6 @@ async def get_by_id(db: AsyncSession, supermarket_id: uuid.UUID) -> Supermarket 
     result = await db.execute(
         select(Supermarket)
         .options(selectinload(Supermarket.layouts))
-        .where(Supermarket.id == supermarket_id)
+        .where(Supermarket.id == supermarket_id, Supermarket.is_active.is_(True))
     )
     return result.scalar_one_or_none()

@@ -17,6 +17,7 @@ class SupermarketOut(BaseModel):
     address: str | None
     is_active: bool
     created_at: datetime
+    updated_at: datetime | None
 
 
 class SupermarketDetailOut(SupermarketOut):

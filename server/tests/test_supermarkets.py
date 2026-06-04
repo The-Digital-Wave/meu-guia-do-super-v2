@@ -68,6 +68,16 @@ async def test_get_supermarket_not_found(client: AsyncClient) -> None:
 
 
 @pytest.mark.asyncio
+async def test_get_inactive_supermarket_returns_404(
+    client: AsyncClient, db_session: AsyncSession
+) -> None:
+    sm = await _create_supermarket(db_session, "Inativo", "inativo", is_active=False)
+    await db_session.commit()
+    resp = await client.get(f"/api/v1/supermarkets/{sm.id}")
+    assert resp.status_code == 404
+
+
+@pytest.mark.asyncio
 async def test_list_layouts_filtered_by_supermarket(
     client: AsyncClient, db_session: AsyncSession
 ) -> None:
