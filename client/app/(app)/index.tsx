@@ -1,11 +1,13 @@
 import { useState, useCallback } from "react";
-import { View, Text, Pressable, StyleSheet, FlatList, TextInput } from "react-native";
+import { View, Text, Pressable, StyleSheet, FlatList, TextInput, useWindowDimensions } from "react-native";
 import { router } from "expo-router";
 import { useNavigationStore } from "@/stores/useNavigationStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useProductSearch } from "@/hooks/useProducts";
 import { useGroceryListStore } from "@/stores/useGroceryListStore";
+import { useLayouts, useLayoutBundle } from "@/hooks/useLayouts";
 import AuthGateSheet from "@/components/AuthGateSheet";
+import SkiaMapCanvas from "@/components/map/SkiaMapCanvas";
 import { colors, spacing } from "@/theme/tokens";
 import type { Product } from "@/types";
 
@@ -137,13 +139,20 @@ function EmptyState() {
 }
 
 function LoadedState() {
+  const { width, height } = useWindowDimensions();
+  const { data: layouts } = useLayouts();
+  const firstLayoutId = layouts?.[0]?.id ?? null;
+  const { data: bundle } = useLayoutBundle(firstLayoutId);
+  if (!bundle) return <View style={{ flex: 1, backgroundColor: colors.bgLight }} />;
   return (
-    <View style={styles.loadedContainer}>
-      {/* Map canvas placeholder — will be replaced with SkiaMapCanvas in Phase 8f */}
-      <View style={styles.mapPlaceholder}>
-        <Text style={styles.mapPlaceholderText}>Mapa (Phase 8f)</Text>
-      </View>
-    </View>
+    <SkiaMapCanvas
+      bundle={bundle}
+      route={null}
+      mode="2d"
+      userPos={null}
+      canvasWidth={width}
+      canvasHeight={height - 120}
+    />
   );
 }
 
@@ -180,9 +189,6 @@ const styles = StyleSheet.create({
   emptyContainer: { flex: 1, alignItems: "center", justifyContent: "center", gap: 12 },
   emptyIcon: { fontSize: 48, opacity: 0.3 },
   emptyText: { fontSize: 14, color: colors.textSecondary },
-  loadedContainer: { flex: 1 },
-  mapPlaceholder: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#f8fafc", margin: 16, borderRadius: 12, borderWidth: 1, borderColor: colors.border, borderStyle: "dashed" },
-  mapPlaceholderText: { fontSize: 12, color: colors.textMeta },
   fab: { position: "absolute", bottom: spacing.safeAreaBottom + 16, right: 16, width: 52, height: 52, borderRadius: 16, backgroundColor: colors.brandDark, alignItems: "center", justifyContent: "center" },
   fabDisabled: { opacity: 0.5 },
   fabIcon: { fontSize: 22 },
