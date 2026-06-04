@@ -19,6 +19,7 @@ from src.routers import (
     nodes,
     products,
     shelves,
+    supermarkets,
     users,
 )
 
@@ -83,6 +84,7 @@ _API_PREFIX = "/api/v1"
 
 app.include_router(auth.router, prefix=_API_PREFIX)
 app.include_router(users.router, prefix=_API_PREFIX)
+app.include_router(supermarkets.router, prefix=_API_PREFIX)
 app.include_router(layouts.router, prefix=_API_PREFIX)
 app.include_router(shelves.router, prefix=_API_PREFIX)
 app.include_router(products.router, prefix=_API_PREFIX)
