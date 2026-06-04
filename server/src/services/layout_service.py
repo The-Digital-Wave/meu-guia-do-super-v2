@@ -8,8 +8,12 @@ from src.repositories import layout_repository
 from src.schemas.layout import LayoutCreate, LayoutUpdate
 
 
-async def list_layouts(db: AsyncSession) -> list[Layout]:
-    """Return all layouts."""
+async def list_layouts(
+    db: AsyncSession, supermarket_id: uuid.UUID | None = None
+) -> list[Layout]:
+    """Return all layouts, optionally filtered by supermarket_id."""
+    if supermarket_id is not None:
+        return await layout_repository.get_by_supermarket(db, supermarket_id)
     return await layout_repository.get_all(db)
 
 

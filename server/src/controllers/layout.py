@@ -13,8 +13,10 @@ from src.schemas.shelf import ShelfOut
 from src.services import edge_service, layout_service, node_service
 
 
-async def list_layouts(db: AsyncSession) -> list[Layout]:
-    return await layout_service.list_layouts(db)
+async def list_layouts(
+    db: AsyncSession, supermarket_id: uuid.UUID | None = None
+) -> list[Layout]:
+    return await layout_service.list_layouts(db, supermarket_id=supermarket_id)
 
 
 async def get_layout(db: AsyncSession, layout_id: uuid.UUID) -> Layout:
