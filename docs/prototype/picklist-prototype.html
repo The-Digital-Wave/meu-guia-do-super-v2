@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Pick &amp; Pack — Storyboard v4</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #0a0e1a;
+  padding: 32px 20px 80px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+h1 { color: #64748b; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px; text-align: center; }
+.sub { color: #334155; font-size: 10px; text-align: center; margin-bottom: 32px; }
+.grid { display: flex; flex-wrap: wrap; gap: 28px; justify-content: center; }
+
+.frame { display: flex; flex-direction: column; align-items: center; gap: 9px; }
+.ts-pill { background: #1e293b; color: #38bdf8; font-size: 10px; font-weight: 800; letter-spacing: 0.08em; padding: 3px 10px; border-radius: 20px; }
+.ts-desc { color: #475569; font-size: 9px; max-width: 200px; text-align: center; line-height: 1.5; }
+.rotation-badge { background: #2d1b00; color: #fb923c; font-size: 8px; font-weight: 700; padding: 2px 7px; border-radius: 10px; letter-spacing: 0.04em; }
+
+.phone {
+  width: 220px; height: 480px;
+  background: #fff; border-radius: 36px; overflow: hidden;
+  box-shadow: 0 0 0 6px #1c1c1e, 0 0 0 7px #3a3a3c, 0 24px 60px rgba(0,0,0,0.8);
+  position: relative; display: flex; flex-direction: column;
+}
+
+/* Status + header (native iOS style matching screenshots) */
+.sbar { background: #f5f5f5; height: 26px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; flex-shrink: 0; }
+.sbar-time { font-size: 9px; font-weight: 700; color: #000; }
+.sbar-r { font-size: 7px; color: #000; display: flex; gap: 3px; align-items: center; }
+.aheader { background: #f5f5f5; padding: 2px 14px 8px; display: flex; align-items: center; gap: 6px; border-bottom: 0.5px solid #ddd; flex-shrink: 0; }
+.back { color: #007AFF; font-size: 10px; font-weight: 500; }
+.hcircles { display: flex; gap: 5px; margin-left: auto; }
+.hc { width: 22px; height: 22px; border-radius: 50%; background: #e0e0e0; }
+
+/* Map */
+.map-area { flex: 1; background: #eceae6; position: relative; overflow: hidden; }
+
+/* 3D perspective container — applied per-frame via inline style */
+.map-perspective {
+  width: 100%; height: 100%;
+  transform-origin: 50% 60%;
+  position: absolute; inset: 0;
+}
+
+/* Drawer */
+.drawer {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  background: #fff; border-radius: 16px 16px 0 0;
+  box-shadow: 0 -2px 16px rgba(0,0,0,0.12);
+}
+.dh { width: 32px; height: 3px; background: #d1d5db; border-radius: 2px; margin: 7px auto 0; }
+
+/* Drawer — pre-flight */
+.dsummary { padding: 6px 14px 4px; }
+.ds-title { font-size: 12px; font-weight: 700; color: #111; }
+.ds-sub { font-size: 9px; color: #8e8e93; margin-top: 1px; }
+.peek-ctas { display: flex; gap: 7px; padding: 6px 12px 12px; }
+.btn-s { flex: 1; background: #5bad27; color: #fff; border: none; border-radius: 50px; padding: 9px; font-size: 10px; font-weight: 700; }
+.btn-v { flex: 1; background: #3a3a3c; color: #fff; border: none; border-radius: 50px; padding: 9px; font-size: 10px; font-weight: 600; }
+
+/* Item list */
+.ilist { padding: 2px 0 8px; }
+
+/* Active card */
+.acard { overflow: hidden; position: relative; border-bottom: 0.5px solid #f0f0f0; }
+.acard-row { display: flex; align-items: center; min-height: 62px; background: #fff; position: relative; z-index: 1; transition: transform 0.3s ease; }
+.abadge { width: 20px; height: 20px; border-radius: 50%; background: #e53e3e; color: #fff; font-size: 9px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 0 6px 0 10px; flex-shrink: 0; }
+.abag { width: 38px; height: 38px; background: #e5e5ea; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; margin-right: 8px; }
+.atext { flex: 1; min-width: 0; }
+.atitle { font-size: 9px; font-weight: 700; color: #000; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ameta { display: flex; gap: 5px; margin-top: 2px; align-items: center; }
+.acode { background: #e5e5ea; color: #555; font-size: 7px; font-weight: 600; padding: 1px 4px; border-radius: 3px; }
+.adist { font-size: 8px; color: #333; font-weight: 500; }
+.adesc { font-size: 7.5px; color: #8e8e93; margin-top: 2px; }
+.achev { color: #c7c7cc; font-size: 13px; padding: 0 10px; }
+
+/* Actions */
+.aactions { position: absolute; right: 0; top: 0; bottom: 0; display: flex; z-index: 0; }
+.askip { width: 60px; background: #5b9b9b; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; font-size: 8px; font-weight: 700; gap: 1px; }
+.apicked { background: #5bad27; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; font-size: 8px; font-weight: 700; gap: 1px; }
+.apicked.w60 { width: 60px; }
+.apicked.expand { width: 120px; font-size: 10px; }
+
+/* Upcoming + history */
+.urow { display: flex; align-items: center; padding: 7px 12px; border-bottom: 0.5px solid #f5f5f5; }
+.uname { flex: 1; font-size: 9.5px; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.uchev { color: #c7c7cc; font-size: 11px; }
+.hrow { display: flex; align-items: center; padding: 7px 12px; border-bottom: 0.5px solid #f5f5f5; }
+.hck { width: 18px; height: 18px; border-radius: 50%; background: #5bad27; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #fff; flex-shrink: 0; margin-right: 8px; }
+.hname { flex: 1; font-size: 9.5px; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+</style>
+</head>
+<body>
+<h1>Meu Guia do Super · Pick &amp; Pack · Storyboard v4</h1>
+<div class="sub">Store = rectangular 50×30m · Camera rotates per stop so next item is always "ahead" · 13 frames</div>
+<div class="grid" id="grid"></div>
+
+<script>
+/* ── Constants ── */
+// SVG coords: 1m = 8px, origin at (10,10)
+// Store: 50m×30m → SVG rect from (10,10) to (410,250)
+const S = 8; // scale px/m
+const OX = 10, OY = 10; // origin offset
+function toSVG(mx, my) { return [OX + mx*S, OY + my*S]; }
+
+// Key node positions in metres (from seed data)
+const N = {
+  entA: [5, 28.5],   // Entrada Principal
+  entB: [45, 28.5],  // Entrada Secundária
+  exitA: [5, 1.5],   // Saída Principal
+  exitB: [45, 1.5],  // Saída Secundária
+  A1:[5,24], B1:[15,24], C1:[25,24], D1:[35,24], E1:[45,24],
+  A2:[5,18], B2:[15,18], C2:[25,18], D2:[35,18], E2:[45,18],
+  A3:[5,12], B3:[15,12], C3:[25,12], D3:[35,12], E3:[45,12],
+  A4:[5,6],  B4:[15,6],  C4:[25,6],  D4:[35,6],  E4:[45,6],
+  sfPad:[10,21], sfLat:[20,21], sfCar:[30,21], sfHor:[40,21],
+  sfBeb:[10,15], sfLim:[20,15], sfHig:[30,15], sfCon:[40,15],
+  sfMer:[10,9],  sfChk:[25,3],
+};
+
+// Bearing: clockwise degrees from north so destination is "up"
+function bearing(from, to) {
+  const [fx,fy] = from, [tx,ty] = to;
+  return Math.atan2(tx-fx, fy-ty) * 180 / Math.PI;
+}
+
+// SVG route string from array of node keys
+function routePts(...keys) {
+  return keys.map(k => { const [x,y] = toSVG(...N[k]); return `${x},${y}`; }).join(' ');
+}
+
+/* ── Map SVG builder ── */
+function mapSVG(routePts, userM, wpM, showWp, rotDeg) {
+  const [ux, uy] = toSVG(...userM);
+  const [wpx, wpy] = wpM ? toSVG(...wpM) : [0,0];
+
+  // Rotate group around user SVG position
+  const rot = rotDeg ? `rotate(${-rotDeg},${ux},${uy})` : '';
+
+  return `<svg viewBox="0 0 420 260" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+<defs>
+  <clipPath id="storeClip">
+    <rect x="10" y="10" width="400" height="240"/>
+  </clipPath>
+</defs>
+<!-- Floor background -->
+<rect width="420" height="260" fill="#eceae6"/>
+
+<!-- Everything inside rotated group -->
+<g transform="${rot}">
+
+  <!-- Store floor (rectangle — 50m×30m) -->
+  <rect x="10" y="10" width="400" height="240" fill="#ffffff" stroke="#111" stroke-width="2.5"/>
+
+  <!-- Aisle lanes (subtle grid) -->
+  <line x1="10" y1="90"  x2="410" y2="90"  stroke="#e0ddd8" stroke-width="1"/>
+  <line x1="10" y1="130" x2="410" y2="130" stroke="#e0ddd8" stroke-width="1"/>
+  <line x1="10" y1="170" x2="410" y2="170" stroke="#e0ddd8" stroke-width="1"/>
+  <line x1="10" y1="210" x2="410" y2="210" stroke="#e0ddd8" stroke-width="1"/>
+  <line x1="90"  y1="10" x2="90"  y2="250" stroke="#e0ddd8" stroke-width="1"/>
+  <line x1="170" y1="10" x2="170" y2="250" stroke="#e0ddd8" stroke-width="1"/>
+  <line x1="250" y1="10" x2="250" y2="250" stroke="#e0ddd8" stroke-width="1"/>
+  <line x1="330" y1="10" x2="330" y2="250" stroke="#e0ddd8" stroke-width="1"/>
+
+  <!-- Shelf blocks (pseudo-3D: top + front face, actual seed data coords in metres) -->
+  ${shelfBlock(10,21,'#c8860a','Padaria')}
+  ${shelfBlock(20,21,'#1f6f5f','Laticínios')}
+  ${shelfBlock(30,21,'#b03030','Carnes')}
+  ${shelfBlock(40,21,'#2e7d32','Hortifruti')}
+  ${shelfBlock(10,15,'#1565c0','Bebidas')}
+  ${shelfBlock(20,15,'#4a148c','Limpeza')}
+  ${shelfBlock(30,15,'#006064','Higiene')}
+  ${shelfBlock(40,15,'#0d47a1','Congelados')}
+  ${shelfBlock(10, 9,'#e65100','Mercearia')}
+  ${shelfBlock(25, 3,'#37474f','Checkout')}
+
+  <!-- Navigation edges -->
+  <!-- Entry to row 1 -->
+  <line ${ln('entA','A1')} stroke="#bbb" stroke-width="1"/>
+  <line ${ln('entB','E1')} stroke="#bbb" stroke-width="1"/>
+  <!-- Row 1 -->
+  <line ${ln('A1','B1')} stroke="#bbb" stroke-width="1"/>
+  <line ${ln('B1','C1')} stroke="#bbb" stroke-width="1"/>
+  <line ${ln('C1','D1')} stroke="#bbb" stroke-width="1"/>
+  <line ${ln('D1','E1')} stroke="#bbb" stroke-width="1"/>
+  <!-- Row 2 -->
+  <line ${ln('A2','B2')} stroke="#bbb" stroke-width="1"/>
+  <line ${ln('B2','C2')} stroke="#bbb" stroke-width="1"/>
+  <line ${ln('C2','D2')} stroke="#bbb" stroke-width="1"/>
+  <line ${ln('D2','E2')} stroke="#bbb" stroke-width="1"/>
+  <!-- Row 3 -->
+  <line ${ln('A3','B3')} stroke="#bbb" stroke-width="1"/>
+  <line ${ln('B3','C3')} stroke="#bbb" stroke-width="1"/>
+  <line ${ln('C3','D3')} stroke="#bbb" stroke-width="1"/>
+  <line ${ln('D3','E3')} stroke="#bbb" stroke-width="1"/>
+  <!-- Row 4 -->
+  <line ${ln('A4','B4')} stroke="#bbb" stroke-width="1"/>
+  <line ${ln('B4','C4')} stroke="#bbb" stroke-width="1"/>
+  <line ${ln('C4','D4')} stroke="#bbb" stroke-width="1"/>
+  <line ${ln('D4','E4')} stroke="#bbb" stroke-width="1"/>
+  <!-- Verticals -->
+  <line ${ln('A1','A2')} stroke="#bbb" stroke-width="1"/>
+  <line ${ln('A2','A3')} stroke="#bbb" stroke-width="1"/>
+  <line ${ln('A3','A4')} stroke="#bbb" stroke-width="1"/>
+  <line ${ln('E1','E2')} stroke="#bbb" stroke-width="1"/>
+  <line ${ln('E2','E3')} stroke="#bbb" stroke-width="1"/>
+  <line ${ln('E3','E4')} stroke="#bbb" stroke-width="1"/>
+  <line ${ln('C1','C2')} stroke="#bbb" stroke-width="1"/>
+  <line ${ln('C2','C3')} stroke="#bbb" stroke-width="1"/>
+  <!-- Row4 to exits -->
+  <line ${ln('A4','exitA')} stroke="#bbb" stroke-width="1"/>
+  <line ${ln('E4','exitB')} stroke="#bbb" stroke-width="1"/>
+  <!-- Shelf connectors -->
+  <line ${ln('sfPad','A1')} stroke="#ccc" stroke-width="0.8" stroke-dasharray="3 2"/>
+  <line ${ln('sfLat','B1')} stroke="#ccc" stroke-width="0.8" stroke-dasharray="3 2"/>
+  <line ${ln('sfBeb','A2')} stroke="#ccc" stroke-width="0.8" stroke-dasharray="3 2"/>
+  <line ${ln('sfMer','A3')} stroke="#ccc" stroke-width="0.8" stroke-dasharray="3 2"/>
+
+  <!-- Intersection nodes -->
+  ${Object.entries({A1:1,B1:1,C1:1,D1:1,E1:1,A2:1,B2:1,C2:1,D2:1,E2:1,A3:1,B3:1,C3:1,D3:1,E3:1,A4:1,B4:1,C4:1,D4:1,E4:1})
+    .map(([k])=>`<circle cx="${toSVG(...N[k])[0]}" cy="${toSVG(...N[k])[1]}" r="3" fill="#aaa"/>`)
+    .join('')}
+
+  <!-- Entry nodes -->
+  <circle cx="${toSVG(...N.entA)[0]}" cy="${toSVG(...N.entA)[1]}" r="5" fill="#1E3932"/>
+  <circle cx="${toSVG(...N.entB)[0]}" cy="${toSVG(...N.entB)[1]}" r="5" fill="#1E3932"/>
+  <text x="${toSVG(...N.entA)[0]}" y="${toSVG(...N.entA)[1]+14}" text-anchor="middle" font-size="5.5" fill="#1E3932" font-weight="700">ENTRADA</text>
+
+  <!-- Exit nodes -->
+  <circle cx="${toSVG(...N.exitA)[0]}" cy="${toSVG(...N.exitA)[1]}" r="5" fill="#555"/>
+  <circle cx="${toSVG(...N.exitB)[0]}" cy="${toSVG(...N.exitB)[1]}" r="5" fill="#555"/>
+
+  <!-- Shelf-front nodes -->
+  ${['sfPad','sfLat','sfCar','sfHor','sfBeb','sfLim','sfHig','sfCon','sfMer','sfChk']
+    .map(k=>`<circle cx="${toSVG(...N[k])[0]}" cy="${toSVG(...N[k])[1]}" r="3.5" fill="#00754A" opacity="0.6"/>`)
+    .join('')}
+
+  <!-- Route path — yellow-green animated dashes -->
+  <polyline points="${routePts}"
+    fill="none" stroke="#90d030" stroke-width="3.5"
+    stroke-dasharray="9 5" stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
+
+  <!-- Waypoint ring (green pulsing target) -->
+  ${showWp ? `
+  <circle cx="${wpx}" cy="${wpy}" r="13" fill="none" stroke="#5bad27" stroke-width="2.5" opacity="0.85"/>
+  <circle cx="${wpx}" cy="${wpy}" r="6" fill="#5bad27"/>
+  <circle cx="${wpx}" cy="${wpy}" r="19" fill="none" stroke="#5bad27" stroke-width="1" opacity="0.3"/>` : ''}
+
+  <!-- User position (red pin — matches screenshots) -->
+  <ellipse cx="${ux}" cy="${uy+9}" rx="4" ry="2" fill="rgba(0,0,0,0.18)"/>
+  <circle cx="${ux}" cy="${uy}" r="7" fill="#e53e3e"/>
+  <circle cx="${ux}" cy="${uy}" r="3" fill="#fff"/>
+
+  <!-- North compass (always world-aligned, counter-rotated) -->
+  <g transform="rotate(${rotDeg||0},380,25)">
+    <text x="380" y="28" font-size="8" fill="#666" font-weight="700" text-anchor="middle">N</text>
+    <text x="380" y="18" font-size="10" fill="#666" text-anchor="middle">↑</text>
+  </g>
+
+</g>
+</svg>`;
+}
+
+function shelfBlock(mx, my, color, label) {
+  const [x, y] = toSVG(mx, my);
+  const w = 0.08 * 400, h = 0.05 * 240;
+  return `
+  <rect x="${x-w/2}" y="${y-h/2-3}" width="${w}" height="3" fill="${color}" fill-opacity="0.5"/>
+  <rect x="${x-w/2}" y="${y-h/2}" width="${w}" height="${h}" fill="${color}" fill-opacity="0.28" stroke="${color}" stroke-width="1" rx="1"/>
+  <text x="${x}" y="${y+2}" text-anchor="middle" font-size="5.5" fill="${color}" font-weight="700" opacity="0.9">${label}</text>`;
+}
+
+function ln(a, b) {
+  const [ax,ay] = toSVG(...N[a]), [bx,by] = toSVG(...N[b]);
+  return `x1="${ax}" y1="${ay}" x2="${bx}" y2="${by}"`;
+}
+
+/* ── Drawer helpers ── */
+const peekD = () => `
+  <div class="dh"></div>
+  <div class="dsummary">
+    <div class="ds-title">My Shopping List</div>
+    <div class="ds-sub">5 items, 76m</div>
+  </div>
+  <div class="peek-ctas">
+    <button class="btn-s">Start</button>
+    <button class="btn-v">View items</button>
+  </div>`;
+
+function card(name, code, dist, swiped, noSkip, pickedFull) {
+  const rowStyle = swiped ? 'style="transform:translateX(-120px)"' : '';
+  const actions = swiped ? `<div class="aactions">
+    ${noSkip ? '' : '<div class="askip"><span style="font-size:10px">⤫</span>Skip</div>'}
+    <div class="apicked ${pickedFull ? 'expand' : 'w60'}"><span style="font-size:10px">✓</span>Picked</div>
+  </div>` : '';
+  return `<div class="acard">
+    <div class="acard-row" ${rowStyle}>
+      <div class="abadge">1</div>
+      <div class="abag">🛍️</div>
+      <div class="atext">
+        <div class="atitle">${name}</div>
+        <div class="ameta"><span class="acode">${code}</span><span class="adist">${dist}</span></div>
+        <div class="adesc">Description</div>
+      </div>
+      <div class="achev">›</div>
+    </div>${actions}
+  </div>`;
+}
+const urow = n => `<div class="urow"><span class="uname">${n}</span><span class="uchev">›</span></div>`;
+const hrow = n => `<div class="hrow"><div class="hck">✓</div><span class="hname">${n}</span><span class="uchev">›</span></div>`;
+function navD(hist, active, upcoming) {
+  return `<div class="dh"></div><div class="ilist">${hist}${active}${upcoming}</div>`;
+}
+
+/* ── Items (grocery context) ── */
+const items = [
+  { name:'Leite Integral 1L',    code:'LAT-001', dist:'12m', wp:'sfLat', node:'sfLat' },
+  { name:'Arroz Branco 5kg',     code:'MER-001', dist:'23m', wp:'sfMer', node:'sfMer' },
+  { name:'Água Mineral 500ml',   code:'BEB-003', dist:'18m', wp:'sfBeb', node:'sfBeb' },
+];
+
+/* ── Frames ──
+   Each frame: tilt level, route polyline keys, user position (metres),
+   waypoint position (metres), bearing (computed), drawer HTML, drawer height
+*/
+const frames = [
+  /* 00:00 Bird's-eye, no rotation */
+  { ts:'00:00', desc:'Visão geral da rota. Store = retângulo 50×30m.',
+    tilt:'none', rotDeg:0,
+    route: routePts('entA','A1','B1','sfLat','B1','A1','A2','sfBeb','A2','A3','sfMer'),
+    user: N.entA, wp: null, showWp: false,
+    drawer: peekD, dh: 128 },
+
+  /* 00:01 Camera transition begins, slight tilt, no rotation yet */
+  { ts:'00:01', desc:'Câmera inicia transição. Leve inclinação.',
+    tilt:'slight',
+    rotDeg: bearing(N.entA, N.sfLat),
+    route: routePts('entA','A1','B1','sfLat'),
+    user: N.entA, wp: N.sfLat, showWp: true,
+    drawer: peekD, dh: 128 },
+
+  /* 00:02 Full 3D tilt, rotated toward item 1 */
+  { ts:'00:02', desc:'Perspectiva 3D. Mapa rodado — Item 1 (Laticínios) está à frente.',
+    tilt:'full',
+    rotDeg: bearing(N.entA, N.sfLat),
+    route: routePts('entA','A1','B1','sfLat'),
+    user: N.entA, wp: N.sfLat, showWp: true,
+    drawer: peekD, dh: 128 },
+
+  /* 00:03 Item 1 focused, drawer expanded */
+  { ts:'00:03', desc:'Item #1 em foco. Drawer expande com card ativo.',
+    tilt:'full',
+    rotDeg: bearing(N.A1, N.sfLat),
+    route: routePts('A1','B1','sfLat'),
+    user: N.A1, wp: N.sfLat, showWp: true,
+    drawer: () => navD('',
+      card('Leite Integral 1L','LAT-001','12m',false,false,false),
+      urow('Arroz Branco 5kg')+urow('Água Mineral 500ml')),
+    dh: 220 },
+
+  /* 00:04 Map re-orients tracking closer angle */
+  { ts:'00:04', desc:'Câmera realinha com ângulo de aproximação ao item.',
+    tilt:'full',
+    rotDeg: bearing(N.B1, N.sfLat),
+    route: routePts('B1','sfLat'),
+    user: N.B1, wp: N.sfLat, showWp: true,
+    drawer: () => navD('',
+      card('Leite Integral 1L','LAT-001','12m',false,false,false),
+      urow('Arroz Branco 5kg')+urow('Água Mineral 500ml')),
+    dh: 220 },
+
+  /* 00:05 Partial swipe */
+  { ts:'00:05', desc:'Deslize parcial — bordas de Skip e Picked visíveis.',
+    tilt:'full',
+    rotDeg: bearing(N.B1, N.sfLat),
+    route: routePts('B1','sfLat'),
+    user: N.B1, wp: N.sfLat, showWp: true,
+    drawer: () => navD('',
+      `<div class="acard"><div class="acard-row" style="transform:translateX(-55px)">
+        <div class="abadge">1</div><div class="abag">🛍️</div>
+        <div class="atext"><div class="atitle">Leite Integral 1L</div>
+        <div class="ameta"><span class="acode">LAT-001</span><span class="adist">12m</span></div>
+        <div class="adesc">Description</div></div>
+      </div>
+      <div class="aactions"><div class="askip"><span>⤫</span>Skip</div><div class="apicked w60"><span>✓</span>Picked</div></div>
+      </div>`,
+      urow('Arroz Branco 5kg')+urow('Água Mineral 500ml')),
+    dh: 220 },
+
+  /* 00:06 Full swipe — Skip + Picked exposed */
+  { ts:'00:06', desc:'Deslize completo. [Skip] teal e [Picked] verde expostos.',
+    tilt:'full',
+    rotDeg: bearing(N.B1, N.sfLat),
+    route: routePts('B1','sfLat'),
+    user: N.B1, wp: N.sfLat, showWp: true,
+    drawer: () => navD('',
+      card('Leite Integral 1L','LAT-001','12m',true,false,false),
+      urow('Arroz Branco 5kg')+urow('Água Mineral 500ml')),
+    dh: 220 },
+
+  /* 00:07 Picked expanding */
+  { ts:'00:07', desc:'[Picked] pressionado. Skip colapsa, verde expande.',
+    tilt:'full',
+    rotDeg: bearing(N.B1, N.sfLat),
+    route: routePts('B1','sfLat'),
+    user: N.B1, wp: N.sfLat, showWp: true,
+    drawer: () => navD('',
+      card('Leite Integral 1L','LAT-001','12m',true,true,true),
+      urow('Arroz Branco 5kg')+urow('Água Mineral 500ml')),
+    dh: 220 },
+
+  /* 00:08 Map rotates — new bearing toward item 2 */
+  { ts:'00:08', desc:'★ CÂMERA GIRA — mapa roda para item #2 (Mercearia) ficar à frente.',
+    tilt:'full',
+    rotDeg: bearing(N.sfLat, N.sfMer),
+    route: routePts('sfLat','B1','A1','A2','A3','sfMer'),
+    user: N.sfLat, wp: N.sfMer, showWp: true,
+    drawer: () => navD(hrow('Leite Integral 1L'),
+      `<div style="padding:7px 12px;font-size:8.5px;color:#5bad27;font-weight:700;border-bottom:0.5px solid #f0f0f0;">↻ Recalculando rota…</div>`,
+      urow('Água Mineral 500ml')),
+    dh: 200 },
+
+  /* 00:09 Item 2 focused, rotated */
+  { ts:'00:09', desc:'Item #2 promovido. Mapa orientado para Mercearia à frente.',
+    tilt:'full',
+    rotDeg: bearing(N.A2, N.sfMer),
+    route: routePts('A2','A3','sfMer'),
+    user: N.A2, wp: N.sfMer, showWp: true,
+    drawer: () => navD(hrow('Leite Integral 1L'),
+      card('Arroz Branco 5kg','MER-001','23m',false,false,false),
+      urow('Água Mineral 500ml')),
+    dh: 250 },
+
+  /* 00:10 Item 2 swipe */
+  { ts:'00:10', desc:'Deslize no item #2. Skip e Picked expostos.',
+    tilt:'full',
+    rotDeg: bearing(N.A2, N.sfMer),
+    route: routePts('A2','A3','sfMer'),
+    user: N.A2, wp: N.sfMer, showWp: true,
+    drawer: () => navD(hrow('Leite Integral 1L'),
+      card('Arroz Branco 5kg','MER-001','23m',true,false,false),
+      urow('Água Mineral 500ml')),
+    dh: 250 },
+
+  /* 00:11 Item 3 focused, new rotation */
+  { ts:'00:11', desc:'★ CÂMERA GIRA — mapa roda para item #3 (Bebidas) à frente.',
+    tilt:'full',
+    rotDeg: bearing(N.sfMer, N.sfBeb),
+    route: routePts('sfMer','A3','A2','sfBeb'),
+    user: N.sfMer, wp: N.sfBeb, showWp: true,
+    drawer: () => navD(hrow('Leite Integral 1L')+hrow('Arroz Branco 5kg'),
+      card('Água Mineral 500ml','BEB-003','18m',false,false,false),
+      ''),
+    dh: 268 },
+
+  /* 00:12 History verification */
+  { ts:'00:12', desc:'Histórico empilhado. Item ativo em baixo com badge ①.',
+    tilt:'full',
+    rotDeg: bearing(N.A2, N.sfBeb),
+    route: routePts('A2','sfBeb'),
+    user: N.A2, wp: N.sfBeb, showWp: true,
+    drawer: () => `<div class="dh"></div><div class="ilist">
+      ${hrow('Leite Integral 1L')}${hrow('Arroz Branco 5kg')}
+      <div class="acard"><div class="acard-row">
+        <div class="abadge">1</div><div class="abag">🛍️</div>
+        <div class="atext"><div class="atitle">Água Mineral 500ml</div>
+        <div class="ameta"><span class="acode">BEB-003</span><span class="adist">18m</span></div></div>
+        <div class="achev">›</div>
+      </div></div>
+      ${urow('(Todos os itens restantes coletados)')}
+    </div>`,
+    dh: 280 },
+];
+
+/* ── Tilt transform per level ── */
+function tiltTransform(level, rotDeg) {
+  switch (level) {
+    case 'none':   return 'none';
+    case 'slight': return `perspective(300px) rotateX(16deg) scale(1.12) translateY(-5%)`;
+    case 'full':   return `perspective(270px) rotateX(36deg) scale(1.50) translateY(-11%)`;
+    default:       return 'none';
+  }
+}
+
+/* ── Render ── */
+const grid = document.getElementById('grid');
+
+frames.forEach(f => {
+  const dTop = 480 - f.dh;
+  const rotLabel = f.rotDeg ? `${Math.round(f.rotDeg)}° rotation` : 'no rotation';
+
+  const div = document.createElement('div');
+  div.className = 'frame';
+  div.innerHTML = `
+    <div class="ts-pill">${f.ts}</div>
+    <div class="rotation-badge">⬤ ${rotLabel}</div>
+    <div class="phone">
+      <div class="sbar">
+        <span class="sbar-time">9:41</span>
+        <div class="sbar-r"><span>●●●</span><span>WiFi</span><span>🔋</span></div>
+      </div>
+      <div class="aheader">
+        <span class="back">‹ Back</span>
+        <div class="hcircles"><div class="hc"></div><div class="hc"></div><div class="hc"></div></div>
+      </div>
+      <div class="map-area">
+        <div class="map-perspective" style="transform:${tiltTransform(f.tilt)}">
+          ${mapSVG(f.route, f.user, f.wp, f.showWp, f.rotDeg)}
+        </div>
+        <div class="drawer" style="top:${dTop}px">
+          ${typeof f.drawer === 'function' ? f.drawer() : f.drawer}
+        </div>
+      </div>
+    </div>
+    <div class="ts-desc">${f.desc}</div>`;
+  grid.appendChild(div);
+});
+</script>
+</body>
+</html>
