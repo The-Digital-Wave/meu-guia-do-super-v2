@@ -319,11 +319,23 @@ async def seed(database_url: str) -> None:
         for _sm in _supermarkets:
             if use_sqlite:
                 await session.execute(
-                    sa.insert(Supermarket).values(**_sm).prefix_with("OR IGNORE")
+                    sa.insert(Supermarket).values(**_sm).prefix_with("OR REPLACE")
                 )
             else:
+                # Use upsert so re-running the seed corrects slug/name on existing rows
+                # (migration 0002 added slug with server_default="" — this fixes that)
                 await session.execute(
-                    pg_insert(Supermarket).values(**_sm).on_conflict_do_nothing(index_elements=["id"])
+                    pg_insert(Supermarket)
+                    .values(**_sm)
+                    .on_conflict_do_update(
+                        index_elements=["id"],
+                        set_={
+                            "name": _sm["name"],
+                            "slug": _sm["slug"],
+                            "address": _sm["address"],
+                            "is_active": _sm["is_active"],
+                        },
+                    )
                 )
 
         # ── Layout ────────────────────────────────────────────────────────────
