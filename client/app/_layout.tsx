@@ -6,6 +6,7 @@ import { useFonts, Inter_400Regular, Inter_600SemiBold } from "@expo-google-font
 import { useEffect } from "react";
 import { SplashScreen } from "expo-router";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "../src/global.css";
 
 SplashScreen.preventAutoHideAsync();
@@ -33,9 +34,11 @@ export default function RootLayout() {
   if (!fontsLoaded && !fontError) return null;
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <Stack screenOptions={{ headerShown: false }} />
-      <StatusBar style="auto" />
-    </QueryClientProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryClientProvider client={queryClient}>
+        <Stack screenOptions={{ headerShown: false }} />
+        <StatusBar style="auto" />
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }
