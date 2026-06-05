@@ -5,8 +5,8 @@ import { queryClient } from "@/lib/queryClient";
 import { useFonts, Inter_400Regular, Inter_600SemiBold } from "@expo-google-fonts/inter";
 import { useEffect } from "react";
 import { SplashScreen } from "expo-router";
-import { Platform } from "react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "../src/global.css";
 
 SplashScreen.preventAutoHideAsync();
@@ -18,13 +18,8 @@ export default function RootLayout() {
   });
   const restoreSession = useAuthStore((s) => s.restoreSession);
 
-  useEffect(() => {
-    if (process.env.NODE_ENV !== "production" && Platform.OS === "web") {
-      import("../src/mocks/browser").then(({ worker }) => {
-        worker.start({ onUnhandledRequest: "bypass" });
-      });
-    }
-  }, []);
+  // MSW disabled — backend is live; re-enable when BASE_URL in handlers.ts
+  // is updated to match EXPO_PUBLIC_API_URL so requests are actually intercepted.
 
   useEffect(() => {
     restoreSession();
@@ -39,9 +34,11 @@ export default function RootLayout() {
   if (!fontsLoaded && !fontError) return null;
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <Stack screenOptions={{ headerShown: false }} />
-      <StatusBar style="auto" />
-    </QueryClientProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryClientProvider client={queryClient}>
+        <Stack screenOptions={{ headerShown: false }} />
+        <StatusBar style="auto" />
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }

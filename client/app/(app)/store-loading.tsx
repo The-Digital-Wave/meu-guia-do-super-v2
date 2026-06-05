@@ -2,13 +2,8 @@ import { useEffect } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useNavigationStore } from "@/stores/useNavigationStore";
-import { useLayoutBundle } from "@/hooks/useLayouts";
+import { useLayouts, useLayoutBundle } from "@/hooks/useLayouts";
 import { colors } from "@/theme/tokens";
-
-// Demo: Supermercado A maps to the seed layout id from MSW
-const DEMO_LAYOUT_ID: Record<string, string> = {
-  "super-001": "layout-001",
-};
 
 export default function StoreLoadingScreen() {
   const { supermarketId, supermarketName } = useLocalSearchParams<{
@@ -17,7 +12,8 @@ export default function StoreLoadingScreen() {
   }>();
 
   const { setActiveSupermarket } = useNavigationStore();
-  const layoutId = DEMO_LAYOUT_ID[supermarketId] ?? null;
+  const { data: layouts } = useLayouts(supermarketId);
+  const layoutId = layouts?.[0]?.id ?? null;
   const { data: bundle, isSuccess, isError } = useLayoutBundle(layoutId);
 
   useEffect(() => {
