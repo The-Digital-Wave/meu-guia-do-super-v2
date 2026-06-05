@@ -1,3 +1,4 @@
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -10,6 +11,13 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRE_MINUTES: int = 60
     REDIS_URL: str = "redis://localhost:6379"
+
+    @field_validator("REDIS_URL", mode="before")
+    @classmethod
+    def require_valid_redis_scheme(cls, v: str) -> str:
+        if not v or not v.startswith(("redis://", "rediss://", "unix://")):
+            return "redis://localhost:6379"
+        return v
     REDIS_TOKEN: str = ""
     ALLOWED_ORIGINS: str = "http://localhost:8081"
     ENVIRONMENT: str = "development"
