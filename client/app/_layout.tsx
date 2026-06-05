@@ -5,7 +5,6 @@ import { queryClient } from "@/lib/queryClient";
 import { useFonts, Inter_400Regular, Inter_600SemiBold } from "@expo-google-fonts/inter";
 import { useEffect } from "react";
 import { SplashScreen } from "expo-router";
-import { Platform } from "react-native";
 import { useAuthStore } from "@/stores/useAuthStore";
 import "../src/global.css";
 
@@ -18,13 +17,8 @@ export default function RootLayout() {
   });
   const restoreSession = useAuthStore((s) => s.restoreSession);
 
-  useEffect(() => {
-    if (process.env.NODE_ENV !== "production" && Platform.OS === "web") {
-      import("../src/mocks/browser").then(({ worker }) => {
-        worker.start({ onUnhandledRequest: "bypass" });
-      });
-    }
-  }, []);
+  // MSW disabled — backend is live; re-enable when BASE_URL in handlers.ts
+  // is updated to match EXPO_PUBLIC_API_URL so requests are actually intercepted.
 
   useEffect(() => {
     restoreSession();
