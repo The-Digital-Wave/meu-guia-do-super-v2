@@ -27,12 +27,18 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 COPY src/ ./src/
 COPY alembic/ ./alembic/
 COPY alembic.ini ./
+COPY scripts/ ./scripts/
+COPY entrypoint.sh ./
 
-# Own everything as appuser
-RUN chown -R appuser:appgroup /app
+# Own everything as appuser and make entrypoint executable
+RUN chown -R appuser:appgroup /app \
+    && chmod +x /app/entrypoint.sh
 
 USER appuser
 
 EXPOSE 8000
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run migrations + seed before starting the server.
+# Alembic is idempotent — already-applied migrations are skipped.
+# Seed uses upsert — safe to run on every deploy.
+CMD ["/app/entrypoint.sh"]
