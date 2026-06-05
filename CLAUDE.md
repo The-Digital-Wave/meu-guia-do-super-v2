@@ -116,13 +116,34 @@ make check-secrets # validate Render / Vercel / Expo / Docker credentials
 make cd-frontend   # run Expo web export locally (mirrors deploy-frontend-web.yml)
 ```
 
-### Mobile local testing (Expo Go on iPhone)
+### Mobile local testing (EAS Development Build on iPhone)
 
-Use this as the primary dev feedback loop — it gives full native behaviour, all APIs, and ~1 second hot reload.
+> **Note:** Standard Expo Go cannot run this project. `@shopify/react-native-skia` v2.x and
+> `react-native-reanimated` v4.x both require native modules that are not bundled in Expo Go.
+> A custom development build is required.
 
-**Prerequisites (one-time):**
-1. Install **Expo Go** from the App Store on your iPhone.
-2. Make sure your iPhone and development PC are on the **same WiFi network**.
+#### One-time setup: build and install the dev client
+
+**Prerequisites:**
+- Expo account (free) — `eas login`
+- Apple Developer account (paid, $99/year) — needed for iOS device provisioning
+- EAS CLI — `npm install -g eas-cli`
+
+**Build and install (runs on EAS cloud — no Mac required):**
+```bash
+cd client
+eas build --profile development --platform ios
+```
+
+EAS emails you a link to download the `.ipa` when the build finishes (~15 min). Install it on your iPhone from the EAS dashboard. This replaces Expo Go for this project — it is a custom build that includes all the project's native modules at the exact versions in `package.json`.
+
+> You only need to rebuild when a native dependency changes (i.e., after `npx expo install <package>`). Ordinary code changes use hot reload — no rebuild needed.
+
+#### Daily dev loop (after the dev client is installed)
+
+**Network: use iPhone Personal Hotspot to avoid AP isolation on public/office WiFi:**
+1. iPhone → Settings → Personal Hotspot → enable
+2. Connect your PC to the iPhone's hotspot
 
 **Start the dev server:**
 ```bash
@@ -130,7 +151,9 @@ cd client
 npx expo start
 ```
 
-A QR code appears in the terminal. Open the iPhone **Camera** app, point it at the QR code, and tap the Expo Go banner. The app loads on the device with live reload active.
+A QR code appears in the terminal. Open the installed dev client app on your iPhone, tap **"Enter URL manually"** or scan the QR code. Hot reload is active (~1s turnaround).
+
+> On a private home network without AP isolation you can skip the hotspot step and connect both devices to the same router directly.
 
 **Point at the local backend (optional):**
 
@@ -146,6 +169,14 @@ uvicorn src.main:app --reload
 ```
 
 If `.env.local` is absent, the app falls back to the Render production URL — fine for most UI testing without needing the local server running.
+
+#### Android alternative (no Apple Developer account required)
+
+```bash
+eas build --profile development --platform android
+```
+
+Produces an `.apk` distributed directly from the EAS dashboard link — no Play Store or developer account needed. Useful as a backup demo device or for teammates on Android.
 
 ---
 
