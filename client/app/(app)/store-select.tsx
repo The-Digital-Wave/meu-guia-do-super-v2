@@ -22,10 +22,15 @@ export default function StoreSelectScreen() {
       <View style={styles.handle} />
       <Text style={styles.title}>Selecione o supermercado</Text>
 
-      {isLoading && <ActivityIndicator color={colors.brandVibrant} style={{ marginTop: 24 }} />}
+      {isLoading && (
+        <View style={styles.loadingWrap}>
+          <ActivityIndicator color={colors.brandVibrant} />
+          <Text style={styles.loadingText}>Buscando supermercados...</Text>
+        </View>
+      )}
 
       {isError && (
-        <Text style={styles.errorText}>Erro ao carregar supermercados. Tente novamente.</Text>
+        <Text style={styles.errorText}>Não foi possível carregar. Verifique sua conexão e tente novamente.</Text>
       )}
 
       {supermarkets && (
@@ -70,5 +75,7 @@ const styles = StyleSheet.create({
   rowName: { fontSize: 14, fontWeight: "600", color: colors.textPrimary, flex: 1 },
   rowNameDisabled: { color: colors.textSecondary },
   selectArrow: { fontSize: 12, color: colors.routeActive, fontWeight: "700" },
+  loadingWrap: { alignItems: "center", gap: 10, marginTop: 32 },
+  loadingText: { fontSize: 13, color: colors.textSecondary },
   errorText: { fontSize: 14, color: "#ef4444", textAlign: "center", marginTop: 16 },
 });
