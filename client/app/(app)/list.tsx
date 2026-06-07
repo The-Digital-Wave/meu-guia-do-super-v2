@@ -91,20 +91,21 @@ export default function ListModal() {
       <SafeAreaView edges={["bottom"]} style={styles.ctaWrap}>
         <Pressable
           style={({ pressed }) => [
-            styles.cta,
+            styles.ctaTouch,
             isCtaDisabled && styles.ctaDisabled,
-            pressed &&
-              !isCtaDisabled && { opacity: 0.9, transform: [{ scale: 0.985 }] },
+            pressed && !isCtaDisabled && { opacity: 0.9, transform: [{ scale: 0.985 }] },
           ]}
           onPress={handleStartNavigation}
           disabled={isCtaDisabled}
           accessibilityLabel="Iniciar navegação"
         >
-          {loading ? (
-            <ActivityIndicator color={colors.white} size="small" />
-          ) : (
-            <Text style={styles.ctaText}>Iniciar navegação →</Text>
-          )}
+          <View style={styles.cta}>
+            {loading ? (
+              <ActivityIndicator color={colors.white} size="small" />
+            ) : (
+              <Text style={styles.ctaText}>Iniciar navegação →</Text>
+            )}
+          </View>
         </Pressable>
       </SafeAreaView>
     </View>
@@ -191,6 +192,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: "center",
   },
+  ctaTouch: { borderRadius: spacing.pillRadius, overflow: "hidden" },
   cta: {
     backgroundColor: "#15803d",
     borderRadius: spacing.pillRadius,
@@ -198,7 +200,6 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: "center",
     justifyContent: "center",
-    overflow: "hidden",
   },
   ctaDisabled: { opacity: 0.35 },
   ctaText: {

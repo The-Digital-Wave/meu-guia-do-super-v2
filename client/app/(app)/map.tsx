@@ -97,7 +97,7 @@ export default function MapScreen() {
         <View style={styles.drawerCtas}>
           <Pressable
             style={({ pressed }) => [
-              styles.ctaStart,
+              styles.ctaStartTouch,
               (items.length === 0 || routeLoading) && styles.ctaDisabled,
               pressed && items.length > 0 && { opacity: 0.85 },
             ]}
@@ -105,17 +105,21 @@ export default function MapScreen() {
             disabled={items.length === 0 || routeLoading}
             accessibilityLabel="Iniciar navegação"
           >
-            {routeLoading
-              ? <ActivityIndicator color={colors.white} size="small" />
-              : <Text style={styles.ctaStartText}>Iniciar</Text>
-            }
+            <View style={styles.ctaStart}>
+              {routeLoading
+                ? <ActivityIndicator color={colors.brandDark} size="small" />
+                : <Text style={styles.ctaStartText}>Iniciar</Text>
+              }
+            </View>
           </Pressable>
           <Pressable
-            style={styles.ctaItems}
+            style={styles.ctaItemsTouch}
             onPress={() => router.push("/(app)/list")}
             accessibilityLabel="Ver itens da lista"
           >
-            <Text style={styles.ctaItemsText}>Ver itens</Text>
+            <View style={styles.ctaItems}>
+              <Text style={styles.ctaItemsText}>Ver itens</Text>
+            </View>
           </Pressable>
         </View>
       </View>
@@ -166,25 +170,23 @@ const styles = StyleSheet.create({
   drawerTitle: { fontSize: 18, fontWeight: "700", color: colors.brandDark, letterSpacing: -0.3 },
   drawerMeta: { fontSize: 12, color: colors.textSecondary, fontWeight: "500" },
   drawerCtas: { flexDirection: "row", gap: 12 },
+  ctaStartTouch: { flex: 1, borderRadius: spacing.pillRadius, overflow: "hidden" },
   ctaStart: {
-    flex: 1,
     backgroundColor: "#9CCC65",
     borderRadius: spacing.pillRadius,
     paddingVertical: 12,
     alignItems: "center",
     justifyContent: "center",
-    overflow: "hidden",
   },
   ctaDisabled: { opacity: 0.7 },
   ctaStartText: { fontSize: 10, fontWeight: "700", color: colors.brandDark, letterSpacing: 1.5, textTransform: "uppercase" },
+  ctaItemsTouch: { flex: 1, borderRadius: spacing.pillRadius, overflow: "hidden" },
   ctaItems: {
-    flex: 1,
     backgroundColor: colors.actionSkip,
     borderRadius: spacing.pillRadius,
     paddingVertical: 12,
     alignItems: "center",
     justifyContent: "center",
-    overflow: "hidden",
   },
   ctaItemsText: { fontSize: 10, fontWeight: "600", color: colors.white, letterSpacing: 1 },
 });
