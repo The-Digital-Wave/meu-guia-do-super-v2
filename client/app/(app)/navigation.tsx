@@ -1,11 +1,8 @@
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import {
   View, Text, Pressable, StyleSheet, useWindowDimensions, ActivityIndicator,
 } from "react-native";
 import { router } from "expo-router";
-import {
-  useSharedValue, withTiming, Easing, runOnJS,
-} from "react-native-reanimated";
 import { useNavigationStore } from "@/stores/useNavigationStore";
 import { useGroceryListStore } from "@/stores/useGroceryListStore";
 import { useLayouts, useLayoutBundle } from "@/hooks/useLayouts";
@@ -13,8 +10,6 @@ import SkiaMapCanvas from "@/components/map/SkiaMapCanvas";
 import SwipeableItemCard from "@/components/map/SwipeableItemCard";
 import ConfirmationOverlay from "@/components/map/ConfirmationOverlay";
 import { colors, spacing, elevation } from "@/theme/tokens";
-
-const TRANSITION_MS = 1200;
 
 export default function NavigationScreen() {
   const { width, height } = useWindowDimensions();
@@ -26,9 +21,7 @@ export default function NavigationScreen() {
     activeRoute,
     activeStepIndex,
     navState,
-    transitionProgress,
     setNavState,
-    setTransitionProgress,
     advance,
     clearNavigation,
     activeSupermarketId,
@@ -38,34 +31,6 @@ export default function NavigationScreen() {
   const { data: layouts } = useLayouts(activeSupermarketId);
   const firstLayoutId = layouts?.[0]?.id ?? null;
   const { data: bundle } = useLayoutBundle(firstLayoutId);
-
-  const animProgress = useSharedValue(0);
-
-  // Trigger 2D → 3D transition on mount — animProgress is a Reanimated SharedValue
-  // (stable ref), setTransitionProgress is a zustand action (stable ref); safe to omit.
-  useEffect(() => {
-    animProgress.value = withTiming(1, {
-      duration: TRANSITION_MS,
-      easing: Easing.bezier(0.25, 0.1, 0.25, 1.0),
-    }, (finished) => {
-      if (finished) runOnJS(setTransitionProgress)(1);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Sync animProgress → transitionProgress for re-renders
-  // (animProgress runs on UI thread; we sync at each 0.1 increment for mode switch)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (transitionProgress < 1) {
-        setTransitionProgress(Math.min(1, transitionProgress + 0.05));
-      }
-    }, TRANSITION_MS / 20);
-    return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transitionProgress]);
-
-  const canvasMode: "2d" | "3d" = transitionProgress >= 0.5 ? "3d" : "2d";
 
   const activeItem = items[0] ?? null;
   const activeSegment = activeRoute?.segments[activeStepIndex];
@@ -134,7 +99,9 @@ export default function NavigationScreen() {
           <Text style={styles.backBtn}>‹ Voltar</Text>
         </Pressable>
         <Text style={styles.navLabel}>● NAVEGAÇÃO AO VIVO</Text>
-        <View style={styles.avatarDot} />
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>EU</Text>
+        </View>
       </View>
 
       {/* Map */}
@@ -143,7 +110,7 @@ export default function NavigationScreen() {
           <SkiaMapCanvas
             bundle={bundle}
             route={activeRoute}
-            mode={canvasMode}
+            mode="2d"
             userPos={userPos}
             canvasWidth={width}
             canvasHeight={canvasH}
@@ -163,7 +130,7 @@ export default function NavigationScreen() {
           <Text style={styles.progressText}>
             {stopLabel} · <Text style={styles.distText}>{distanceLabel}</Text>
           </Text>
-          <Pressable accessibilityLabel="Ver todos os itens">
+          <Pressable accessibilityLabel="Ver todos os itens" onPress={() => router.push("/(app)/list")}>
             <Text style={styles.seeAllText}>Ver tudo ↑</Text>
           </Pressable>
         </View>
@@ -209,7 +176,8 @@ const styles = StyleSheet.create({
   },
   backBtn: { fontSize: 14, fontWeight: "700", color: colors.textSecondary },
   navLabel: { fontSize: 10, fontWeight: "700", color: colors.routeActive, letterSpacing: 2 },
-  avatarDot: { width: 14, height: 14, borderRadius: 7, backgroundColor: colors.border },
+  avatar: { width: 28, height: 28, borderRadius: 14, backgroundColor: colors.border, alignItems: "center", justifyContent: "center" },
+  avatarText: { fontSize: 8, fontWeight: "700", color: colors.textSecondary },
   loadingWrap: { flex: 1, alignItems: "center", justifyContent: "center" },
   drawer: {
     backgroundColor: colors.white,

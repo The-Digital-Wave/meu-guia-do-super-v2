@@ -17,13 +17,14 @@ export default function HomeScreen() {
   const hasStore = !!activeSupermarketId;
 
   const [query, setQuery] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
   const [showAuthGate, setShowAuthGate] = useState(false);
   const { data: searchResults } = useProductSearch(query);
   const { addItem, items } = useGroceryListStore();
 
   const handleAddProduct = useCallback((product: Product) => {
     addItem(product);
-    setQuery("");
+    setShowDropdown(false);
   }, [addItem]);
 
   const handleFabPress = useCallback(() => {
@@ -61,7 +62,8 @@ export default function HomeScreen() {
             <TextInput
               style={styles.searchInput}
               value={query}
-              onChangeText={setQuery}
+              onChangeText={(text) => { setQuery(text); setShowDropdown(text.length > 0); }}
+              onBlur={() => setShowDropdown(false)}
               placeholder="Buscar produto..."
               placeholderTextColor={colors.textSecondary}
               returnKeyType="search"
@@ -80,7 +82,7 @@ export default function HomeScreen() {
       </View>
 
       {/* Search dropdown */}
-      {hasStore && query.length > 0 && searchResults && searchResults.items.length > 0 && (
+      {hasStore && showDropdown && query.length > 0 && searchResults && searchResults.items.length > 0 && (
         <View style={styles.searchDropdown}>
           <FlatList
             data={searchResults.items.slice(0, 6)}

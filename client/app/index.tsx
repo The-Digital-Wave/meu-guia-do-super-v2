@@ -1,21 +1,22 @@
-import { useEffect } from "react";
-import { View } from "react-native";
+import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
 import { storage } from "@/services/storage";
 import { useAuthStore } from "@/stores/useAuthStore";
+import SplashContent from "./splash";
 
 export default function BootRouter() {
   const router = useRouter();
+  const [booted, setBooted] = useState(false);
 
   useEffect(() => {
     async function boot() {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       try {
         const onboardingDone = await storage.getItem("onboarding_complete");
         if (!onboardingDone) {
           router.replace("/onboarding/step1" as any);
           return;
         }
-        // _layout.tsx already called restoreSession() — just read current state
         const { isAuthenticated, isGuest } = useAuthStore.getState();
         if (isAuthenticated || isGuest) {
           router.replace("/(app)");
@@ -23,12 +24,15 @@ export default function BootRouter() {
           router.replace("/(auth)/login");
         }
       } catch {
-        // Storage failure — fall through to login
         router.replace("/(auth)/login");
+      } finally {
+        setBooted(true);
       }
     }
     boot();
   }, [router]);
 
-  return <View style={{ flex: 1 }} />;
+  if (!booted) return <SplashContent />;
+
+  return null;
 }
