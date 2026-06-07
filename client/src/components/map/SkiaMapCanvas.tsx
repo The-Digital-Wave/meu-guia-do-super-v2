@@ -18,11 +18,9 @@ import RouteOverlay from "./RouteOverlay";
 import WaypointBadge from "./WaypointBadge";
 import { colors } from "@/theme/tokens";
 
-const shelfFont = matchFont({
-  fontFamily: Platform.OS === "ios" ? "Helvetica Neue" : "sans-serif",
-  fontSize: 8,
-  fontWeight: "400",
-});
+const shelfFont = Platform.OS !== "web"
+  ? matchFont({ fontFamily: Platform.OS === "ios" ? "Helvetica Neue" : "sans-serif", fontSize: 8, fontWeight: "400" })
+  : null;
 
 interface SkiaMapCanvasProps {
   bundle: LayoutBundle;

@@ -173,6 +173,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: "center",
     justifyContent: "center",
+    overflow: "hidden",
   },
   ctaDisabled: { opacity: 0.7 },
   ctaStartText: { fontSize: 10, fontWeight: "700", color: colors.brandDark, letterSpacing: 1.5, textTransform: "uppercase" },
@@ -183,6 +184,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: "center",
     justifyContent: "center",
+    overflow: "hidden",
   },
   ctaItemsText: { fontSize: 10, fontWeight: "600", color: colors.white, letterSpacing: 1 },
 });
