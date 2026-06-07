@@ -93,15 +93,17 @@ export default function LoginScreen() {
         </View>
 
         <Pressable
-          style={({ pressed }) => [styles.cta, pressed && styles.ctaPressed, isLoading && styles.ctaDisabled]}
+          style={({ pressed }) => [styles.ctaTouch, pressed && styles.ctaPressed, isLoading && styles.ctaDisabled]}
           onPress={handleLogin}
           disabled={isLoading}
           accessibilityLabel="Entrar"
         >
-          {isLoading
-            ? <ActivityIndicator color={colors.brandDark} />
-            : <Text style={styles.ctaText}>ENTRAR</Text>
-          }
+          <View style={styles.cta}>
+            {isLoading
+              ? <ActivityIndicator color={colors.brandDark} />
+              : <Text style={styles.ctaText}>ENTRAR</Text>
+            }
+          </View>
         </Pressable>
 
         <Pressable onPress={() => router.push("/(auth)/register")}>
@@ -135,7 +137,8 @@ const styles = StyleSheet.create({
   input: { backgroundColor: colors.white, borderWidth: 1, borderColor: colors.border, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 11, fontSize: 14, color: colors.textPrimary },
   passHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   showPassBtn: { fontSize: 10, fontWeight: "700", color: colors.routeActive, letterSpacing: 1 },
-  cta: { backgroundColor: colors.brandVibrant, borderRadius: spacing.pillRadius, paddingVertical: 14, alignItems: "center", marginTop: 4 },
+  ctaTouch: { borderRadius: spacing.pillRadius, overflow: "hidden", marginTop: 4 },
+  cta: { backgroundColor: colors.brandVibrant, borderRadius: spacing.pillRadius, paddingVertical: 14, alignItems: "center" },
   ctaPressed: { opacity: 0.85, transform: [{ scale: 0.97 }] },
   ctaDisabled: { opacity: 0.4 },
   ctaText: { fontSize: 13, fontWeight: "900", color: colors.brandDark, letterSpacing: 2 },
