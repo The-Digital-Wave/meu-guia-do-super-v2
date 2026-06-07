@@ -51,6 +51,7 @@ export default function ListModal() {
           data={items}
           keyExtractor={(item) => item.id}
           style={styles.list}
+          contentContainerStyle={{ paddingBottom: 96 }}
           renderItem={({ item }: { item: CartItem }) => (
             <View style={styles.row}>
               <Text style={styles.rowEmoji}>🛍</Text>
@@ -68,7 +69,7 @@ export default function ListModal() {
         />
       )}
 
-      <View style={styles.footer}>
+      <View style={styles.ctaWrap}>
         <Pressable
           style={({ pressed }) => [
             styles.cta,
@@ -97,7 +98,16 @@ const styles = StyleSheet.create({
   countBadge: { backgroundColor: "#ecfdf5", borderWidth: 1, borderColor: "#a7f3d0", borderRadius: 20, paddingHorizontal: 10, paddingVertical: 2 },
   countText: { fontSize: 10, fontWeight: "700", color: "#059669" },
   list: { flex: 1 },
-  footer: { paddingTop: 12, paddingBottom: spacing.safeAreaBottom + 16 },
+  ctaWrap: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: spacing.gutter,
+    paddingTop: 12,
+    paddingBottom: spacing.safeAreaBottom + 16,
+    backgroundColor: colors.white,
+  },
   row: { flexDirection: "row", alignItems: "center", backgroundColor: colors.bgLight, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, borderWidth: 1, borderColor: colors.border, gap: 10 },
   rowEmoji: { fontSize: 18 },
   rowName: { fontSize: 14, fontWeight: "600", color: colors.textPrimary, flex: 1 },
