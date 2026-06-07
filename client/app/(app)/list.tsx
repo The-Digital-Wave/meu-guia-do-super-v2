@@ -88,13 +88,13 @@ export default function ListModal() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.white, borderTopLeftRadius: 32, borderTopRightRadius: 32, paddingTop: 12, paddingHorizontal: spacing.gutter, paddingBottom: spacing.safeAreaBottom + 16 },
+  container: { flex: 1, backgroundColor: colors.white, borderTopLeftRadius: 32, borderTopRightRadius: 32, paddingTop: 24, paddingHorizontal: spacing.gutter, paddingBottom: spacing.safeAreaBottom + 16 },
   handle: { width: 48, height: 4, backgroundColor: colors.border, borderRadius: 2, alignSelf: "center", marginBottom: 16 },
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 16 },
   title: { fontSize: 18, fontWeight: "700", color: colors.brandDark },
   countBadge: { backgroundColor: "#ecfdf5", borderWidth: 1, borderColor: "#a7f3d0", borderRadius: 20, paddingHorizontal: 10, paddingVertical: 2 },
   countText: { fontSize: 10, fontWeight: "700", color: "#059669" },
-  list: { flex: 1, marginBottom: 16 },
+  list: { maxHeight: 380, marginBottom: 16 },
   row: { flexDirection: "row", alignItems: "center", backgroundColor: colors.bgLight, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 12, borderWidth: 1, borderColor: colors.border, gap: 10 },
   rowEmoji: { fontSize: 18 },
   rowName: { fontSize: 14, fontWeight: "600", color: colors.textPrimary, flex: 1 },

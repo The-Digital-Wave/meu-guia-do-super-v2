@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   View, Text, TextInput, Pressable, ActivityIndicator,
-  StyleSheet, KeyboardAvoidingView, Platform, Alert,
+  StyleSheet, KeyboardAvoidingView, Platform, Alert, Image,
 } from "react-native";
 import { router } from "expo-router";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -41,78 +41,76 @@ export default function LoginScreen() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <View style={styles.logoRow}>
-        <View style={styles.logoBg}>
-          <Text style={{ fontSize: 22 }}>🛒</Text>
-        </View>
+        <Image source={require("../../src/assets/app-logo-1.png")} style={styles.logoImg} />
         <View>
           <Text style={styles.logoTitle}>Bem-vindo</Text>
           <Text style={styles.logoSub}>Aqui você encontra o que procura</Text>
         </View>
       </View>
 
-      <View style={styles.socialGroup}>
-        <Pressable style={styles.socialBtn} onPress={handleSocialToast} accessibilityLabel="Continuar com Facebook">
-          <Text style={styles.socialBtnText}>f  Continue with Facebook</Text>
-        </Pressable>
-        <Pressable style={styles.socialBtn} onPress={handleSocialToast} accessibilityLabel="Continuar com Google">
-          <Text style={styles.socialBtnText}>G  Continue with Google</Text>
-        </Pressable>
-      </View>
-
-      <Text style={styles.orDivider}>OU</Text>
-
-      <View style={styles.fieldGroup}>
-        <Text style={styles.fieldLabel}>EMAIL</Text>
-        <TextInput
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-          placeholder="seu@email.com"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoComplete="email"
-          accessibilityLabel="Campo de e-mail"
-        />
-      </View>
-
-      <View style={styles.fieldGroup}>
-        <View style={styles.passHeader}>
-          <Text style={styles.fieldLabel}>SENHA</Text>
-          <Pressable onPress={() => setShowPassword(!showPassword)}>
-            <Text style={styles.showPassBtn}>{showPassword ? "OCULTAR" : "MOSTRAR"}</Text>
+      <View style={styles.formGroup}>
+        <View style={styles.socialGroup}>
+          <Pressable style={styles.socialBtn} onPress={handleSocialToast} accessibilityLabel="Continuar com Facebook">
+            <Text style={styles.socialBtnText}>f  Continue with Facebook</Text>
+          </Pressable>
+          <Pressable style={styles.socialBtn} onPress={handleSocialToast} accessibilityLabel="Continuar com Google">
+            <Text style={styles.socialBtnText}>G  Continue with Google</Text>
           </Pressable>
         </View>
-        <TextInput
-          style={styles.input}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry={!showPassword}
-          placeholder="••••••••"
-          autoComplete="password"
-          accessibilityLabel="Campo de senha"
-        />
-      </View>
 
-      <Pressable
-        style={({ pressed }) => [styles.cta, pressed && styles.ctaPressed, isLoading && styles.ctaDisabled]}
-        onPress={handleLogin}
-        disabled={isLoading}
-        accessibilityLabel="Entrar"
-      >
-        {isLoading
-          ? <ActivityIndicator color={colors.brandDark} />
-          : <Text style={styles.ctaText}>ENTRAR</Text>
-        }
-      </Pressable>
+        <Text style={styles.orDivider}>OU</Text>
 
-      <Pressable onPress={() => router.push("/(auth)/register")}>
-        <Text style={styles.registerLink}>
-          Não tem conta? <Text style={styles.registerLinkBold}>Criar conta</Text>
-        </Text>
-      </Pressable>
+        <View style={styles.fieldGroup}>
+          <Text style={styles.fieldLabel}>EMAIL</Text>
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            placeholder="seu@email.com"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+            accessibilityLabel="Campo de e-mail"
+          />
+        </View>
 
-      <View style={{ flex: 1, justifyContent: "flex-end" }}>
-        <Pressable onPress={handleGuest} accessibilityLabel="Entrar como convidado">
+        <View style={styles.fieldGroup}>
+          <View style={styles.passHeader}>
+            <Text style={styles.fieldLabel}>SENHA</Text>
+            <Pressable onPress={() => setShowPassword(!showPassword)}>
+              <Text style={styles.showPassBtn}>{showPassword ? "OCULTAR" : "MOSTRAR"}</Text>
+            </Pressable>
+          </View>
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+            placeholder="••••••••"
+            autoComplete="password"
+            accessibilityLabel="Campo de senha"
+          />
+        </View>
+
+        <Pressable
+          style={({ pressed }) => [styles.cta, pressed && styles.ctaPressed, isLoading && styles.ctaDisabled]}
+          onPress={handleLogin}
+          disabled={isLoading}
+          accessibilityLabel="Entrar"
+        >
+          {isLoading
+            ? <ActivityIndicator color={colors.brandDark} />
+            : <Text style={styles.ctaText}>ENTRAR</Text>
+          }
+        </Pressable>
+
+        <Pressable onPress={() => router.push("/(auth)/register")}>
+          <Text style={styles.registerLink}>
+            Não tem conta? <Text style={styles.registerLinkBold}>Criar conta</Text>
+          </Text>
+        </Pressable>
+
+        <Pressable onPress={handleGuest} accessibilityLabel="Entrar como convidado" style={{ marginTop: 16 }}>
           <Text style={styles.guestBtnText}>Entrar como convidado</Text>
         </Pressable>
       </View>
@@ -121,8 +119,10 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgLight, paddingHorizontal: spacing.gutter, paddingTop: spacing.safeAreaTop + 16, paddingBottom: 32, gap: 16 },
+  container: { flex: 1, backgroundColor: colors.bgLight, paddingHorizontal: spacing.gutter, paddingTop: spacing.safeAreaTop + 16, paddingBottom: 32 },
   logoRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 8 },
+  logoImg: { width: 48, height: 48, borderRadius: 12 },
+  formGroup: { flex: 1, justifyContent: "center", gap: 16 },
   logoBg: { width: 48, height: 48, backgroundColor: colors.brandDark, borderRadius: 12, alignItems: "center", justifyContent: "center" },
   logoTitle: { fontSize: 18, fontWeight: "600", color: colors.brandDark, letterSpacing: -0.3 },
   logoSub: { fontSize: 12, color: colors.textSecondary },

@@ -1,12 +1,19 @@
 // client/src/components/map/SkiaMapCanvas.tsx
 import { useState, useMemo, useRef } from "react";
-import { Canvas, Circle, Group, RoundedRect, Rect } from "@shopify/react-native-skia";
+import { Canvas, Circle, Group, RoundedRect, Rect, Paint, Text as SkiaText, matchFont } from "@shopify/react-native-skia";
+import { Platform } from "react-native";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import type { LayoutBundle, RouteResponse } from "@/types";
 import { toScreen2D, toScreen3D } from "@/utils/projection";
 import RouteOverlay from "./RouteOverlay";
 import WaypointBadge from "./WaypointBadge";
 import { colors } from "@/theme/tokens";
+
+const shelfFont = matchFont({
+  familyName: Platform.OS === "ios" ? "Helvetica Neue" : "sans-serif",
+  fontSize: 8,
+  fontWeight: "400",
+});
 
 interface SkiaMapCanvasProps {
   bundle: LayoutBundle;
@@ -86,16 +93,37 @@ export default function SkiaMapCanvas({
           const { sx, sy } = project(shelf.x, shelf.y);
           const w = shelf.width * scale2D;
           const h = shelf.height * scale2D;
+          const shelfLabel = shelf.label ?? shelf.aisle ?? null;
+          const labelWidth = shelfLabel && shelfFont ? shelfFont.measureText(shelfLabel).width : 0;
+          const labelX = sx - labelWidth / 2;
+          const labelY = sy + 3;
           return (
             <Group key={shelf.id}>
-              <RoundedRect
-                x={sx - w / 2}
-                y={sy - h / 2}
-                width={w}
-                height={h}
-                r={3}
-                color={shelf.color || "#1f6f5f"}
-              />
+              <RoundedRect x={sx - w / 2} y={sy - h / 2} width={w} height={h} r={3}>
+                <Paint color="#FFFFFF" />
+                <Paint color="#94A3B8" style="stroke" strokeWidth={1} />
+              </RoundedRect>
+              {shelfLabel && shelfFont && (
+                <SkiaText x={labelX} y={labelY} text={shelfLabel} font={shelfFont} color="#64748B" />
+              )}
+            </Group>
+          );
+        })}
+
+        {/* Entry nodes */}
+        {nodes.filter((n) => n.node_type === "ENTRY").map((node) => {
+          const { sx, sy } = project(node.x, node.y);
+          const entryLabel = "ENTRADA";
+          const entryLabelWidth = shelfFont ? shelfFont.measureText(entryLabel).width : 0;
+          return (
+            <Group key={node.id}>
+              <RoundedRect x={sx - 20} y={sy - 8} width={40} height={16} r={4}>
+                <Paint color="#DCFCE7" />
+                <Paint color="#16A34A" style="stroke" strokeWidth={1} />
+              </RoundedRect>
+              {shelfFont && (
+                <SkiaText x={sx - entryLabelWidth / 2} y={sy + 4} text={entryLabel} font={shelfFont} color="#15803D" />
+              )}
             </Group>
           );
         })}

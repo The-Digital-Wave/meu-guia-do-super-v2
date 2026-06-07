@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
   handle: { width: 48, height: 4, backgroundColor: colors.border, borderRadius: 2, alignSelf: "center", marginBottom: 8 },
   title: { fontSize: 18, fontWeight: "700", color: colors.brandDark, letterSpacing: -0.3 },
   body: { fontSize: 14, color: colors.textSecondary, lineHeight: 20 },
-  cta: { backgroundColor: colors.brandVibrant, borderRadius: spacing.pillRadius, paddingVertical: 14, alignItems: "center" },
+  cta: { backgroundColor: colors.brandVibrant, borderRadius: spacing.pillRadius, paddingVertical: 14, alignItems: "center", alignSelf: "stretch" },
   ctaText: { fontSize: 13, fontWeight: "900", color: colors.brandDark, letterSpacing: 2 },
   loginBtn: { alignItems: "center", paddingVertical: 8 },
   loginBtnText: { fontSize: 14, fontWeight: "600", color: colors.routeActive },

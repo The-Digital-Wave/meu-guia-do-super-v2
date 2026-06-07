@@ -174,8 +174,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  ctaDisabled: { opacity: 0.4 },
-  ctaStartText: { fontSize: 10, fontWeight: "700", color: colors.white, letterSpacing: 1.5, textTransform: "uppercase" },
+  ctaDisabled: { opacity: 0.7 },
+  ctaStartText: { fontSize: 10, fontWeight: "700", color: colors.brandDark, letterSpacing: 1.5, textTransform: "uppercase" },
   ctaItems: {
     flex: 1,
     backgroundColor: colors.actionSkip,
