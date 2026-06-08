@@ -106,7 +106,12 @@ export default function HomeScreen() {
           onPress={() => router.push("/(app)/settings")}
           accessibilityLabel="Configurações"
         >
-          <Text style={styles.avatarText}>EU</Text>
+          <Image
+            source={require("../../src/assets/profile_fabio_1.jpeg")}
+            style={styles.avatarImage}
+            resizeMode="cover"
+            accessibilityLabel="Avatar do Fabio"
+          />
         </Pressable>
       </View>
 
@@ -216,7 +221,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
   logoWrap: {
@@ -310,10 +314,11 @@ const styles = StyleSheet.create({
     height: 28,
     borderRadius: 14,
     backgroundColor: colors.border,
+    overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
   },
-  avatarText: { fontSize: 8, fontWeight: "700", color: colors.textSecondary },
+  avatarImage: { width: "100%", height: "100%" },
   emptyContainer: {
     flex: 1,
     alignItems: "center",

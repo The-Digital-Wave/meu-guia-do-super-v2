@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import {
   View,
   Text,
+  Image,
   Pressable,
   StyleSheet,
   useWindowDimensions,
@@ -119,7 +120,12 @@ export default function NavigationScreen() {
         </Pressable>
         <Text style={styles.navLabel}>● NAVEGAÇÃO AO VIVO</Text>
         <View style={styles.avatar}>
-          <Text style={styles.avatarText}>EU</Text>
+          <Image
+            source={require("../../src/assets/profile_fabio_1.jpeg")}
+            style={styles.avatarImage}
+            resizeMode="cover"
+            accessibilityLabel="Avatar do Fabio"
+          />
         </View>
       </View>
 
@@ -212,10 +218,11 @@ const styles = StyleSheet.create({
     height: 36,
     borderRadius: 18,
     backgroundColor: colors.border,
+    overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
   },
-  avatarText: { fontSize: 8, fontWeight: "700", color: colors.textSecondary },
+  avatarImage: { width: "100%", height: "100%" },
   loadingWrap: { flex: 1, alignItems: "center", justifyContent: "center" },
   drawer: {
     backgroundColor: colors.white,
