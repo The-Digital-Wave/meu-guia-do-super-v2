@@ -12,11 +12,15 @@ export default function BootRouter() {
     async function boot() {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       try {
-        const onboardingDone = await storage.getItem("onboarding_complete");
-        if (!onboardingDone) {
-          router.replace("/onboarding/step1" as any);
-          return;
-        }
+        // MVP demo mode: always replay onboarding for each app launch.
+        // const onboardingDone = await storage.getItem("onboarding_complete");
+        // if (!onboardingDone) {
+        //   router.replace("/onboarding/step1" as any);
+        //   return;
+        // }
+        router.replace("/onboarding/step1" as any);
+        return;
+
         const { isAuthenticated, isGuest } = useAuthStore.getState();
         if (isAuthenticated || isGuest) {
           router.replace("/(app)");

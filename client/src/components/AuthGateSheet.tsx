@@ -20,17 +20,25 @@ export default function AuthGateSheet({
       animationType="slide"
       onRequestClose={onDismiss}
     >
-      <Pressable style={styles.backdrop} onPress={onDismiss} accessibilityLabel="Fechar" />
+      <Pressable
+        style={styles.backdrop}
+        onPress={onDismiss}
+        accessibilityLabel="Fechar"
+      />
       <View style={styles.sheet}>
         <View style={styles.handle} />
         <Text style={styles.title}>Crie uma conta para salvar sua lista</Text>
         <Text style={styles.body}>
-          Com uma conta, suas listas de compras ficam salvas e disponíveis em qualquer dispositivo.
+          Com uma conta, suas listas de compras ficam salvas e disponíveis em
+          qualquer dispositivo.
         </Text>
 
         <Pressable
           style={({ pressed }) => [styles.cta, pressed && { opacity: 0.85 }]}
-          onPress={() => { onDismiss(); router.push("/(auth)/register"); }}
+          onPress={() => {
+            onDismiss();
+            router.push("/(auth)/register");
+          }}
           accessibilityLabel="Criar conta"
         >
           <Text style={styles.ctaText}>CRIAR CONTA</Text>
@@ -38,14 +46,21 @@ export default function AuthGateSheet({
 
         <Pressable
           style={styles.loginBtn}
-          onPress={() => { onDismiss(); router.push("/(auth)/login"); }}
+          onPress={() => {
+            onDismiss();
+            router.push("/(auth)/login");
+          }}
           accessibilityLabel="Entrar"
         >
           <Text style={styles.loginBtnText}>Entrar</Text>
         </Pressable>
 
         {onContinueWithoutSaving && (
-          <Pressable style={styles.skipBtn} onPress={onContinueWithoutSaving} accessibilityLabel="Continuar sem salvar">
+          <Pressable
+            style={styles.skipBtn}
+            onPress={onContinueWithoutSaving}
+            accessibilityLabel="Continuar sem salvar"
+          >
             <Text style={styles.skipBtnText}>Continuar sem salvar</Text>
           </Pressable>
         )}
@@ -64,13 +79,37 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.safeAreaBottom + 16,
     gap: 16,
   },
-  handle: { width: 48, height: 4, backgroundColor: colors.border, borderRadius: 2, alignSelf: "center", marginBottom: 8 },
-  title: { fontSize: 18, fontWeight: "700", color: colors.brandDark, letterSpacing: -0.3 },
+  handle: {
+    width: 48,
+    height: 4,
+    backgroundColor: colors.border,
+    borderRadius: 2,
+    alignSelf: "center",
+    marginBottom: 8,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: colors.brandDark,
+    letterSpacing: -0.3,
+  },
   body: { fontSize: 14, color: colors.textSecondary, lineHeight: 20 },
-  cta: { backgroundColor: colors.brandVibrant, borderRadius: spacing.pillRadius, paddingVertical: 14, alignItems: "center", alignSelf: "stretch" },
-  ctaText: { fontSize: 13, fontWeight: "900", color: colors.brandDark, letterSpacing: 2 },
+  cta: {
+    backgroundColor: colors.brandVibrant,
+    borderRadius: spacing.pillRadius,
+    paddingVertical: 14,
+    alignItems: "center",
+    alignSelf: "stretch",
+  },
+  ctaText: {
+    fontSize: 13,
+    fontWeight: "900",
+    textAlign: "center",
+    color: colors.brandDark,
+    letterSpacing: 2,
+  },
   loginBtn: { alignItems: "center", paddingVertical: 8 },
   loginBtnText: { fontSize: 14, fontWeight: "600", color: colors.routeActive },
   skipBtn: { alignItems: "center", paddingVertical: 4 },
-  skipBtnText: { fontSize: 12, color: colors.textSecondary, textDecorationLine: "underline" },
+  skipBtnText: { fontSize: 12, color: colors.textSecondary, fontWeight: "700" },
 });
