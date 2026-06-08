@@ -4,16 +4,14 @@
     "slug": "meu-guia-do-super",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./src/assets/app-logo-1.png",
+    "icon": "./src/assets/app-logo-light-green-bg.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./src/assets/app-logo-1.png",
+      "image": "./src/assets/app-logo-full-text.png",
       "resizeMode": "contain",
       "backgroundColor": "#f2f0eb"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.thedigitalwave.meuguiadosuper",
@@ -23,20 +21,16 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./src/assets/app-logo-1.png",
+        "foregroundImage": "./src/assets/app-logo-full-text.png",
         "backgroundColor": "#f2f0eb"
       },
       "package": "com.thedigitalwave.meuguiadosuper"
     },
     "web": {
-      "favicon": "./src/assets/app-logo-1.png",
+      "favicon": "./src/assets/app-logo-light-green-bg.png",
       "bundler": "metro"
     },
-    "plugins": [
-      "expo-router",
-      "expo-font",
-      "expo-secure-store"
-    ],
+    "plugins": ["expo-router", "expo-font", "expo-secure-store"],
     "scheme": "meu-guia-do-super",
     "experiments": {
       "typedRoutes": true

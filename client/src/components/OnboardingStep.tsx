@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { colors, spacing } from "@/theme/tokens";
@@ -20,8 +20,15 @@ async function skipOnboarding() {
 }
 
 export default function OnboardingStep({
-  stepIndex, totalSteps, heading, body, ctaLabel, onCta, children,
+  stepIndex,
+  totalSteps,
+  heading,
+  body,
+  ctaLabel,
+  onCta,
+  children,
 }: OnboardingStepProps) {
+  const [ctaPressed, setCtaPressed] = useState(false);
   return (
     <View style={styles.container}>
       <View style={styles.topBar}>
@@ -42,11 +49,16 @@ export default function OnboardingStep({
       <View style={styles.bottom}>
         <View style={styles.dots}>
           {Array.from({ length: totalSteps }).map((_, i) => (
-            <View key={i} style={[styles.dot, i === stepIndex && styles.dotActive]} />
+            <View
+              key={i}
+              style={[styles.dot, i === stepIndex && styles.dotActive]}
+            />
           ))}
         </View>
         <Pressable
-          style={({ pressed }) => [styles.cta, pressed && styles.ctaPressed]}
+          style={[styles.cta, ctaPressed && styles.ctaPressed]}
+          onPressIn={() => setCtaPressed(true)}
+          onPressOut={() => setCtaPressed(false)}
           onPress={onCta}
           accessibilityLabel={ctaLabel}
         >
@@ -66,16 +78,40 @@ const styles = StyleSheet.create({
     paddingBottom: 48,
     justifyContent: "space-between",
   },
-  topBar: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  time: { fontSize: 11, fontFamily: "Courier New", color: colors.brandVibrant, letterSpacing: 2 },
+  topBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  time: {
+    fontSize: 11,
+    fontFamily: "Courier New",
+    color: colors.brandVibrant,
+    letterSpacing: 2,
+  },
   skip: { fontSize: 14, fontWeight: "500", color: "rgba(255,255,255,0.65)" },
   content: { flex: 1, justifyContent: "center", gap: 24 },
   textBlock: { alignItems: "center", paddingHorizontal: 16, gap: 10 },
-  heading: { fontSize: 24, fontWeight: "900", color: colors.brandVibrant, textAlign: "center" },
-  body: { fontSize: 12, color: "rgba(255,255,255,0.75)", textAlign: "center", lineHeight: 18 },
+  heading: {
+    fontSize: 24,
+    fontWeight: "900",
+    color: colors.brandVibrant,
+    textAlign: "center",
+  },
+  body: {
+    fontSize: 12,
+    color: "rgba(255,255,255,0.75)",
+    textAlign: "center",
+    lineHeight: 18,
+  },
   bottom: { alignItems: "center", gap: 24 },
   dots: { flexDirection: "row", gap: 8 },
-  dot: { width: 10, height: 10, borderRadius: 5, backgroundColor: "rgba(255,255,255,0.25)" },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "rgba(255,255,255,0.25)",
+  },
   dotActive: { backgroundColor: colors.brandVibrant },
   cta: {
     width: "100%",
@@ -84,6 +120,12 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: "center",
   },
-  ctaPressed: { opacity: 0.85, transform: [{ scale: 0.97 }] },
-  ctaText: { fontSize: 12, fontWeight: "900", color: colors.brandDark, letterSpacing: 1.5, textTransform: "uppercase" },
+  ctaPressed: { opacity: 0.82 },
+  ctaText: {
+    fontSize: 12,
+    fontWeight: "900",
+    color: colors.brandDark,
+    letterSpacing: 1.5,
+    textTransform: "uppercase",
+  },
 });

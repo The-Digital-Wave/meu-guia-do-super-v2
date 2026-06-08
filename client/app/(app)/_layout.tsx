@@ -7,7 +7,7 @@ export default function AppLayout() {
       <Stack.Screen name="store-select" options={{ presentation: "modal" }} />
       <Stack.Screen name="store-loading" />
       <Stack.Screen name="settings" />
-      <Stack.Screen name="list" />
+      <Stack.Screen name="list" options={{ presentation: "modal" }} />
       <Stack.Screen name="map" />
       <Stack.Screen name="navigation" />
     </Stack>

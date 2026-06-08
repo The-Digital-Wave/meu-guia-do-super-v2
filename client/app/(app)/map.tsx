@@ -1,6 +1,11 @@
 import { useState } from "react";
 import {
-  View, Text, Pressable, StyleSheet, useWindowDimensions, ActivityIndicator,
+  View,
+  Text,
+  Pressable,
+  StyleSheet,
+  useWindowDimensions,
+  ActivityIndicator,
 } from "react-native";
 import { router } from "expo-router";
 import { useLayouts, useLayoutBundle } from "@/hooks/useLayouts";
@@ -17,7 +22,8 @@ export default function MapScreen() {
   const drawerH = spacing.drawerPeek + spacing.safeAreaBottom + 8;
   const canvasH = height - navBarH - drawerH;
 
-  const { activeRoute, setActiveRoute, activeSupermarketId } = useNavigationStore();
+  const { activeRoute, setActiveRoute, activeSupermarketId } =
+    useNavigationStore();
   const { items } = useGroceryListStore();
 
   const { data: layouts } = useLayouts(activeSupermarketId);
@@ -54,12 +60,19 @@ export default function MapScreen() {
   return (
     <View style={styles.container}>
       {/* Top nav */}
-      <View style={[styles.nav, { height: navBarH, paddingTop: spacing.safeAreaTop + 8 }]}>
+      <View
+        style={[
+          styles.nav,
+          { height: navBarH, paddingTop: spacing.safeAreaTop + 8 },
+        ]}
+      >
         <Pressable onPress={() => router.back()} accessibilityLabel="Voltar">
           <Text style={styles.backBtn}>‹ Voltar</Text>
         </Pressable>
         <Text style={styles.navLabel}>VISÃO DA ROTA</Text>
-        <View style={styles.avatarDot} />
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>EU</Text>
+        </View>
       </View>
 
       {/* Map */}
@@ -87,7 +100,9 @@ export default function MapScreen() {
       </View>
 
       {/* Bottom drawer peek */}
-      <View style={[styles.drawer, { paddingBottom: spacing.safeAreaBottom + 8 }]}>
+      <View
+        style={[styles.drawer, { paddingBottom: spacing.safeAreaBottom + 8 }]}
+      >
         <View style={styles.drawerInfo}>
           <Text style={styles.drawerTitle}>Minha Lista</Text>
           <Text style={styles.drawerMeta}>
@@ -97,7 +112,7 @@ export default function MapScreen() {
         <View style={styles.drawerCtas}>
           <Pressable
             style={({ pressed }) => [
-              styles.ctaStart,
+              styles.ctaStartTouch,
               (items.length === 0 || routeLoading) && styles.ctaDisabled,
               pressed && items.length > 0 && { opacity: 0.85 },
             ]}
@@ -105,17 +120,22 @@ export default function MapScreen() {
             disabled={items.length === 0 || routeLoading}
             accessibilityLabel="Iniciar navegação"
           >
-            {routeLoading
-              ? <ActivityIndicator color={colors.white} size="small" />
-              : <Text style={styles.ctaStartText}>Iniciar</Text>
-            }
+            <View style={styles.cta}>
+              {routeLoading ? (
+                <ActivityIndicator color={colors.brandDark} size="small" />
+              ) : (
+                <Text style={styles.ctaStartText}>Iniciar</Text>
+              )}
+            </View>
           </Pressable>
           <Pressable
-            style={styles.ctaItems}
+            style={styles.ctaItemsTouch}
             onPress={() => router.push("/(app)/list")}
             accessibilityLabel="Ver itens da lista"
           >
-            <Text style={styles.ctaItemsText}>Ver itens</Text>
+            <View style={styles.ctaItems}>
+              <Text style={styles.ctaItemsText}>Ver itens</Text>
+            </View>
           </Pressable>
         </View>
       </View>
@@ -136,8 +156,21 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
   },
   backBtn: { fontSize: 14, fontWeight: "700", color: colors.textSecondary },
-  navLabel: { fontSize: 10, fontWeight: "700", color: colors.textSecondary, letterSpacing: 2 },
-  avatarDot: { width: 14, height: 14, borderRadius: 7, backgroundColor: colors.border },
+  navLabel: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: colors.textSecondary,
+    letterSpacing: 2,
+  },
+  avatar: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: colors.border,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarText: { fontSize: 8, fontWeight: "700", color: colors.textSecondary },
   loadingWrap: { flex: 1, alignItems: "center", justifyContent: "center" },
   compass: {
     position: "absolute",
@@ -163,26 +196,69 @@ const styles = StyleSheet.create({
     ...elevation.drawer,
   },
   drawerInfo: { gap: 2 },
-  drawerTitle: { fontSize: 18, fontWeight: "700", color: colors.brandDark, letterSpacing: -0.3 },
+  drawerTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: colors.brandDark,
+    letterSpacing: -0.3,
+  },
   drawerMeta: { fontSize: 12, color: colors.textSecondary, fontWeight: "500" },
-  drawerCtas: { flexDirection: "row", gap: 12 },
+  drawerCtas: {
+    flexDirection: "row",
+    gap: 12,
+    width: "100%",
+    justifyContent: "center",
+  },
+  cta: {
+    backgroundColor: "#15803d",
+    borderRadius: spacing.pillRadius,
+    paddingVertical: 14,
+    alignItems: "center",
+    width: "100%",
+    justifyContent: "center",
+  },
+  ctaStartTouch: {
+    flex: 1,
+    borderRadius: spacing.pillRadius,
+    overflow: "hidden",
+  },
   ctaStart: {
     flex: 1,
-    backgroundColor: "#9CCC65",
+    backgroundColor: colors.routeActive,
     borderRadius: spacing.pillRadius,
     paddingVertical: 12,
+    paddingHorizontal: spacing.gutter,
     alignItems: "center",
     justifyContent: "center",
   },
   ctaDisabled: { opacity: 0.7 },
-  ctaStartText: { fontSize: 10, fontWeight: "700", color: colors.brandDark, letterSpacing: 1.5, textTransform: "uppercase" },
+  ctaStartText: {
+    fontSize: 10,
+    paddingHorizontal: spacing.gutter,
+    fontWeight: "700",
+    color: colors.white,
+    letterSpacing: 1.5,
+    textTransform: "uppercase",
+  },
+  ctaItemsTouch: {
+    width: "50%",
+    borderRadius: spacing.pillRadius,
+    overflow: "hidden",
+  },
   ctaItems: {
     flex: 1,
     backgroundColor: colors.actionSkip,
     borderRadius: spacing.pillRadius,
     paddingVertical: 12,
+    paddingHorizontal: spacing.gutter,
     alignItems: "center",
     justifyContent: "center",
   },
-  ctaItemsText: { fontSize: 10, fontWeight: "600", color: colors.white, letterSpacing: 1 },
+  ctaItemsText: {
+    fontSize: 10,
+    fontWeight: "600",
+    color: colors.white,
+    letterSpacing: 1,
+    textAlign: "center",
+  },
 });
