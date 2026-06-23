@@ -66,7 +66,25 @@ interface SkiaMapCanvasProps {
   activeSegmentIndex?: number;
 }
 
-export default function SkiaMapCanvas({
+export default function SkiaMapCanvas(props: SkiaMapCanvasProps) {
+  if (Platform.OS === "web") {
+    return (
+      <View
+        style={[
+          styles.webUnsupported,
+          { width: props.canvasWidth, height: props.canvasHeight },
+        ]}
+      >
+        <Text style={styles.webUnsupportedText}>
+          A funcionalidade de navegação é suportada apenas no celular.
+        </Text>
+      </View>
+    );
+  }
+  return <SkiaMapCanvasNative {...props} />;
+}
+
+function SkiaMapCanvasNative({
   bundle,
   route,
   mode,
@@ -538,6 +556,18 @@ export default function SkiaMapCanvas({
 }
 
 const styles = StyleSheet.create({
+  webUnsupported: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.bgLight,
+    padding: 24,
+  },
+  webUnsupportedText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.textSecondary,
+    textAlign: "center",
+  },
   modalBackdrop: {
     flex: 1,
     backgroundColor: "rgba(2,6,23,0.38)",
