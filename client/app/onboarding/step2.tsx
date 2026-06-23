@@ -20,7 +20,7 @@ export default function Step2() {
         <Image
           source={step2Image}
           style={styles.mapImage}
-          resizeMode="contain"
+          resizeMode="cover"
           accessibilityLabel="Prévia da busca integrada ao trajeto"
         />
       </View>

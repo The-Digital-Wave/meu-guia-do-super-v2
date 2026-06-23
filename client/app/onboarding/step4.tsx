@@ -26,7 +26,7 @@ export default function Step4() {
         <Image
           source={step4Image}
           style={styles.mockImage}
-          resizeMode="contain"
+          resizeMode="cover"
           accessibilityLabel="Prévia da navegação passo a passo"
         />
       </View>
