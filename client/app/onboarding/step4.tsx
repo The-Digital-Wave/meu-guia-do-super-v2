@@ -1,13 +1,10 @@
+import { useMemo } from "react";
 import { View, Image, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { markOnboardingComplete } from "@/utils/onboarding";
 import OnboardingStep from "@/components/OnboardingStep";
 
 const step4Image = require("../../src/assets/onboarding-step-4.jpeg");
-const { width: imageWidth, height: imageHeight } =
-  Image.resolveAssetSource(step4Image);
-const imageAspectRatio =
-  imageWidth && imageHeight ? imageWidth / imageHeight : 1;
 
 async function completeOnboarding() {
   const saved = await markOnboardingComplete();
@@ -15,6 +12,11 @@ async function completeOnboarding() {
 }
 
 export default function Step4() {
+  const imageAspectRatio = useMemo(() => {
+    const { width, height } = Image.resolveAssetSource(step4Image);
+    return width && height ? width / height : 1;
+  }, []);
+
   return (
     <OnboardingStep
       stepIndex={3}

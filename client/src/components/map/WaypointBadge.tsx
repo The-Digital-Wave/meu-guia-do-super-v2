@@ -1,5 +1,6 @@
 // client/src/components/map/WaypointBadge.tsx
-import { Circle, Group } from "@shopify/react-native-skia";
+import { Circle, Group, Text as SkiaText, matchFont } from "@shopify/react-native-skia";
+import { Platform } from "react-native";
 import { colors } from "@/theme/tokens";
 
 interface WaypointBadgeProps {
@@ -9,16 +10,35 @@ interface WaypointBadgeProps {
   isTarget: boolean;
 }
 
-export default function WaypointBadge({ x, y, isTarget }: WaypointBadgeProps) {
+const waypointFont =
+  Platform.OS !== "web"
+    ? matchFont({
+        fontFamily: Platform.OS === "ios" ? "Helvetica Neue" : "sans-serif",
+        fontSize: 10,
+        fontWeight: "700",
+      })
+    : null;
+
+export default function WaypointBadge({ x, y, index, isTarget }: WaypointBadgeProps) {
   const fillColor = isTarget ? colors.waypointTarget : colors.routeActive;
+  const label = String(index);
+  const labelWidth = waypointFont ? waypointFont.measureText(label).width : 0;
 
   return (
     <Group>
       {isTarget && (
-        <Circle cx={x} cy={y} r={16} color="transparent" style="stroke" strokeWidth={2.5} />
+        <Circle cx={x} cy={y} r={18} color="transparent" style="stroke" strokeWidth={2.5} />
       )}
-      <Circle cx={x} cy={y} r={8} color={fillColor} />
-      <Circle cx={x} cy={y} r={3} color={colors.white} />
+      <Circle cx={x} cy={y} r={11} color={fillColor} />
+      {waypointFont && (
+        <SkiaText
+          x={x - labelWidth / 2}
+          y={y + 3.5}
+          text={label}
+          font={waypointFont}
+          color={colors.white}
+        />
+      )}
     </Group>
   );
 }
