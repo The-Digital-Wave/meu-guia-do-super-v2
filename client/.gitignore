@@ -5,3 +5,6 @@
 
 expo-env.d.ts
 # @end expo-cli
+
+# Apple App Store Connect / APNs private keys — never commit
+AuthKey_*.p8

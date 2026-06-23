@@ -1,14 +1,16 @@
+import { useMemo } from "react";
 import { View, Image, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import OnboardingStep from "@/components/OnboardingStep";
 
 const step2Image = require("../../src/assets/contact-form.png");
-const { width: imageWidth, height: imageHeight } =
-  Image.resolveAssetSource(step2Image);
-const imageAspectRatio =
-  imageWidth && imageHeight ? imageWidth / imageHeight : 1;
 
 export default function Step2() {
+  const imageAspectRatio = useMemo(() => {
+    const { width, height } = Image.resolveAssetSource(step2Image);
+    return width && height ? width / height : 1;
+  }, []);
+
   return (
     <OnboardingStep
       stepIndex={1}
