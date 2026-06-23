@@ -32,7 +32,6 @@ export default function OnboardingStep({
   return (
     <View style={styles.container}>
       <View style={styles.topBar}>
-        <Text style={styles.time}>09:41</Text>
         <Pressable onPress={skipOnboarding} accessibilityLabel="Pular tutorial">
           <Text style={styles.skip}>Pular →</Text>
         </Pressable>
@@ -80,7 +79,7 @@ const styles = StyleSheet.create({
   },
   topBar: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
     alignItems: "center",
   },
   time: {
